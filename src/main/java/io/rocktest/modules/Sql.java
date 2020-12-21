@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
@@ -148,7 +149,12 @@ public class Sql extends RockModule {
                             String expectItem = String.valueOf(expect.get(k));
 
                             LOG.debug("Check match {} against {}", expectItem, next);
-                            if (Pattern.matches(expectItem, next)) {
+
+                            Pattern p = Pattern.compile(expectItem);//. represents single character
+                            Matcher m = p.matcher(next);
+                            boolean b = m.find();
+
+                            if (b) {
                                 LOG.info("Match {}", next);
                                 found = true;
                                 break;
