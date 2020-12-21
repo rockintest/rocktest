@@ -1,22 +1,41 @@
-- type : exec
-  value: io.rocktest.modules.Sql.connect
+- type : sql.connect
   params:
-    retry: 5
-    interval: 1
-    url: ${DATASOURCE_URL}
-    user: system
-    password: system
+    retry: 0
+    url: "jdbc:h2:mem:"
+    user: sa
+    password: sa
 
-- type: exec
-  value: io.rocktest.modules.Sql.request
+- type: sql.request
   params:
-    request: select * from ${USER_SNV2}.ECNG
+    request: >-
+      CREATE TABLE rock (
+         id INT NOT NULL,
+         title VARCHAR(50) NOT NULL,
+         author VARCHAR(20) NOT NULL,
+         date DATE
+      );
+
+- type: sql.request
+  params:
+    request: insert into rock (id,title,author,date) values(1,'Born in the USA','Bruce Springsteen',parsedatetime('19840604','yyyymmdd'))
+
+- type: sql.request
+  params:
+    request: select * from rock
+
+- type: display
+  value: ${request.3} rocks !!
+
+- type: display
+  value: '"${request.TITLE}" is the best song ever.'
+
+- type: sql.request
+  params:
+    request: insert into rock (id,title,author,date) values(2,'Highway to hell','AC/DC',parsedatetime('19790727','yyyymmdd'))
+
+- type: sql.request
+  params:
+    request: select * from rock
     expect:
-      - 314400294954101
-      - 314400294954121
-
-- type: display
-  value: ${request.0}
-
-- type: display
-  value: ${request.ECNG_MT_MRI}
+      - Highway to hell
+      - Born in the USA

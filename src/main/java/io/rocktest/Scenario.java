@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
@@ -51,6 +52,9 @@ public class Scenario {
         private String var;
         private String value;
     }
+
+    @Autowired
+    private Environment env;
 
     private String currentDesc="";
     private int currentStep=0;
@@ -447,22 +451,22 @@ public class Scenario {
                     case "pause":
                         Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
                         break;
-                    case "http.get": {
+                    case "http-get": {
                         Http.HttpResp resp = httpRequest("get",currentValue,null);
                         httpCheck(step.getExpect(), resp);
                         }
                         break;
-                    case "http.post": {
+                    case "http-post": {
                         Http.HttpResp resp = httpRequest("post",currentValue,step.getBody());
                         httpCheck(step.getExpect(), resp);
                         }
                         break;
-                    case "http.put": {
+                    case "http-put": {
                         Http.HttpResp resp = httpRequest("put",currentValue,step.getBody());
                         httpCheck(step.getExpect(), resp);
                         }
                         break;
-                    case "http.delete": {
+                    case "http-delete": {
                         Http.HttpResp resp = httpRequest("delete",currentValue,null);
                         httpCheck(step.getExpect(), resp);
                         }
@@ -498,7 +502,12 @@ public class Scenario {
                         execSql(currentValue,step.getExpect());
                         break;
                     default:
-                        throw new RuntimeException("Type " + step.getType() + " unknown");
+
+                        String method = env.getProperty("modules."+step.getType());
+                        if(method==null)
+                            throw new RuntimeException("Type " + step.getType() + " unknown");
+
+                        exec(method,expand(step.getParams()));
                 }
             }
 
