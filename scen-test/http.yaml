@@ -1,0 +1,203 @@
+- type : title
+  value : Tests HTTP
+
+- type : http.get
+  value : ${API_IDRE_BASE_URL}/comptes/1/categories_ti
+  expect :
+    - code = 200
+    - response.json[1].numeroRiba = numeroRiba1
+
+- type : title
+  value : Appels à l'API CREANCE
+
+- type : http.get
+  value: ${API_CREANCE_BASE_URL}/creances/1000000
+
+
+# crée si elle n'existe pas la créance numéro 1000002 en copiant la créance numéro 1000000,
+# son premier mouvement mais en positionnant une simple cotisation PO de 1000 €
+- type : http.post
+  value : ${API_CREANCE_BASE_URL}/creances?numeroCreanceModele=1000000
+  body: >-
+    {
+      "numero": 1000002,
+      "mouvements": [
+        {
+          "montantsParNature": [
+            {
+              "typeNatureMontant": "HECN_MT_PO",
+              "montant": 1000
+            }
+          ]
+        }
+      ]
+    }
+  expect :
+    - code = 405
+
+
+# crée ou remplace un compte
+# le numéro interne est la dernière partie de l'url (ici 7148920)
+- type : http.put
+  value : ${API_IDRE_BASE_URL}/backdoor/comptes/7148920
+  body: '{
+    "numeroCompteExterne": "000714892000000001",
+    "numeroPersonne": 1,
+    "codeEtat": "1",
+    "libelleEtat": "Compte actif",
+    "codeCategorie": "3",
+    "codeSousCategorie": "I",
+    "codeCSU": "2",
+    "codeOrganisme": "001",
+    "codeEcheance": "1",
+    "dateAffiliation": "2000-01-01",
+    "traitementSpecifique": "0",
+    "typesPersonnel": [
+        {
+            "codeTypePersonnel": 3,
+            "dateDebut": "2000-01-23",
+            "dateFin": null
+        },
+        {
+            "codeTypePersonnel": 4,
+            "dateDebut": "2005-01-23",
+            "dateFin": null
+        },
+        {
+            "codeTypePersonnel": 5,
+            "dateDebut": "2000-01-23",
+            "dateFin": "2002-01-23"
+        }
+    ],
+    "adresseCompte": {
+        "adresseCorrespondance": {
+            "ligne1": "7 place de la republique",
+            "ligne2": "33160",
+            "ligne3": "Saint-Médard-en-Jalles",
+            "ligne4": null,
+            "ligne5": null,
+            "ligne6": null,
+            "codeCommune": "33449"
+        },
+        "adresseRisque": {
+            "ligne1": "23 rue de cantelaude",
+            "ligne2": "33680",
+            "ligne3": "Lacanau",
+            "ligne4": null,
+            "ligne5": null,
+            "ligne6": null,
+            "codeCommune": "33214"
+        }
+    },
+    "periodesCategorieTI": [
+        {
+            "numeroRiba": "numeroRiba0",
+            "refer": 0,
+            "dateDebutPeriode": "2015-01-23",
+            "complementCategorieAdherent": {
+                "libelleComplementCategorieAdherent": "Chauffeur taxi",
+                "codeComplementCategorieAdherent": "07"
+            },
+            "groupeProfessionnel": {
+                "codeGroupeProfessionnel": "codeGroupeProfessionnel",
+                "libelleGroupeProfessionnel": "libelleGroupeProfessionnel"
+            },
+            "categorieAdherent": {
+                "codeCategorieAdherent": null,
+                "libelleCategorieAdherent": null
+            }
+        },
+        {
+            "numeroRiba": "numeroRiba1",
+            "refer": 0,
+            "dateFinPeriode": "2000-01-30",
+            "dateDebutPeriode": "2000-01-23",
+            "complementCategorieAdherent": {
+                "libelleComplementCategorieAdherent": "Chauffeur taxi",
+                "codeComplementCategorieAdherent": "07"
+            },
+            "groupeProfessionnel": {
+                "codeGroupeProfessionnel": "codeGroupeProfessionnel",
+                "libelleGroupeProfessionnel": "libelleGroupeProfessionnel"
+            },
+            "categorieAdherent": {
+                "codeCategorieAdherent": null,
+                "libelleCategorieAdherent": null
+            }
+        }
+    ],
+    "periodesExonerationTI": [
+        {
+            "codeExoneration": 10,
+            "dateDebutExoneration": "2020-03-16",
+            "dateFinExoneration": null,
+            "origineExonerationTI": {
+                "codeOrigineExonerationTI": "codeOrigineExonerationTI",
+                "libelleOrigineExonerationTI": "libelleOrigineExonerationTI"
+            },
+            "refer": 6
+        },
+        {
+            "codeExoneration": 12,
+            "dateDebutExoneration": "2002-01-30",
+            "dateFinExoneration": "2002-03-15",
+            "origineExonerationTI": {
+                "codeOrigineExonerationTI": "codeOrigineExonerationTI",
+                "libelleOrigineExonerationTI": "libelleOrigineExonerationTI"
+            },
+            "refer": 6
+        }
+    ],
+    "periodesExonerationACRE": [
+        {
+            "code": "code",
+            "valeur": "valeur",
+            "dateDebut": "2000-01-23",
+            "dateFin": "2000-01-23"
+        },
+        {
+            "code": "code",
+            "valeur": "valeur",
+            "dateDebut": "2000-01-30",
+            "dateFin": "2000-01-30"
+        }
+    ],
+    "periodesParticulariteCalculTI": [
+        {
+            "identifiant": 0,
+            "code": 1,
+            "valeur": "valeur",
+            "dateDebut": "2000-01-23",
+            "dateFin": "2000-01-23"
+        },
+        {
+            "identifiant": 0,
+            "code": 7,
+            "valeur": "valeur",
+            "dateDebut": "2001-01-30",
+            "dateFin": "2002-01-30"
+        }
+    ],
+    "autresPartenaires": [
+        {
+            "cle": 0,
+            "dateDebutLien": "2000-01-23",
+            "dateFinLien": "2000-01-23"
+        },
+        {
+            "cle": 1,
+            "dateDebutLien": "2000-01-30",
+            "dateFinLien": "2000-01-30"
+        }
+    ],
+    "contacts": [
+        {
+            "telephone": "05 55 00 00 01",
+            "origine": "RSI"
+        },
+        {
+            "telephone": "05 55 00 00 02",
+            "origine": "RSI"
+        }
+    ]
+  }'

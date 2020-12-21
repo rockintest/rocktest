@@ -1,0 +1,20 @@
+- type: call
+  value: module/libWithReturn
+
+- type: display
+  value: Value from lib = ${libWithReturn.fromLib}
+
+- type: display
+  value: Value from subLib = ${libWithReturn.fromSubLib}
+
+- type: assert
+  value: equals
+  params:
+    expected: It comes from the library
+    actual: ${libWithReturn.fromLib}
+
+- type: assert
+  value: equals
+  params:
+    expected: It comes from the sub library
+    actual: ${libWithReturn.fromSubLib}

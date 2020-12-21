@@ -1,0 +1,37 @@
+topic:
+  name: ${KAFKA_FUNC_TOPIC}
+  partitions-num: 1
+  replication-factor: 1
+
+server:
+  port: 9080
+
+spring:
+  # banner
+  banner:
+    location: classpath:banner/banner.txt
+  kafka:
+    bootstrap-servers:
+      - ${KAFKA_URI_PLAINTEXT}
+    properties:
+      schema.registry.url: ${KAFKA_SCHEMA_REGISTRY_URL}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      properties:
+        interceptor.classes: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+    template:
+      default-topic:
+
+logging:
+  level:
+    root: info
+
+default:
+  datasource:
+    url: ${DATASOURCE_URL}
+    user: system
+    password: system
+  check:
+    delay: 1
+    retry: 30

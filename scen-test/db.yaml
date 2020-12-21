@@ -1,0 +1,22 @@
+- type : exec
+  value: io.rocktest.modules.Sql.connect
+  params:
+    retry: 5
+    interval: 1
+    url: ${DATASOURCE_URL}
+    user: system
+    password: system
+
+- type: exec
+  value: io.rocktest.modules.Sql.request
+  params:
+    request: select * from ${USER_SNV2}.ECNG
+    expect:
+      - 314400294954101
+      - 314400294954121
+
+- type: display
+  value: ${request.0}
+
+- type: display
+  value: ${request.ECNG_MT_MRI}

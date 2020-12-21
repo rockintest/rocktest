@@ -1,0 +1,5 @@
+- type: assert
+  value: equals
+  params:
+    expected: abc
+    actual: def

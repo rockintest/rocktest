@@ -1,0 +1,4 @@
+- type : display
+  value : Hello from lib !
+- type : call
+  value : module/sublib.yaml

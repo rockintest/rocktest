@@ -1,0 +1,90 @@
+- type: var
+  value : myvar = myvalue
+
+- type: var
+  value : myvar2 = myvalue2
+
+- type: display
+  value: Variable = ${myvar}
+
+- type: display
+  value: Variable = ${myvar2}
+
+- type: assert
+  value: equals
+  params:
+    expected: myvalue
+    actual: ${myvar}
+
+- type: assert
+  value: equals
+  params:
+    expected: myvalue myvalue2
+    actual: ${myvar} ${myvar2}
+
+- type: call
+  value: module/libWithVar
+
+- type: var
+  value: localvar = localvalueTop
+
+- type: display
+  value: 'Should be localvalueTop : "${localvar}"'
+
+- type: assert
+  value: equals
+  params:
+    expected: localvalueTop
+    actual: ${localvar}
+
+- type: display
+  value: 'should not be replaced : "${noexist}"'
+
+- type: display
+  value: 'should not be replaced : "${localvar2}"'
+
+- type: call
+  value: module/libWithParams
+  params:
+    param1: value1
+    param2: value2
+    param3: ${localvar}
+
+- type: display
+  value: ${HOMEDRIVE}
+
+- type: assert
+  value: equals
+  params:
+    expected: 'C:'
+    actual: ${HOMEDRIVE}
+
+- type: var
+  value: HOMEDRIVE = unset
+
+- type: display
+  value: 1 - ${HOMEDRIVE}
+
+- type: assert
+  value: equals
+  params:
+    expected: 'C:'
+    actual: ${HOMEDRIVE}
+
+- type: display
+  value: 2 - ${HOMEDRIVE}
+
+- type: assert
+  value: equals
+  params:
+    expected: default value
+    actual: ${noexist::default value}
+
+- type: display
+  value: 3 - ${HOMEDRIVE}
+
+- type: assert
+  value: equals
+  params:
+    expected: 'C:'
+    actual: ${HOMEDRIVE::default value}

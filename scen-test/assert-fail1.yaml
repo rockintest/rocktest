@@ -1,0 +1,6 @@
+- type: assert
+  value: equals
+  params:
+    expected: abc
+    actual: def
+    message: 'Fail but OK :)'

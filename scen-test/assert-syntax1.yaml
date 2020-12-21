@@ -1,0 +1,6 @@
+- type: assert
+  value: unexpected
+  params:
+    expected: abc
+    actual: abc
+    message: I should not be raised

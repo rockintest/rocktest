@@ -1,0 +1,17 @@
+- type : title
+  value : Request with legacy syntax
+
+- type: request
+  value:  select * from ${USER_SNV2}.ECNG
+
+- type: check
+  value: select * from ${USER_SNV2}.ECNG
+  expect:
+    - 314400294954121.*
+    - 314400294954101.*
+
+- type: display
+  value: ${0}
+
+- type: display
+  value: ${1}

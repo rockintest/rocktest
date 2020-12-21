@@ -1,0 +1,11 @@
+- type : checkParams
+  values :
+    - mandatory1
+    - mandatory2
+
+- type: display
+  value: mandatory1 = ${mandatory1}; mandatory2 = ${mandatory2}
+
+- type: display
+  value: optional1 = ${optional1::not passed}
+

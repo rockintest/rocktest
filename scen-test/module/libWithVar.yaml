@@ -1,0 +1,8 @@
+- type: var
+  value: localvar = localvalue
+
+- type: display
+  value : 'Should be localvalue : ${localvar}'
+
+- type: var
+  value: localvar2 = localvalue2

@@ -1,0 +1,17 @@
+- type: call
+  value: module/libCheck
+  params:
+    mandatory1: val1
+    mandatory2: val2
+    optional1: val3
+
+- type: call
+  value: module/libCheck
+  params:
+    mandatory1: val1
+    mandatory2: val2
+
+- type: call
+  value: module/libCheck
+  params:
+    mandatory2: val2

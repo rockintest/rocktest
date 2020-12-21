@@ -1,0 +1,134 @@
+#!/bin/bash
+
+if [ "$#" != 2 ] ; then
+  echo "Usage : rockdb <table.desc> <insert|delete|update>"
+  exit 1
+fi
+
+test -f $1 || {
+  echo "Cannot read $1"
+  exit 1
+}
+
+source $1
+
+OP=$2
+
+echo "# Module pour objet $name"
+echo "# YAML template :"
+echo "# - type: call"
+echo "#   value: lib/creer${name^}"
+echo "#   params:"
+
+for L in $fields ; do
+  readarray -d , -t arr <<<"$L,"
+
+  unset OB
+  test "${arr[3]}" = "M" && OB=" OBLIGATOIRE"
+
+  printf "#     %s: " "${arr[0]}"
+
+  case ${arr[2]} in
+    # Champ numérique
+    N)
+      echo "<numero${OB}>"
+      ;;
+    # Champ string
+    S)
+      echo "<chaine${OB}>"
+      ;;
+    # Champ date
+    "D")
+      echo "<date YYYYMMDD${OB}>"
+      ;;
+    *)
+      echo "???"
+      ;;
+  esac
+done
+
+
+echo "- type: checkParams"
+echo "  values:"
+
+# Check mandatory params
+for L in $fields ; do
+  readarray -d , -t arr <<<"$L,"
+  test "${arr[3]}" = "M" && echo "  - ${arr[0]}"
+done
+
+echo
+
+# Transform variables
+for L in $fields ; do
+  readarray -d , -t arr <<<"$L,"
+
+  echo "- type: var"
+  printf "  value: local%s = " "${arr[0]}"
+
+  case ${arr[2]} in
+    # Numeric field
+    N)
+      printf "\${%s::NULL}\n" "${arr[0]}"
+      ;;
+    # String field
+    S)
+      printf "\${%s?\'\${%s}\'::NULL}\n" "${arr[0]}" "${arr[0]}"
+      ;;
+    # Date field
+    "D")
+      printf "\${%s?TO_DATE(\'\${%s}\', \'yyyymmdd\')::NULL}\n" "${arr[0]}" "${arr[0]}"
+      ;;
+    *)
+      printf "\${%s::NULL}\n" "${arr[0]}"
+      ;;
+  esac
+
+  echo
+
+done
+
+
+echo "- type: request"
+
+case $2 in
+
+  insert)
+    printf "  value: INSERT INTO %s(" "$table"
+
+    FIRST=1;
+    for L in $fields ; do
+      readarray -d , -t arr <<<"$L,"
+
+      if [ $FIRST = 1 ] ; then
+        FIRST=0
+      else
+        printf ","
+      fi
+      printf "%s" "${arr[1]}"
+    done
+
+    printf ") VALUES ("
+
+    FIRST=1;
+    for L in $fields ; do
+      readarray -d , -t arr <<<"$L,"
+
+      if [ $FIRST = 1 ] ; then
+        FIRST=0
+      else
+        printf ","
+      fi
+      printf "\${local%s}" "${arr[0]}"
+    done
+
+    printf ")"
+
+    ;;
+  *)
+    echo "# NOT IMPLEMENTED"
+    ;;
+
+esac
+
+

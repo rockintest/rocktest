@@ -1,0 +1,5 @@
+- type: assert
+  value: equals
+  params:
+    actual: abc
+    message: I should not be raised

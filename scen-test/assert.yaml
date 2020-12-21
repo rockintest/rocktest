@@ -1,0 +1,23 @@
+- type: assert
+  value: equals
+  params:
+    expected: abc
+    actual: abc
+    message: I should not be raised
+
+- type: var
+  value: myvar = myvalue
+
+- type: assert
+  value: equals
+  params:
+    expected: myvalue
+    actual: ${myvar}
+    message: I should not be raised
+
+- type: assert
+  value: equals
+  params:
+    expected: ${myvar}
+    actual: myvalue
+    message: I should not be raised
