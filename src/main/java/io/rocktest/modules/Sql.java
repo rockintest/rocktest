@@ -25,110 +25,137 @@ public class Sql extends RockModule {
     private HikariDataSource ds;
     private JdbcTemplate jdbcTemplate;
 
-    private int retry=0;
-    private int interval=1;
+    private int retry = 0;
+    private int interval = 1;
 
     public Sql() {
     }
 
-    public Map<String,Object> connect(Map<String,Object> params) {
+    public Map<String, Object> connect(Map<String, Object> params) {
 
-        String url = getStringParam(params,"url",true);
-        String username = getStringParam(params,"user",true);
-        String password = getStringParam(params,"password",true);
+        String url = getStringParam(params, "url", true);
+        String username = getStringParam(params, "user", true);
+        String password = getStringParam(params, "password", true);
 
-        Integer retry=getIntParam(params,"retry",false);
-        if(retry!=null)
-            this.retry=retry;
+        Integer retry = getIntParam(params, "retry", false);
+        if (retry != null)
+            this.retry = retry;
 
-        Integer interval=getIntParam(params,"interval",false);
-        if(interval!=null)
-            this.interval=interval;
+        Integer interval = getIntParam(params, "interval", false);
+        if (interval != null)
+            this.interval = interval;
 
-        config.setJdbcUrl( url );
-        config.setUsername( username );
-        config.setPassword( password );
-        config.addDataSourceProperty( "cachePrepStmts" , "true" );
-        config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
-        config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
-        ds = new HikariDataSource( config );
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        ds = new HikariDataSource(config);
 
         jdbcTemplate = new JdbcTemplate(ds);
 
         return null;
     }
 
-    public Map<String,Object> request(Map<String,Object> params) throws InterruptedException {
 
-        List<String> expect = getArrayParam(params,"expect",false);
-        String req = getStringParam(params,"request",true);
+    public Map<String, Object> update(Map<String, Object> params) throws InterruptedException {
+
+        String req = getStringParam(params, "request", true);
+        jdbcTemplate.update(req);
+        return null;
+
+    }
+
+
+    public Map<String, Object> request(Map<String, Object> params) throws InterruptedException {
+
+        String req = getStringParam(params, "request", true);
+        if(req.trim().toLowerCase().startsWith("select")) {
+            return query(params);
+        } else {
+            return update(params);
+        }
+
+    }
+
+
+
+    public Map<String, Object> query(Map<String, Object> params) throws InterruptedException {
+
+        List<String> expect = getArrayParam(params, "expect", false);
+        String req = getStringParam(params, "request", true);
 
         LOG.info(req);
 
-        HashMap<String,Object> last=new HashMap<>();
+        HashMap<String, Object> last = new HashMap<>();
 
-        for(int iRetry=1;iRetry<=retry+1;iRetry++) {
-            try {
+        for (int iRetry = 1; iRetry <= retry + 1; iRetry++) {
 
-                List<String> data = jdbcTemplate.query(req, (rs, n) -> {
-                    ResultSetMetaData rsmd = rs.getMetaData();
-                    int max = rsmd.getColumnCount();
-                    last.clear();
+            List<String> data = jdbcTemplate.query(req, (rs, n) -> {
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int max = rsmd.getColumnCount();
+                last.clear();
+                String ret = "";
 
-                    String ret = "";
-                    for (int j = 1; j <= max; j++) {
-                        String f = "";
-                        int t = rsmd.getColumnType(j);
 
-                        if (t == 2004) {
-                            Blob blob = rs.getBlob(j);
-                            byte[] bytes = blob.getBytes(1, (int) blob.length());
+                for (int j = 1; j <= max; j++) {
+                    String f = "";
+                    int t = rsmd.getColumnType(j);
 
-                            try {
-                                f = SerializationUtils.deserialize(bytes).toString();
-                            } catch (Exception e) {
-                                f = "<<BLOB>>";
-                                LOG.warn("Cannot deserialize: ", e);
-                            }
-                        } else {
-                            f = rs.getString(j);
+                    if (t == 2004) {
+                        Blob blob = rs.getBlob(j);
+                        byte[] bytes = blob.getBytes(1, (int) blob.length());
+
+                        try {
+                            f = SerializationUtils.deserialize(bytes).toString();
+                        } catch (Exception e) {
+                            f = "<<BLOB>>";
+                            LOG.warn("Cannot deserialize: ", e);
                         }
-
-                        ret += f;
-                        ret += ",";
-                        last.put("" + j, f);
-                        last.put(rsmd.getColumnName(j),f);
+                    } else {
+                        f = rs.getString(j);
                     }
 
-                    ret = ret.substring(0, ret.length() - 1);
-                    last.put("0", ret);
+                    ret += f;
+                    ret += ",";
+                    last.put("" + j, f);
+                    last.put(rsmd.getColumnName(j), f);
+                }
 
-                    LOG.info("{}", ret);
-                    return ret;
-                });
+                ret = ret.substring(0, ret.length() - 1);
+
+
+                last.put("0", ret);
+
+                LOG.info("{}", ret);
+                return ret;
+            });
+
+            try {
 
                 if (expect != null) {
                     if (data.size() != expect.size()) {
                         throw new RuntimeException("Size does not match. Expected " + expect.size() + " elements but was " + data.size() + " elements");
                     }
 
-                    int nb=0;
+                    int nb = 0;
                     for (Iterator<String> iterator = data.iterator(); iterator.hasNext(); nb++) {
                         String next = iterator.next();
 
-                        boolean found=false;
-                        for(int k=0;k<expect.size();k++){
+                        boolean found = false;
+                        for (int k = 0; k < expect.size(); k++) {
                             String expectItem = String.valueOf(expect.get(k));
 
-                            LOG.debug("Check match {} against {}",expectItem,next);
+                            LOG.debug("Check match {} against {}", expectItem, next);
                             if (Pattern.matches(expectItem, next)) {
                                 LOG.info("Match {}", next);
-                                found=true;
+                                found = true;
                                 break;
                             }
                         }
 
-                        if(!found) {
+                        if (!found) {
                             throw new RuntimeException("Record " + nb + " : Record does not match any regex : " + next);
                         }
 

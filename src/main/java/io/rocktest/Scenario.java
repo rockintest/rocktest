@@ -292,11 +292,13 @@ public class Scenario {
         Map ret = exec("io.rocktest.modules.Sql.request", params);
 
         // Put $0 ... $n variables
-        for(int iMap=0;;iMap++) {
-            String val = (String) ret.get(""+iMap);
-            if(val==null)
-                break;
-            getLocalContext().put(""+iMap,val);
+        if(ret!=null) {
+            for (int iMap = 0; ; iMap++) {
+                String val = (String) ret.get("" + iMap);
+                if (val == null)
+                    break;
+                getLocalContext().put("" + iMap, val);
+            }
         }
     }
 
