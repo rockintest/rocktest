@@ -330,40 +330,10 @@ Si le résultat est de la forme suivante :
 ```json
 [
     {
-        "numeroRiba": "numeroRiba0",
-        "refer": 0,
-        "dateFinPeriode": "2000-01-30",
-        "dateDebutPeriode": "2000-01-23",
-        "complementCategorieAdherent": {
-            "libelleComplementCategorieAdherent": "libelleComplementCategorieAdherent",
-            "codeComplementCategorieAdherent": "codeComplementCategorieAdherent"
-        },
-        "groupeProfessionnel": {
-            "codeGroupeProfessionnel": "codeGroupeProfessionnel",
-            "libelleGroupeProfessionnel": "libelleGroupeProfessionnel"
-        },
-        "categorieAdherent": {
-            "codeCategorieAdherent": "codeCategorieAdherent",
-            "libelleCategorieAdherent": "libelleCategorieAdherent"
-        }
+        "numeroRiba": "numeroRiba0"
     },
     {
-        "numeroRiba": "numeroRiba1",
-        "refer": 0,
-        "dateFinPeriode": "2000-01-30",
-        "dateDebutPeriode": "2000-01-23",
-        "complementCategorieAdherent": {
-            "libelleComplementCategorieAdherent": "libelleComplementCategorieAdherent",
-            "codeComplementCategorieAdherent": "codeComplementCategorieAdherent"
-        },
-        "groupeProfessionnel": {
-            "codeGroupeProfessionnel": "codeGroupeProfessionnel",
-            "libelleGroupeProfessionnel": "libelleGroupeProfessionnel"
-        },
-        "categorieAdherent": {
-            "codeCategorieAdherent": "codeCategorieAdherent",
-            "libelleCategorieAdherent": "libelleCategorieAdherent"
-        }
+        "numeroRiba": "numeroRiba1"
     }
 ]
 ```
@@ -387,7 +357,7 @@ Attention : si le retour n'est pas au format JSON (header http content-type="app
 
 ```yaml
 - type : title
-  value : Appels à l'API IDRE
+  value : Post example
 
 - type : http.post
   value : http://localhost:8080/testing/backdoor/cibles
@@ -651,16 +621,8 @@ fields='
 id,ID_CREANCE,N,M
 dateCreation,DATE_CREATION,D,M
 dateMiseAJourOrigine,DATE_MISE_JOUR_ORIGINE,D,M
-dateMiseAJour,DATE_MISE_JOUR,D,O
-numeroCreance,NUMERO_CREANCE,S,M
-codeMotifEcartNegatif,CODE_MOTIF_ECART_NEGATIF,S,O
-codeModiticationDebit,CODE_MODIFICATION_DEBIT,N,O
-numeroInterneCompte,NUMERO_INTERNE_COMPTE,S,O
-numeroSequentiel,NUMERO_SEQUENTIEL,S,O
 periode,PERIODE,S,O
 sousPeriode,SOUS_PERIODE,S,O
-mri,MRI,N,O
-mrc,MRC,N,O
 '
 ```
 
@@ -682,7 +644,7 @@ mrc,MRC,N,O
 Appeler la commande suivante :
 
 ```
-creatdsh.sh <fichier .desc> <insert|delete|update>
+rockdb <fichier .desc> <insert|delete|update>
 ```
 
 `Attention` : pour le moment, seul l'insert est disponible.
@@ -692,7 +654,7 @@ Cette commande génère le module sur sa sortie standard. Il suffit de la rediri
 Exemple :
 
 ```shell
-creatdsh.sh creance.desc insert > creerCreance.yaml
+rockdb creance.desc insert > creerCreance.yaml
 ```
 
 Génère un module "creerCreance.yaml" permettant d'insérer un objet en base.
@@ -708,14 +670,6 @@ Génère un module "creerCreance.yaml" permettant d'insérer un objet en base.
 #     dateMiseAJourOrigine: <date YYYYMMDD OBLIGATOIRE>
 #     dateMiseAJour: <date YYYYMMDD>
 #     numeroCreance: <chaine OBLIGATOIRE>
-#     codeMotifEcartNegatif: <chaine>
-#     codeModiticationDebit: <numero>
-#     numeroInterneCompte: <chaine>
-#     numeroSequentiel: <chaine>
-#     periode: <chaine>
-#     sousPeriode: <chaine>
-#     mri: <numero>
-#     mrc: <numero>
 - type: checkParams
   values:
   - id
@@ -738,30 +692,6 @@ Génère un module "creerCreance.yaml" permettant d'insérer un objet en base.
 - type: var
   value: localnumeroCreance = ${numeroCreance?'${numeroCreance}'::NULL}
 
-- type: var
-  value: localcodeMotifEcartNegatif = ${codeMotifEcartNegatif?'${codeMotifEcartNegatif}'::NULL}
-
-- type: var
-  value: localcodeModiticationDebit = ${codeModiticationDebit::NULL}
-
-- type: var
-  value: localnumeroInterneCompte = ${numeroInterneCompte?'${numeroInterneCompte}'::NULL}
-
-- type: var
-  value: localnumeroSequentiel = ${numeroSequentiel?'${numeroSequentiel}'::NULL}
-
-- type: var
-  value: localperiode = ${periode?'${periode}'::NULL}
-
-- type: var
-  value: localsousPeriode = ${sousPeriode?'${sousPeriode}'::NULL}
-
-- type: var
-  value: localmri = ${mri::NULL}
-
-- type: var
-  value: localmrc = ${mrc::NULL}
-
 - type: request
   value: INSERT INTO ${USER}."CREANCE"(ID_CREANCE,DATE_CREATION,DATE_MISE_JOUR_ORIGINE,DATE_MISE_JOUR,NUMERO_CREANCE,CODE_MOTIF_ECART_NEGATIF,CODE_MODIFICATION_DEBIT,NUMERO_INTERNE_COMPTE,NUMERO_SEQUENTIEL,PERIODE,SOUS_PERIODE,MRI,MRC) VALUES (${localid},${localdateCreation},${localdateMiseAJourOrigine},${localdateMiseAJour},${localnumeroCreance},${localcodeMotifEcartNegatif},${localcodeModiticationDebit},${localnumeroInterneCompte},${localnumeroSequentiel},${localperiode},${localsousPeriode},${localmri},${localmrc})
 ```
@@ -777,8 +707,6 @@ Exemple d'utilisation avec un seul champ optionnel positionné :
     id: 1
     dateCreation: 20200102
     dateMiseAJourOrigine: 20180102
-    numeroCreance: 1
-    periode: ABCD
 ```
 
 ### Détails du *expect*
