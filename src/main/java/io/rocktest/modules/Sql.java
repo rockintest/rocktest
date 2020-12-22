@@ -34,17 +34,12 @@ public class Sql extends RockModule {
 
     public Map<String, Object> connect(Map<String, Object> params) {
 
-        String url = getStringParam(params, "url", true);
-        String username = getStringParam(params, "user", true);
-        String password = getStringParam(params, "password", true);
+        String url = getStringParam(params, "url");
+        String username = getStringParam(params, "user", "sa");
+        String password = getStringParam(params, "password", "sa");
 
-        Integer retry = getIntParam(params, "retry", false);
-        if (retry != null)
-            this.retry = retry;
-
-        Integer interval = getIntParam(params, "interval", false);
-        if (interval != null)
-            this.interval = interval;
+        Integer retry = getIntParam(params, "retry", 0);
+        Integer interval = getIntParam(params, "interval", 0);
 
         config.setJdbcUrl(url);
         config.setUsername(username);
@@ -62,7 +57,7 @@ public class Sql extends RockModule {
 
     public Map<String, Object> update(Map<String, Object> params) throws InterruptedException {
 
-        String req = getStringParam(params, "request", true);
+        String req = getStringParam(params, "request");
         jdbcTemplate.update(req);
         return null;
 
@@ -71,7 +66,7 @@ public class Sql extends RockModule {
 
     public Map<String, Object> request(Map<String, Object> params) throws InterruptedException {
 
-        String req = getStringParam(params, "request", true);
+        String req = getStringParam(params, "request");
         if(req.trim().toLowerCase().startsWith("select")) {
             return query(params);
         } else {
@@ -84,8 +79,8 @@ public class Sql extends RockModule {
 
     public Map<String, Object> query(Map<String, Object> params) throws InterruptedException {
 
-        List<String> expect = getArrayParam(params, "expect", false);
-        String req = getStringParam(params, "request", true);
+        List<String> expect = getArrayParam(params, "expect", null);
+        String req = getStringParam(params, "request");
 
         LOG.info(req);
 

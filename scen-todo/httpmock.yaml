@@ -4,18 +4,18 @@
   params:
     port: 8080
     when:
-    - url: singer/springsteen
+    - uri: singer/springsteen
       method: get
-      return:
+      response:
         code: 200
         body: >-
           {
             fullname: Bruce Springsteen aka The Boss
             bestsong: "Born in the USA",
           }
-    - url: singer/(.*)
+    - uri: singer/(.*)
       method: get
-      return:
+      response:
         code: 404
         body: >-
           {

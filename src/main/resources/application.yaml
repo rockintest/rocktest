@@ -43,3 +43,4 @@ modules:
   http.delete : io.rocktest.modules.Http.delete
   http.post : io.rocktest.modules.Http.post
   http.put : io.rocktest.modules.Http.put
+  http.mock : io.rocktest.modules.Http.mock

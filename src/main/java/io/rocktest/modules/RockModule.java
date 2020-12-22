@@ -13,16 +13,20 @@ public class RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(Http.class);
 
-    public String getStringParam(Map params, String key, boolean mandatory) {
+    public String getStringParam(Map params, String key) {
+        String ret=getStringParam(params,key,null);
+        if(ret==null)
+            throw new RuntimeException(key + " param mandatory");
+
+        return ret;
+    }
+
+    public String getStringParam(Map params, String key, String def) {
 
         Object o = params.get(key);
 
         if(o == null) {
-            if (mandatory) {
-                throw new RuntimeException(key + " param mandatory");
-            } else {
-                return null;
-            }
+            return def;
         }
 
         if (!(o instanceof String)) {
@@ -34,16 +38,21 @@ public class RockModule {
     }
 
 
-    public Integer getIntParam(Map params, String key, boolean mandatory) {
+    public Integer getIntParam(Map params, String key) {
+        Integer ret=getIntParam(params,key,null);
+        if(ret==null)
+            throw new RuntimeException(key + " param mandatory");
+
+        return ret;
+    }
+
+
+    public Integer getIntParam(Map params, String key, Integer def) {
 
         Object o = params.get(key);
 
         if(o == null) {
-            if (mandatory) {
-                throw new RuntimeException(key + " param mandatory");
-            } else {
-                return null;
-            }
+            return def;
         }
 
         if (!(o instanceof Number)) {
@@ -55,16 +64,21 @@ public class RockModule {
     }
 
 
-    public List getArrayParam(Map params, String key, boolean mandatory) {
+    public List getArrayParam(Map params, String key) {
+        List ret=getArrayParam(params,key,null);
+        if(ret==null)
+            throw new RuntimeException(key + " param mandatory");
+
+        return ret;
+    }
+
+
+    public List getArrayParam(Map params, String key, List def) {
 
         Object o = params.get(key);
 
         if(o == null) {
-            if (mandatory) {
-                throw new RuntimeException(key + " param mandatory");
-            } else {
-                return null;
-            }
+            return def;
         }
 
         if (!(o instanceof List)) {

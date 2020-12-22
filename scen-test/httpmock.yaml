@@ -1,0 +1,24 @@
+# Mock for "singer" REST API
+
+- type: http.mock
+  params:
+    port: 8080
+    when:
+    - uri: /singer/springsteen
+      method: get
+      response:
+        code: 200
+        body: >-
+          {
+            fullname: Bruce Springsteen aka The Boss
+            bestsong: "Born in the USA",
+          }
+        headers:
+          content-type: application/json
+    - uri: /singer/calimero
+      method: get
+      response:
+        code: 400
+
+- type: pause
+  value: 1000
