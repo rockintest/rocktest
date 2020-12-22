@@ -1,0 +1,44 @@
+# Mock for "singer" REST API
+
+- type: http.mock
+  params:
+    port: 8080
+    when:
+    - url: singer/springsteen
+      method: get
+      return:
+        code: 200
+        body: >-
+          {
+            fullname: Bruce Springsteen aka The Boss
+            bestsong: "Born in the USA",
+          }
+    - url: singer/(.*)
+      method: get
+      return:
+        code: 404
+        body: >-
+          {
+            error: "not found",
+            message: "Singer ${url.1} not found"
+          }
+
+# More sophisticated mock, with data in an embedded database
+
+- type: http.mock
+  params:
+    port: 8081
+    # Module called to initialize the mock
+    init:
+      value: modules/mockdb.connect
+    when:
+      # Just 1 "when" : no need to use a list, but it could have been possible
+      url: singer/(.*)
+      method: get
+      call:
+        value: modules/mockdb
+        params:
+          singer: ${url.1}
+      return:
+        code: ${mockdb.code}
+        body: ${mockdb.body}

@@ -14,10 +14,11 @@
          author VARCHAR(20) NOT NULL,
          date DATE
       );
+      insert into rock (id,title,author,date) values(3,'Suicide Blonde','INXS',parsedatetime('19900902','yyyyMMdd'));
 
 - type: sql.request
   params:
-    request: insert into rock (id,title,author,date) values(1,'Born in the USA','Bruce Springsteen',parsedatetime('19840604','yyyymmdd'))
+    request: insert into rock (id,title,author,date) values(1,'Born in the USA','Bruce Springsteen',parsedatetime('19840604','yyyyMMdd'))
 
 - type: sql.request
   params:
@@ -31,11 +32,12 @@
 
 - type: sql.request
   params:
-    request: insert into rock (id,title,author,date) values(2,'Highway to hell','AC/DC',parsedatetime('19790727','yyyymmdd'))
+    request: insert into rock (id,title,author,date) values(2,'Highway to hell','AC/DC',parsedatetime('19790727','yyyyMMdd'))
 
 - type: sql.request
   params:
     request: select * from rock
     expect:
-      - Highway to hell
+      - ^2,Highway to hell.*$
       - Born in the USA
+      - Suicide Blonde

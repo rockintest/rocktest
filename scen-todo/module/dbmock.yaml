@@ -1,0 +1,34 @@
+- type: sql.request
+  params:
+    request: select * from rock where id='${singer}'
+
+- type: return
+  # If no line is found, return 404, else 200
+  value : code = ${${request.0}?200::404}
+
+- type: return
+  # If no line is found, return an empty body
+  value: body = ${${request.0}?::""}
+
+---
+
+- type: name
+  value: connect
+
+- type : sql.connect
+  params:
+    retry: 0
+    url: "jdbc:h2:mem:"
+    user: sa
+    password: sa
+
+- type: sql.request
+  params:
+    request: >-
+      CREATE TABLE rock (
+         id VARCHAR(50) NOT NULL,
+         fullname VARCHAR(50) NOT NULL,
+         bestsong VARCHAR(50) NOT NULL,
+      );
+      insert into rock (id,fullname,bestsong) values('springsteen','Bruce Springsteen aka The Boss','Land of hope and dreams');
+      insert into rock (id,fullname,bestsong) values('acdc','AC/DC','Thunderstruck');

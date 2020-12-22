@@ -1,3 +1,5 @@
+# syntax error. Missing "expected" param
+
 - type: assert
   value: equals
   params:

@@ -11,6 +11,7 @@
     mandatory1: val1
     mandatory2: val2
 
+# Fails, because a mandatory param is missing
 - type: call
   value: module/libCheck
   params:

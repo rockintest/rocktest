@@ -1,7 +1,0 @@
-- type : exec
-  value: io.rocktest.modules.Sql.select
-  params:
-    msg: my great message
-
-- type: display
-  value: ${select.ret}

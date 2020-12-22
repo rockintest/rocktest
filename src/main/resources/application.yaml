@@ -39,3 +39,7 @@ default:
 modules:
   sql.connect : io.rocktest.modules.Sql.connect
   sql.request : io.rocktest.modules.Sql.request
+  http.get : io.rocktest.modules.Http.get
+  http.delete : io.rocktest.modules.Http.delete
+  http.post : io.rocktest.modules.Http.post
+  http.put : io.rocktest.modules.Http.put

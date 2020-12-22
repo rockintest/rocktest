@@ -1,0 +1,15 @@
+# Simple "split" module
+
+- type : exec
+  value: io.rocktest.modules.Util.split
+  params:
+    msg: Bruce Springsteen rocks
+
+- type: display
+  value: ${split.2}
+
+- type: assert
+  value: equals
+  params:
+    expected: Springsteen
+    actual: ${split.2}

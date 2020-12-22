@@ -1,0 +1,10 @@
+# setup.yaml is automatically called
+
+- type: display
+  value: ${setupdone}
+
+- type: assert
+  value: equals
+  params:
+    expected: Setup has been called
+    actual: ${setupdone}

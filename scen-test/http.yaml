@@ -1,6 +1,17 @@
 - type : title
   value : Tests HTTP
 
+- type: http.get
+  params:
+    url: https://dummy.mock.pstmn.io/singer/bruce
+    expect:
+      - code=201
+
+
+
+- type: exit
+
+
 - type : http.get
   value : ${API_IDRE_BASE_URL}/comptes/1/categories_ti
   expect :

@@ -1,3 +1,5 @@
+# syntax error. Value unexpected
+
 - type: assert
   value: unexpected
   params:
