@@ -1,0 +1,2 @@
+- type: return
+  value: result = ${1}${2}

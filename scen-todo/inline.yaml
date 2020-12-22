@@ -1,0 +1,69 @@
+# Ability to call a subscenario, and get the result inline
+- type: assert
+  value: equals
+  params:
+    expected: LedZeppelin
+
+    # Call the local "concatlocal" subscenario.
+    # The result is the variable ${concatlocal.result} computed by the sub scenario
+    # Variables 1..n are automatically allocated and passed to the module
+    actual: $.concatlocal(Led,Zeppelin)
+
+# The scenario can be in an external yaml
+- type: assert
+  value: equals
+  params:
+    expected: LedZeppelin
+
+    # Call the local "concatremote" subscenario in the file module/concatremote.yaml
+    # The result is the variable ${concatremote.result} computed by the sub scenario
+    actual: $module/concatremote(Led,Zeppelin)
+
+
+# Inline can be in a Java plugin
+- type: assert
+  value: equals
+  params:
+    expected: LedZeppelin
+
+    # Call the function "concat" of the class io.rocktest.modules.Utils
+    # Params 1..n are allocated and passed to the module
+    # The result is the variable ${concat.result} computed by the sub scenario
+    actual: $io.rocktest.modules.Utils.concat(Led,Zeppelin)
+
+# Previous call is equivalent to the following :
+- type: exec
+  value : io.rocktest.modules.Utils.concat
+  params:
+    1: Led
+    2: Zeppelin
+
+- type: assert
+  value: equals
+  params:
+    expected: LedZeppelin
+    actual: ${concat.result}
+###
+
+# If the module is declared in application.yaml (builtin) of modules.yaml, you can write the following
+# Module must be declared as follows
+#modules:
+#  utils.concat : io.rocktest.modules.Utils.concat
+
+- type: assert
+  value: equals
+  params:
+    expected: LedZeppelin
+
+    # Call the function "concat" of the class io.rocktest.modules.Utils
+    # Params 1..n are allocated and passed to the module
+    # The result is the variable ${concat.result} computed by the sub scenario
+    actual: $utils.concat(Led,Zeppelin)
+
+
+---
+
+- name: concatlocal
+
+- type: return
+  value: result = ${1}${2}

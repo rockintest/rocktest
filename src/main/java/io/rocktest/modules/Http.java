@@ -190,4 +190,21 @@ public class Http extends RockModule {
     }
 
 
+    public Map<String,Object> mock(Map<String,Object> params) throws IOException {
+
+        String url = getStringParam(params,"url",true);
+        String body = getStringParam(params,"body",true);
+
+        LOG.info("Put {}",url);
+
+        HashMap<String,Object> ret=new HashMap<>();
+
+        HttpResp resp = httpPut(url,body);
+
+        ret.put("code",resp.getCode());
+        ret.put("body",resp.getBody());
+
+        return ret;
+    }
+
 }

@@ -1,0 +1,24 @@
+# Ability to parse JSON
+
+# Possibility do define a variable with a multiline value
+- type: var
+  params:
+    name : data
+    value : >-
+      {
+        name: "Mark Knopfler",
+        group: "Dire Straits"
+      }
+
+- type: assert
+  value: equals
+  params:
+    expected: Dire Straits
+
+    # Call the function "json" of the class io.rocktest.modules.Utils
+    # Param 1 is allocated with the content of data
+    # Param 2 is "group" => ce qui est après le "." et avant le premier espace
+    # The result is the variable ${json.result} computed in the module
+    actual: $utils.json(${data}).group
+
+    # The same principle can be used to parse XML with XPath
