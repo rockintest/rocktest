@@ -10,8 +10,8 @@
         code: 200
         body: >-
           {
-            fullname: Bruce Springsteen aka The Boss
-            bestsong: "Born in the USA",
+            "fullname": "Bruce Springsteen aka The Boss",
+            "bestsong": "Born in the USA"
           }
         headers:
           content-type: application/json
