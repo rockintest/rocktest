@@ -7,3 +7,21 @@
   params:
     expected: Joe Cocker
     actual: ${singer}
+
+- type: var
+  name: record
+  value: >-
+    {
+      "singer" : "Phil Collins",
+      "band" : "Genesis"
+    }
+
+- type: assert
+  value: equals
+  params:
+    expected: >-
+      {
+        "singer" : "Phil Collins",
+        "band" : "Genesis"
+      }
+    actual: ${record}

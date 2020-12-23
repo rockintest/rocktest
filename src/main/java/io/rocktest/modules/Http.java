@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -165,7 +166,7 @@ public class Http extends RockModule {
         }
 
 
-        void call(Map<String,Object> paramsIn) throws IOException, InterruptedException {
+        void call(Map<String,Object> paramsIn) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
             String mod=getStringParam(paramsIn,"value");
             Map params=(Map)paramsIn.get("params");
             scenario.call(mod,params);

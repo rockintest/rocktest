@@ -59,15 +59,15 @@ public class Scenario {
     @Autowired
     private Environment env;
 
-    private String currentDesc="";
-    private int currentStep=0;
-    private String title="";
+    private String currentDesc = "";
+    private int currentStep = 0;
+    private String title = "";
 
     // Variables.
     // Key = scenario name (top of the stack)
     // Value = variables
-    private Map<String,Map<String,String>> context;
-    private HashMap<String,String> last=new HashMap<>();
+    private Map<String, Map<String, String>> context;
+    private HashMap<String, String> last = new HashMap<>();
 
     private StringSubstitutor subLast = new StringSubstitutor(last);
     private StringSubstitutor subCond;
@@ -80,11 +80,14 @@ public class Scenario {
     // Script directory
     private String dir;
 
+    // Local functions
+    Map<String, List<Map>> functions;
+
     private static Logger LOG = LoggerFactory.getLogger(Scenario.class);
     public static Logger LINE = LoggerFactory.getLogger("noprefix");
 
     // HashMap for each instance of modules
-    private HashMap<String,Object> moduleInstances=new HashMap<>();
+    private HashMap<String, Object> moduleInstances = new HashMap<>();
 
     @Value("${default.check.delay}")
     private int checkDelay;
@@ -102,12 +105,12 @@ public class Scenario {
     private String datasourcePassword;
 
     private String getStack() {
-        StringBuilder b=new StringBuilder();
+        StringBuilder b = new StringBuilder();
 
-        boolean first=true;
+        boolean first = true;
         for (String curr : stack) {
-            if(first)
-                first=false;
+            if (first)
+                first = false;
             else
                 b.append("/");
 
@@ -118,21 +121,21 @@ public class Scenario {
 
     // Retourne le nom du script en cours (dernier élément de la stack d'appel)
     private String getCurrentName() {
-        return stack.get(stack.size()-1);
+        return stack.get(stack.size() - 1);
     }
 
     // Retourne la map des variables du scenario en cours
-    public Map<String,String> getLocalContext() {
+    public Map<String, String> getLocalContext() {
         return context.get(getCurrentName());
     }
 
     private String getVar(String var) {
-        String ret=getLocalContext().get(var);
-        return (ret==null?"":ret);
+        String ret = getLocalContext().get(var);
+        return (ret == null ? "" : ret);
     }
 
-    private void setVar(String var,String value) {
-        getLocalContext().put(var,value);
+    private void setVar(String var, String value) {
+        getLocalContext().put(var, value);
     }
 
     // Initialise la hashmap pour les variable de ce script
@@ -145,8 +148,8 @@ public class Scenario {
     }
 
     void initContext(String name) {
-        if(context.get(name)==null) {
-            context.put(name,new HashMap<>());
+        if (context.get(name) == null) {
+            context.put(name, new HashMap<>());
         }
     }
 
@@ -156,123 +159,123 @@ public class Scenario {
 
     public String expand(String val) {
 
-        String ret=subLast.replace(val);
-        ret=subEnv.replace(ret);
-        ret=subCond.replace(ret);
+        String ret = subLast.replace(val);
+        ret = subEnv.replace(ret);
+        ret = subCond.replace(ret);
 
         return ret;
     }
 
     public List expand(List val) {
-        ArrayList<Object> ret=new ArrayList<>();
+        ArrayList<Object> ret = new ArrayList<>();
 
         for (int i = 0; i < val.size(); i++) {
-            Object o=val.get(i);
+            Object o = val.get(i);
 
-            if(o instanceof String) {
-                ret.add(expand((String)val.get(i)));
-            } else if(o instanceof Map) {
-                ret.add(expand((Map)val.get(i)));
-            } else if(o instanceof List) {
-                ret.add(expand((List)val.get(i)));
+            if (o instanceof String) {
+                ret.add(expand((String) val.get(i)));
+            } else if (o instanceof Map) {
+                ret.add(expand((Map) val.get(i)));
+            } else if (o instanceof List) {
+                ret.add(expand((List) val.get(i)));
             }
 
         }
         return ret;
     }
 
-    public Map<String,Object> expand(Map<String,Object> in) {
-        HashMap<String,Object> ret=new HashMap<>();
-        for (Map.Entry<String,Object> entry : in.entrySet()) {
+    public Map<String, Object> expand(Map<String, Object> in) {
+        HashMap<String, Object> ret = new HashMap<>();
+        for (Map.Entry<String, Object> entry : in.entrySet()) {
 
-            if(entry.getValue() instanceof String) {
-                String expanded=expand((String)entry.getValue());
-                if(StringUtils.isNumeric(expanded)) {
-                    ret.put(entry.getKey(),Integer.parseInt(expanded));
+            if (entry.getValue() instanceof String) {
+                String expanded = expand((String) entry.getValue());
+                if (StringUtils.isNumeric(expanded)) {
+                    ret.put(entry.getKey(), Integer.parseInt(expanded));
                 } else {
-                    ret.put(entry.getKey(),expanded);
+                    ret.put(entry.getKey(), expanded);
                 }
-            } else if(entry.getValue() instanceof Map) {
-                ret.put(entry.getKey(),expand((Map)entry.getValue()));
-            } else if(entry.getValue() instanceof List) {
-                ret.put(entry.getKey(),expand((List)entry.getValue()));
-            } else if(entry.getValue() instanceof Number) {
-                ret.put(entry.getKey(),(Number)entry.getValue());
+            } else if (entry.getValue() instanceof Map) {
+                ret.put(entry.getKey(), expand((Map) entry.getValue()));
+            } else if (entry.getValue() instanceof List) {
+                ret.put(entry.getKey(), expand((List) entry.getValue()));
+            } else if (entry.getValue() instanceof Number) {
+                ret.put(entry.getKey(), (Number) entry.getValue());
             } else {
-                throw new RuntimeException("Error expanding node. Type "+entry.getValue().getClass().getName()+" unexpected");
+                throw new RuntimeException("Error expanding node. Type " + entry.getValue().getClass().getName() + " unexpected");
             }
         }
         return ret;
     }
 
-    private void setContext(String name,Map<String,String> vars) {
-        context.put(name,vars);
+    private void setContext(String name, Map<String, String> vars) {
+        context.put(name, vars);
     }
 
     private void putCallerContext(String var, String value) {
-        if(stack.size()==1) {
+        if (stack.size() == 1) {
             LOG.warn("Cannot return value in main scenario");
         } else {
-            Map<String,String> callerContext=context.get(stack.get(stack.size()-2));
-            callerContext.put(var,value);
+            Map<String, String> callerContext = context.get(stack.get(stack.size() - 2));
+            callerContext.put(var, value);
         }
     }
 
-    private void doAssert(String assertType,Map<String,String> params) {
+    private void doAssert(String assertType, Map<String, String> params) {
 
-        switch(assertType) {
+        switch (assertType) {
             case "equals":
-                String actual=params.get("actual");
-                if(actual==null) {
+                String actual = params.get("actual");
+                if (actual == null) {
                     throw new RuntimeException("\"actual\" param is required");
                 }
 
-                String expected=params.get("expected");
-                if(expected==null) {
+                String expected = params.get("expected");
+                if (expected == null) {
                     throw new RuntimeException("\"expected\" param is required");
                 }
 
-                String msg=params.get("message");
-                if(msg==null) msg="";
+                String msg = params.get("message");
+                if (msg == null) msg = "";
 
-                if(!actual.equals(expected)) {
-                    throw new RuntimeException("Assert fail: "+msg+" - expected \""+expected+"\" but was \""+actual+"\"");
+                if (!actual.equals(expected)) {
+                    throw new RuntimeException("Assert fail: " + msg + " - expected \"" + expected + "\" but was \"" + actual + "\"");
                 }
 
                 break;
             default:
-                throw new RuntimeException("Bad assertion type :"+assertType);
+                throw new RuntimeException("Bad assertion type :" + assertType);
         }
     }
 
-    private void checkParams(String[] p) {
-        for(String curr:p) {
-            if(getLocalContext().get(curr)==null) {
-                throw new RuntimeException("Parameter "+curr+" is mandatory for module "+getCurrentName());
+    private void checkParams(List<String> p) {
+        for (String curr : p) {
+            if (getLocalContext().get(curr) == null) {
+                throw new RuntimeException("Parameter " + curr + " is mandatory for module " + getCurrentName());
             }
         }
     }
 
 
-    private Map exec(String function,Map<String,Object> params) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    private Map exec(String function, Map<String, Object> params) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
         String cls = function.substring(0, function.lastIndexOf('.'));
         Class<?> moduleClass = Class.forName(cls);
 
         Object module = moduleInstances.get(cls);
-        if(module==null) {
+        if (module == null) {
             module = moduleClass.getDeclaredConstructor().newInstance();
-            moduleInstances.put(cls,module);
-            ((RockModule)module).setScenario(this);
+            moduleInstances.put(cls, module);
+            ((RockModule) module).setScenario(this);
         }
 
-        String methodName = function.substring(function.lastIndexOf('.')+1,function.length());
+        String methodName = function.substring(function.lastIndexOf('.') + 1, function.length());
 
         Class<?>[] paramTypes = {Map.class};
         Method setNameMethod = module.getClass().getMethod(methodName, paramTypes);
-        Map<String,Object> ret = (Map<String,Object>) setNameMethod.invoke(module, params);
+        Map<String, Object> ret = (Map<String, Object>) setNameMethod.invoke(module, params);
 
-        if(ret != null) {
+        if (ret != null) {
             for (String k : ret.keySet()) {
                 getLocalContext().put(methodName + "." + k, String.valueOf(ret.get(k)));
             }
@@ -287,20 +290,20 @@ public class Scenario {
         // If the SQL connection it not open, open it with the default params
 
         Object module = moduleInstances.get("io.rocktest.modules.Sql");
-        if(module==null || ((Sql) module).getJdbcTemplate()==null) {
+        if (module == null || ((Sql) module).getJdbcTemplate() == null) {
 
-            HashMap<String,Object> params=new HashMap<>();
-            params.put("url",datasourceUrl);
-            params.put("user",datasourceUser);
-            params.put("password",datasourceUser);
-            params.put("delay",checkDelay);
-            params.put("retry",checkRetry);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("url", datasourceUrl);
+            params.put("user", datasourceUser);
+            params.put("password", datasourceUser);
+            params.put("delay", checkDelay);
+            params.put("retry", checkRetry);
 
-            exec("io.rocktest.modules.Sql.connect",params);
+            exec("io.rocktest.modules.Sql.connect", params);
         }
     }
 
-    private void execSql(String req,List expect) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    private void execSql(String req, List expect) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         checkSqlConnection();
         HashMap<String, Object> params = new HashMap<>();
         params.put("request", req);
@@ -309,7 +312,7 @@ public class Scenario {
         Map ret = exec("io.rocktest.modules.Sql.request", params);
 
         // Put $0 ... $n variables
-        if(ret!=null) {
+        if (ret != null) {
             for (int iMap = 0; ; iMap++) {
                 String val = (String) ret.get("" + iMap);
                 if (val == null)
@@ -325,25 +328,25 @@ public class Scenario {
 
         Map retexec = exec("io.rocktest.modules.Http.get", params);
 
-        String code=String.valueOf(retexec.get("code"));
-        String body=String.valueOf(retexec.get("body"));
+        String code = String.valueOf(retexec.get("code"));
+        String body = String.valueOf(retexec.get("body"));
 
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code),body);
+        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
         return ret;
     }
 
 
-    private Http.HttpResp httpRequest(String method,String url,String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private Http.HttpResp httpRequest(String method, String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("url", url);
         params.put("body", bodyin);
 
-        Map retexec = exec("io.rocktest.modules.Http."+method, params);
+        Map retexec = exec("io.rocktest.modules.Http." + method, params);
 
-        String code=String.valueOf(retexec.get("code"));
-        String body=String.valueOf(retexec.get("body"));
+        String code = String.valueOf(retexec.get("code"));
+        String body = String.valueOf(retexec.get("body"));
 
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code),body);
+        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
         return ret;
     }
 
@@ -354,202 +357,283 @@ public class Scenario {
 
         Map retexec = exec("io.rocktest.modules.Http.delete", params);
 
-        String code=String.valueOf(retexec.get("code"));
-        String body=String.valueOf(retexec.get("body"));
+        String code = String.valueOf(retexec.get("code"));
+        String body = String.valueOf(retexec.get("body"));
 
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code),body);
+        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
         return ret;
     }
 
-    private Http.HttpResp httpPost(String url,String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private Http.HttpResp httpPost(String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("url", url);
         params.put("body", bodyin);
 
         Map retexec = exec("io.rocktest.modules.Http.post", params);
 
-        String code=String.valueOf(retexec.get("code"));
-        String body=String.valueOf(retexec.get("body"));
+        String code = String.valueOf(retexec.get("code"));
+        String body = String.valueOf(retexec.get("body"));
 
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code),body);
+        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
         return ret;
     }
 
 
-    private Http.HttpResp httpPut(String url,String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private Http.HttpResp httpPut(String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("url", url);
         params.put("body", bodyin);
 
         Map retexec = exec("io.rocktest.modules.Http.put", params);
 
-        String code=String.valueOf(retexec.get("code"));
-        String body=String.valueOf(retexec.get("body"));
+        String code = String.valueOf(retexec.get("code"));
+        String body = String.valueOf(retexec.get("body"));
 
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code),body);
+        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
         return ret;
     }
 
 
-    public void call(String mod,Map params) throws IOException, InterruptedException {
-        Scenario module=new Scenario();
-        String file=dir+"/"+mod;
+    public void call(String mod, Map params) throws IOException, InterruptedException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        if(!file.endsWith(".yaml")) {
-            file=file.concat(".yaml");
+        // If we have the syntax module->function or ->function
+        Pattern p = Pattern.compile("(.*) *-> *(.*)");
+        Matcher m = p.matcher(mod);
+
+        if (!m.matches()) {
+
+            if(functions.get(mod) != null) {
+                callInternal(mod,params);
+            } else {
+                callExternal(mod, params);
+            }
+
+        } else {
+            if (m.group(1).equals("")) {
+                callInternal(m.group(2), params);
+            } else {
+                callExternal(m.group(1), m.group(2), params);
+            }
+        }
+    }
+
+    public void callInternal(String function, Map params) throws NoSuchMethodException, InterruptedException, IOException, InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+        LOG.debug("Call function {}",function);
+
+        Scenario module = new Scenario();
+        stack.add(function);
+
+        if (params != null)
+            setContext(function, expand(params));
+
+        String err = module.run((List<Map>) functions.get(function), dir, context, stack,functions);
+
+        // Pop context
+        deleteContext(function);
+        stack.remove(stack.size() - 1);
+
+        if (err != null) {
+            LOG.error("Error : {}", err);
+            System.exit(1);
+        }
+
+    }
+
+    public void callExternal(String mod, String function, Map params) throws IOException, InterruptedException {
+        LOG.debug("Call function {} in module {}",function,mod);
+    }
+
+    public void callExternal(String mod, Map params) throws IOException, InterruptedException {
+        LOG.debug("Call module {}",mod);
+
+        Scenario module = new Scenario();
+        String file = dir + "/" + mod;
+
+        if (!file.endsWith(".yaml")) {
+            file = file.concat(".yaml");
         }
 
         // Push context for submodule
-        String moduleName=new File(file).getName().replace(".yaml","");
+        String moduleName = new File(file).getName().replace(".yaml", "");
         stack.add(moduleName);
 
-        if(params!=null)
-            setContext(moduleName,expand(params));
+        if (params != null)
+            setContext(moduleName, expand(params));
 
-        String err=module.run(file,dir,context,stack);
+        String err = module.run(file, dir, context, stack,functions);
 
         // Pop context
         deleteContext(moduleName);
-        stack.remove(stack.size()-1);
+        stack.remove(stack.size() - 1);
 
-        if(err!=null) {
-            LOG.error("Error : {}",err);
+        if (err != null) {
+            LOG.error("Error : {}", err);
             System.exit(1);
         }
 
     }
 
 
-    public String run(String name, String dir, Map<String,Map<String,String>> context,List stack) throws IOException, InterruptedException {
+    private void extractFunctions(List<Map> steps) {
+        for (int i = 0; i < steps.size(); i++) {
+            Step step = new Step(steps.get(i));
 
-        LOG.info("Start scenario. name={}, dir={}",name,dir);
+            if (step.getType().equals("function")) {
+                List stepsFunction = step.getSteps();
+                String name = step.getName();
+                functions.put(name, stepsFunction);
+                LOG.debug("Function {} declared", name);
+            }
+        }
+    }
 
-        this.context=context;
-        this.stack=stack;
-        this.dir=dir;
 
-        initLocalContext();
-        subContext.setEnableSubstitutionInVariables(true);
-        subCond.setEnableSubstitutionInVariables(true);
+    public String run(String name, String dir, Map<String, Map<String, String>> context, List stack, Map functions) throws IOException, InterruptedException {
+        LOG.info("Start scenario. name={}, dir={}", name, dir);
 
         try {
-
+            this.dir = dir;
+            this.functions = functions;
             Object mapper = new ObjectMapper(new YAMLFactory());
-
-            Step[] steps = ((ObjectMapper) mapper).readValue(new File(name), new TypeReference<Step[]>() {});
-            LINE.info("----------------------------------------");
-
-            for (int i = 0; i < steps.length; i++) {
-                Step step = steps[i];
-
-                currentStep=i+1;
-                currentDesc=(step.getDesc()!=null?"("+step.getDesc()+")":"");
-
-                String currentValue;
-                String valueDetail;
-
-                if(step.getValue()==null) {
-                    currentValue = "";
-                    valueDetail = "";
-                } else {
-                    currentValue = expand(step.getValue());
-                    valueDetail = (currentValue.equals(step.getValue())?currentValue:step.getValue()+" => "+currentValue);
-                }
-
-                MDC.put("stack",getStack());
-                MDC.put("step",""+(i+1));
-                MDC.put("position","["+getStack()+"] Step#"+(i+1) );
-
-                LOG.info("{} {},{}",
-                        currentDesc,
-                        step.getType(),
-                        valueDetail);
-
-                switch (step.getType()) {
-                    case "exec":
-                        exec(step.getValue(),step.getParams());
-                        break;
-                    case "checkParams":
-                        checkParams(step.getValues());
-                        break;
-                    case "assert" :
-                        doAssert(currentValue,expand(step.getParams()));
-                        break;
-                    case "return" :
-                        returnVar(currentValue);
-                        break;
-                    case "var" :
-                        if(step.getName()==null)
-                            setVar(currentValue);
-                        else
-                            setVar(expand(step.getName()),currentValue);
-                        break;
-                    case "exit" :
-                        LOG.info("Exit");
-                        i=steps.length;
-                        break;
-                    case "title":
-                        title=currentValue;
-                        break;
-                    case "display":
-                        LOG.info(currentValue);
-                        break;
-                    case "request":
-                        execSql(currentValue,null);
-                        break;
-                    case "pause":
-                        Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
-                        break;
-                    case "http-get": {
-                        Http.HttpResp resp = httpRequest("get",currentValue,null);
-                        httpCheck(step.getExpect(), resp);
-                        }
-                        break;
-                    case "http-post": {
-                        Http.HttpResp resp = httpRequest("post",currentValue,step.getBody());
-                        httpCheck(step.getExpect(), resp);
-                        }
-                        break;
-                    case "http-put": {
-                        Http.HttpResp resp = httpRequest("put",currentValue,step.getBody());
-                        httpCheck(step.getExpect(), resp);
-                        }
-                        break;
-                    case "http-delete": {
-                        Http.HttpResp resp = httpRequest("delete",currentValue,null);
-                        httpCheck(step.getExpect(), resp);
-                        }
-                        break;
-                    case "call":
-                        call(step.getValue(),step.getParams());
-                        break;
-                    case "check":
-                        execSql(currentValue,step.getExpect());
-                        break;
-                    default:
-
-                        String method = env.getProperty("modules."+step.getType());
-                        if(method==null)
-                            throw new RuntimeException("Type " + step.getType() + " unknown");
-
-                        exec(method,step.getParams());
-                }
-
-                LINE.info("----------------------------------------");
-
-            }
-
-            MDC.remove("position");
+            List<Map> steps = ((ObjectMapper) mapper).readValue(new File(name), new TypeReference<List<Map>>() {});
+            extractFunctions(steps);
+            return run(steps, dir, context, stack,functions);
 
         } catch (Exception e) {
 
             String basename = FilenameUtils.getBaseName(name);
             MDC.remove("position");
 
-            LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE",basename,title,currentStep,currentDesc);
-            LOG.error("Exception",e);
-            return "Scen "+basename+" ["+title+"] step #"+currentStep+" "+currentDesc+" "+e.getMessage();
+            LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
+            LOG.error("Exception", e);
+            return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + e.getMessage();
         }
+    }
+
+
+    public String run(List<Map> steps, String dir,Map<String, Map<String, String>> context, List stack,Map functions) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        this.context = context;
+        this.stack = stack;
+        this.dir = dir;
+        this.functions = functions;
+
+        initLocalContext();
+        subContext.setEnableSubstitutionInVariables(true);
+        subCond.setEnableSubstitutionInVariables(true);
+
+
+        LINE.info("----------------------------------------");
+
+        for (int i = 0; i < steps.size(); i++) {
+            Step step = new Step(steps.get(i));
+
+            // Do not execute functions until they are called
+            if (step.getType().equals("function")) {
+                continue;
+            }
+
+            currentStep = i + 1;
+            currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ")" : "");
+
+            String currentValue;
+            String valueDetail;
+
+            if (step.getValue() == null) {
+                currentValue = "";
+                valueDetail = "";
+            } else {
+                currentValue = expand(step.getValue());
+                valueDetail = (currentValue.equals(step.getValue()) ? currentValue : step.getValue() + " => " + currentValue);
+            }
+
+            MDC.put("stack", getStack());
+            MDC.put("step", "" + (i + 1));
+            MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
+
+            LOG.info("{} {},{}",
+                    currentDesc,
+                    step.getType(),
+                    valueDetail);
+
+            switch (step.getType()) {
+                // Do not execute a function until it is called
+                case "function":
+                    break;
+                case "exec":
+                    exec(step.getValue(), step.getParams());
+                    break;
+                case "checkParams":
+                    checkParams(step.getValues());
+                    break;
+                case "assert":
+                    doAssert(currentValue, expand(step.getParams()));
+                    break;
+                case "return":
+                    returnVar(currentValue);
+                    break;
+                case "var":
+                    if (step.getName() == null)
+                        setVar(currentValue);
+                    else
+                        setVar(expand(step.getName()), currentValue);
+                    break;
+                case "exit":
+                    LOG.info("Exit");
+                    i = steps.size();
+                    break;
+                case "title":
+                    title = currentValue;
+                    break;
+                case "display":
+                    LOG.info(currentValue);
+                    break;
+                case "request":
+                    execSql(currentValue, null);
+                    break;
+                case "pause":
+                    Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
+                    break;
+                case "http-get": {
+                    Http.HttpResp resp = httpRequest("get", currentValue, null);
+                    httpCheck(step.getExpect(), resp);
+                }
+                break;
+                case "http-post": {
+                    Http.HttpResp resp = httpRequest("post", currentValue, step.getBody());
+                    httpCheck(step.getExpect(), resp);
+                }
+                break;
+                case "http-put": {
+                    Http.HttpResp resp = httpRequest("put", currentValue, step.getBody());
+                    httpCheck(step.getExpect(), resp);
+                }
+                break;
+                case "http-delete": {
+                    Http.HttpResp resp = httpRequest("delete", currentValue, null);
+                    httpCheck(step.getExpect(), resp);
+                }
+                break;
+                case "call":
+                    call(step.getValue(), step.getParams());
+                    break;
+                case "check":
+                    execSql(currentValue, step.getExpect());
+                    break;
+                default:
+
+                    String method = env.getProperty("modules." + step.getType());
+                    if (method == null)
+                        throw new RuntimeException("Type " + step.getType() + " unknown");
+
+                    exec(method, step.getParams());
+            }
+
+            LINE.info("----------------------------------------");
+
+        }
+
+        MDC.remove("position");
 
         return null;
     }
@@ -559,41 +643,41 @@ public class Scenario {
         Pattern p = Pattern.compile("[ ]*([^ ]+)[ ]*=[ ]*(.+)[ ]*");
         Matcher m = p.matcher(exp);
 
-        if(!m.find()) {
-            throw new RuntimeException("Syntax error. Declaration \""+exp+"\" must be formed \"<VAR>=<VALUE>\".");
+        if (!m.find()) {
+            throw new RuntimeException("Syntax error. Declaration \"" + exp + "\" must be formed \"<VAR>=<VALUE>\".");
         }
 
-        String var=m.group(1);
-        String val=m.group(2);
+        String var = m.group(1);
+        String val = m.group(2);
 
-        return new Variable(var,val);
+        return new Variable(var, val);
     }
 
 
     public void returnVar(String exp) {
-        Variable v=extractVariable(exp);
-        LOG.info("Return variable {} = {}",v.var,v.value);
-        putCallerContext(getCurrentName()+"."+v.var,v.value);
+        Variable v = extractVariable(exp);
+        LOG.info("Return variable {} = {}", v.var, v.value);
+        putCallerContext(getCurrentName() + "." + v.var, v.value);
     }
 
 
     public void setVar(String exp) {
-        Variable v=extractVariable(exp);
-        LOG.info("Set variable {} = {}",v.var,v.value);
-        getLocalContext().put(v.var,v.value);
+        Variable v = extractVariable(exp);
+        LOG.info("Set variable {} = {}", v.var, v.value);
+        getLocalContext().put(v.var, v.value);
 
     }
 
 
     // Return false or throws an exception if a condition is false
-    private boolean isConditionTrue(String var, String val, Http.HttpResp response, boolean throwErrorIfNotTrue){
+    private boolean isConditionTrue(String var, String val, Http.HttpResp response, boolean throwErrorIfNotTrue) {
         if (var.equals("code")) {
             LOG.info("\tResponse code = {}", response.getCode());
 
-             String status=""+response.getCode();
+            String status = "" + response.getCode();
 
-            if(!val.equals(status)) {
-                if (throwErrorIfNotTrue){
+            if (!val.equals(status)) {
+                if (throwErrorIfNotTrue) {
                     throw new RuntimeException("Status code does not match. Expected " + val + " but was " + status);
                 }
                 return false;
@@ -602,15 +686,15 @@ public class Scenario {
 
         } else if (var.startsWith("response.json")) {
 
-            String path=var.replaceFirst("response.json","");
+            String path = var.replaceFirst("response.json", "");
 
-            Object actualObject = JsonPath.parse(response.getBody()).read("$"+path);
+            Object actualObject = JsonPath.parse(response.getBody()).read("$" + path);
 
-            if(actualObject == null) {
+            if (actualObject == null) {
                 LOG.info("\tJSON body{} = NULL", path);
 
-                if(!val.equals("null")) {
-                    if (throwErrorIfNotTrue){
+                if (!val.equals("null")) {
+                    if (throwErrorIfNotTrue) {
                         throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was NULL");
                     }
                     return false;
@@ -623,30 +707,29 @@ public class Scenario {
                 LOG.info("\tJSON body{} = {}", path, actual);
 
                 if (!val.equals(actual)) {
-                    if (throwErrorIfNotTrue){
+                    if (throwErrorIfNotTrue) {
                         throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was " + actual);
                     }
                     return false;
                 }
             }
-        }
-        else {
-            throw new RuntimeException("Syntax error. Expect in HTTP clause \"" + var + " = " + val +"\".");
+        } else {
+            throw new RuntimeException("Syntax error. Expect in HTTP clause \"" + var + " = " + val + "\".");
         }
 
         return true;
     }
 
     // TODO: multiple or in or does not work
-    private boolean isSubConditionTrue(String curr, Http.HttpResp response){
-        curr = curr.substring(1, curr.length()-1);
+    private boolean isSubConditionTrue(String curr, Http.HttpResp response) {
+        curr = curr.substring(1, curr.length() - 1);
         if (curr.startsWith("or=")) {
             curr = curr.substring(4, curr.length() - 1);
 
             String subCondition = null;
 
             // Check if contains another sub condition and remove it from curr
-            if (curr.contains("{")){
+            if (curr.contains("{")) {
                 int startArray = curr.indexOf("{");
                 int endArray = curr.lastIndexOf("}");
 
@@ -694,20 +777,19 @@ public class Scenario {
         return true;
     }
 
-    public void httpCheck(List<Object> expect, Http.HttpResp response){
-        if (expect==null) {
+    public void httpCheck(List<Object> expect, Http.HttpResp response) {
+        if (expect == null) {
             return;
         }
 
         for (int i = 0; i < expect.size(); i++) {
             String curr = expect.get(i).toString();
 
-            if (curr.startsWith("{")){
-                if (!isSubConditionTrue(curr, response)){
+            if (curr.startsWith("{")) {
+                if (!isSubConditionTrue(curr, response)) {
                     throw new RuntimeException("Sub condition returns false");
                 }
-            }
-            else{
+            } else {
                 Variable v = extractVariable(curr);
                 String var = v.var;
                 String val = v.value;

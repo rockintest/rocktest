@@ -1,0 +1,59 @@
+# Functions embedded in yaml file
+
+- type: call
+  value: ->whorocks
+  params:
+    message: "Who's rockin' ?"
+
+- type: display
+  value: ${whorocks.ret}
+
+- type: assert
+  value: equals
+  params:
+    expected: "Who's rockin' ? It's Nirvana"
+    actual: ${whorocks.ret}
+
+- type: call
+  value: whorocks
+  params:
+    message: "R U Sure ?"
+
+- type: display
+  value: ${whorocks.ret}
+
+- type: assert
+  value: equals
+  params:
+    expected: "R U Sure ? It's Nirvana"
+    actual: ${whorocks.ret}
+
+- type: call
+  value: inception
+  params:
+    message: "Inception..."
+
+
+## Functions
+
+- type: function
+  name : whorocks
+  steps :
+  - type: display
+    value: "The function got the message : ${message}"
+
+  - type: return
+    value: "ret = ${message} It's Nirvana"
+
+
+# A function calling another function
+
+- type: function
+  name: inception
+  steps:
+  - type: call
+    value: whorocks
+    params:
+      message: ${message}
+  - type: return
+    value: ret = ${whorocks.ret}

@@ -2,13 +2,12 @@
 
 # Possibility do define a variable with a multiline value
 - type: var
-  params:
-    name : data
-    value : >-
-      {
-        name: "Mark Knopfler",
-        group: "Dire Straits"
-      }
+  name : data
+  value : >-
+    {
+      name: "Mark Knopfler",
+      group: "Dire Straits"
+    }
 
 - type: assert
   value: equals
