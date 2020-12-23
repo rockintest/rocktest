@@ -1,0 +1,14 @@
+- type: display
+  value: singer = ${singer}
+
+- type: display
+  value: body = ${body}
+
+- type: display
+  value: uri = ${uri}
+
+- type: return
+  value: code = 201
+
+- type: return
+  value: "body = { calleduri : ${uri}, calledsinger : ${singer} }"

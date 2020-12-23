@@ -1,5 +1,7 @@
 package io.rocktest.modules;
 
+import io.rocktest.Scenario;
+import lombok.Setter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+@Setter
 public class RockModule {
+
+    protected Scenario scenario;
 
     private static Logger LOG = LoggerFactory.getLogger(Http.class);
 
@@ -94,6 +99,8 @@ public class RockModule {
         try {
             if (content == null) {
                 LOG.info("{} : null", message);
+            } else if (content.isEmpty()) {
+                LOG.info("{} : <empty>", message);
             } else if (content.trim().startsWith("{")) {
                 JSONObject jsonObj = new JSONObject(content);
                 LOG.info("{}\n{}", message, jsonObj.toString(4));

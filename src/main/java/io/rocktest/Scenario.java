@@ -14,10 +14,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.jayway.jsonpath.JsonPath;
 
 import io.rocktest.modules.Http;
+import io.rocktest.modules.RockModule;
 import io.rocktest.modules.Sql;
 import lombok.*;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.http.Header;
 import org.apache.http.client.methods.*;
@@ -29,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -74,6 +77,9 @@ public class Scenario {
     // Call stack
     private List<String> stack;
 
+    // Script directory
+    private String dir;
+
     private static Logger LOG = LoggerFactory.getLogger(Scenario.class);
 
     // HashMap for each instance of modules
@@ -115,7 +121,7 @@ public class Scenario {
     }
 
     // Retourne la map des variables du scenario en cours
-    private Map<String,String> getLocalContext() {
+    public Map<String,String> getLocalContext() {
         return context.get(getCurrentName());
     }
 
@@ -147,7 +153,7 @@ public class Scenario {
         context.remove(name);
     }
 
-    private String expand(String val) {
+    public String expand(String val) {
 
         String ret=subLast.replace(val);
         ret=subEnv.replace(ret);
@@ -156,7 +162,7 @@ public class Scenario {
         return ret;
     }
 
-    private List expand(List val) {
+    public List expand(List val) {
         ArrayList<Object> ret=new ArrayList<>();
 
         for (int i = 0; i < val.size(); i++) {
@@ -174,12 +180,17 @@ public class Scenario {
         return ret;
     }
 
-    private Map<String,Object> expand(Map<String,Object> in) {
+    public Map<String,Object> expand(Map<String,Object> in) {
         HashMap<String,Object> ret=new HashMap<>();
         for (Map.Entry<String,Object> entry : in.entrySet()) {
 
             if(entry.getValue() instanceof String) {
-                ret.put(entry.getKey(),expand((String)entry.getValue()));
+                String expanded=expand((String)entry.getValue());
+                if(StringUtils.isNumeric(expanded)) {
+                    ret.put(entry.getKey(),Integer.parseInt(expanded));
+                } else {
+                    ret.put(entry.getKey(),expanded);
+                }
             } else if(entry.getValue() instanceof Map) {
                 ret.put(entry.getKey(),expand((Map)entry.getValue()));
             } else if(entry.getValue() instanceof List) {
@@ -251,6 +262,7 @@ public class Scenario {
         if(module==null) {
             module = moduleClass.getDeclaredConstructor().newInstance();
             moduleInstances.put(cls,module);
+            ((RockModule)module).setScenario(this);
         }
 
         String methodName = function.substring(function.lastIndexOf('.')+1,function.length());
@@ -378,12 +390,42 @@ public class Scenario {
     }
 
 
+    public void call(String mod,Map params) throws IOException, InterruptedException {
+        Scenario module=new Scenario();
+        String file=dir+"/"+mod;
+
+        if(!file.endsWith(".yaml")) {
+            file=file.concat(".yaml");
+        }
+
+        // Push context for submodule
+        String moduleName=new File(file).getName().replace(".yaml","");
+        stack.add(moduleName);
+
+        if(params!=null)
+            setContext(moduleName,expand(params));
+
+        String err=module.run(file,dir,context,stack);
+
+        // Pop context
+        deleteContext(moduleName);
+        stack.remove(stack.size()-1);
+
+        if(err!=null) {
+            LOG.error("Error : {}",err);
+            System.exit(1);
+        }
+
+    }
+
+
     public String run(String name, String dir, Map<String,Map<String,String>> context,List stack) throws IOException, InterruptedException {
 
         LOG.info("Start scenario. name={}, dir={}",name,dir);
 
         this.context=context;
         this.stack=stack;
+        this.dir=dir;
 
         initLocalContext();
         subContext.setEnableSubstitutionInVariables(true);
@@ -412,16 +454,19 @@ public class Scenario {
                     valueDetail = (currentValue.equals(step.getValue())?currentValue:step.getValue()+" => "+currentValue);
                 }
 
-                LOG.info("[{}] Step #{} {} : {},{}",
-                        getStack(),
-                        i + 1,
+                MDC.put("stack",getStack());
+                MDC.put("step",""+(i+1));
+                MDC.put("position","["+getStack()+"] Step#"+(i+1) );
+
+                LOG.info("----------------------------------------");
+                LOG.info("{} {},{}",
                         currentDesc,
                         step.getType(),
                         valueDetail);
 
                 switch (step.getType()) {
                     case "exec":
-                        exec(step.getValue(),expand(step.getParams()));
+                        exec(step.getValue(),step.getParams());
                         break;
                     case "checkParams":
                         checkParams(step.getValues());
@@ -472,31 +517,7 @@ public class Scenario {
                         }
                         break;
                     case "call":
-                        Scenario module=new Scenario();
-                        String file=dir+"/"+step.getValue();
-
-                        if(!file.endsWith(".yaml")) {
-                            file=file.concat(".yaml");
-                        }
-
-                        // Push context for submodule
-                        String moduleName=new File(file).getName().replace(".yaml","");
-                        stack.add(moduleName);
-
-                        if(step.getParams()!=null)
-                            setContext(moduleName,expand(step.getParams()));
-
-                        String err=module.run(file,dir,context,stack);
-
-                        // Pop context
-                        deleteContext(moduleName);
-                        stack.remove(stack.size()-1);
-
-                        if(err!=null) {
-                            LOG.error("Error : {}",err);
-                            System.exit(1);
-                        }
-
+                        call(step.getValue(),step.getParams());
                         break;
                     case "check":
                         execSql(currentValue,step.getExpect());
@@ -507,7 +528,7 @@ public class Scenario {
                         if(method==null)
                             throw new RuntimeException("Type " + step.getType() + " unknown");
 
-                        exec(method,expand(step.getParams()));
+                        exec(method,step.getParams());
                 }
             }
 

@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
@@ -17,18 +18,32 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Http extends RockModule {
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    private class HttpReq {
+
+        private String method;
+        private String body;
+        private String uri;
+        private Map headers;
+
+    }
 
     @Getter
     @Setter
@@ -38,33 +53,88 @@ public class Http extends RockModule {
         private String body;
     }
 
+
+    private String readBody(HttpExchange t) throws IOException {
+        InputStreamReader isr = new InputStreamReader(t.getRequestBody(), "utf-8");
+        BufferedReader br = new BufferedReader(isr);
+
+        int b;
+        StringBuilder buf = new StringBuilder();
+        while ((b = br.read()) != -1) {
+            buf.append((char) b);
+        }
+
+        br.close();
+        isr.close();
+        return buf.toString();
+    }
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
     // Handler for the Mock
     private class MyHandler implements HttpHandler {
 
         private List conditions;
+        private Map headers;
+        private String name;
 
-        public MyHandler(List conditions) {
-            this.conditions = conditions;
+        boolean matchCondition(HttpReq r,Map condition) throws URISyntaxException, IOException {
+            String methodWanted=getStringParam(condition,"method");
+            String uriWanted=getStringParam(condition,"uri");
+
+            String method=r.getMethod();
+            String uri=r.getUri();
+            String body=r.getBody();
+
+            LOG.debug("Check condition : method = {} - URI = {}",methodWanted,uriWanted);
+
+            Pattern methodPattern = Pattern.compile(methodWanted,Pattern.CASE_INSENSITIVE);
+            Matcher methodMatcher = methodPattern.matcher(method);
+            boolean methodMatches = methodMatcher.matches();
+
+            boolean uriMatches=false;
+            if(methodMatches) {
+                Pattern uriPattern = Pattern.compile(uriWanted);
+                Matcher uriMatcher = uriPattern.matcher(uri);
+                uriMatches = uriMatcher.matches();
+
+                // If the URI matches, extract the groups and put them to variables
+                if(uriMatches) {
+
+                    // Clean previously defined variables which are numeric
+                    ArrayList<String> tokill=new ArrayList<>();
+                    scenario.getLocalContext().keySet().forEach((k) -> {if(StringUtils.isNumeric((String)k)) tokill.add(k); });
+                    for (String s : tokill) {
+                        scenario.getLocalContext().remove(s);
+                    }
+
+                    for (int i = 1; i <= uriMatcher.groupCount(); i++) {
+                        String gr=uriMatcher.group(i);
+                        LOG.debug("  group({})={}",i,gr);
+                        if(gr != null)
+                            scenario.getLocalContext().put("" + i, gr);
+                    }
+
+                    scenario.getLocalContext().put("uri",uri);
+                    scenario.getLocalContext().put("method",method);
+                    scenario.getLocalContext().put("body",body);
+
+                    return true;
+                }
+
+            }
+
+            return false;
         }
 
-        boolean matchCondition(HttpExchange t,Map condition) throws URISyntaxException {
-            String methodWanted=getStringParam(condition,"method").toLowerCase();
-            URI uriWanted=new URI(getStringParam(condition,"uri"));
-
-            String method=t.getRequestMethod().toLowerCase();
-            URI uri=t.getRequestURI();
-
-            LOG.debug("Check condition : method = {} - URI = {}",methodWanted,uriWanted.toString());
-
-            return methodWanted.equals(methodWanted) && uri.equals(uriWanted);
-        }
-
-        Map findCondition(HttpExchange t) throws URISyntaxException {
+        Map findCondition(HttpReq r) throws URISyntaxException, IOException {
 
             for (int i = 0; i < conditions.size(); i++) {
 
                 Map condition=(Map)conditions.get(i);
-                if(matchCondition(t,condition)) {
+                if(matchCondition(r,condition)) {
                     LOG.info("Condition match");
                     return condition;
                 }
@@ -95,31 +165,65 @@ public class Http extends RockModule {
         }
 
 
+        void call(Map<String,Object> paramsIn) throws IOException, InterruptedException {
+            String mod=getStringParam(paramsIn,"value");
+            Map params=(Map)paramsIn.get("params");
+            scenario.call(mod,params);
+        }
+
+
         public void handle(HttpExchange t) throws IOException {
-            InputStream is = t.getRequestBody();
+
+            MDC.put("position",name);
+            LOG.info("======================================");
 
             String method=t.getRequestMethod().toLowerCase();
             URI uri=t.getRequestURI();
+            String body=readBody(t);
+
+            HttpReq r=new HttpReq(method,body,uri.toString(),t.getRequestHeaders());
 
             LOG.info("Receive request {} - URI = {}",method,uri.toString());
+            logJson("Body:",body);
+
+            scenario.getLocalContext().put("body",body);
+            scenario.getLocalContext().put("uri",uri.toString());
 
             try {
-                Map condition = findCondition(t);
+                Map condition = findCondition(r);
 
                 if (condition == null) {
                     sendResponse(t, 404, "No match for URI",null);
                 }
 
-                Map resp = (Map) condition.get("response");
+                Map c=(Map)condition.get("call");
+                if(c!=null) {
+                    call(scenario.expand(c));
+                }
+
+                Map resp = scenario.expand((Map) condition.get("response"));
                 int code=getIntParam(resp,"code",200);
-                String body=getStringParam(resp,"body",null);
+
+                String bodyToSend=scenario.expand(getStringParam(resp,"body",null));
                 Map headers = (Map) resp.get("headers");
 
-                sendResponse(t,code,body,headers);
+                Map<String,String> mergeHeaders=new HashMap<>();
+                if(this.headers!=null) {
+                    this.headers.forEach((k,v) -> mergeHeaders.put((String)k,(String)v));
+                }
+                if(headers!=null) {
+                    headers.forEach((k,v) -> mergeHeaders.put((String)k,(String)v));
+                }
+
+                sendResponse(t,code,bodyToSend,mergeHeaders);
 
             } catch(Exception e) {
+                LOG.error("Error processing request",e);
                 sendResponse(t, 500, e.getMessage(),null);
             }
+
+            LOG.info("======================================");
+
         }
     }
 
@@ -220,7 +324,10 @@ public class Http extends RockModule {
         }
     }
 
-    public Map<String,Object> get(Map<String,Object> params) throws IOException {
+    public Map<String,Object> get(Map<String,Object> paramsNotExpanded) throws IOException {
+
+        Map params=scenario.expand(paramsNotExpanded);
+
         String url = getStringParam(params,"url");
 
         LOG.info("Get {}",url);
@@ -235,7 +342,9 @@ public class Http extends RockModule {
         return ret;
     }
 
-    public Map<String,Object> delete(Map<String,Object> params) throws IOException {
+    public Map<String,Object> delete(Map<String,Object> paramsNotExpanded) throws IOException {
+        Map params=scenario.expand(paramsNotExpanded);
+
         String url = getStringParam(params,"url");
 
         LOG.info("Get {}",url);
@@ -250,7 +359,9 @@ public class Http extends RockModule {
         return ret;
     }
 
-    public Map<String,Object> post(Map<String,Object> params) throws IOException {
+    public Map<String,Object> post(Map<String,Object> paramsNotExpanded) throws IOException {
+        Map params=scenario.expand(paramsNotExpanded);
+
         String url = getStringParam(params,"url");
         String body = getStringParam(params,"body",null);
 
@@ -267,7 +378,9 @@ public class Http extends RockModule {
         return ret;
     }
 
-    public Map<String,Object> put(Map<String,Object> params) throws IOException {
+    public Map<String,Object> put(Map<String,Object> paramsNotExpanded) throws IOException {
+        Map params=scenario.expand(paramsNotExpanded);
+
         String url = getStringParam(params,"url");
         String body = getStringParam(params,"body",null);
 
@@ -288,27 +401,16 @@ public class Http extends RockModule {
 
         int port=getIntParam(params,"port",8080);
         List conditions=getArrayParam(params,"when");
+        Map headers=(Map)params.get("headers");
+        String name=getStringParam(params,"name","MOCK");
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port),10);
-        server.createContext("/", new MyHandler(conditions));
+        server.createContext("/", new MyHandler(conditions,headers,name));
         server.setExecutor(null); // creates a default executor
         server.start();
 
         LOG.info("Started HTTP mock on port {}",port);
 
-
-/*
-        String url = getStringParam(params,"url",true);
-        String body = getStringParam(params,"body",true);
-
-
-        HashMap<String,Object> ret=new HashMap<>();
-
-        HttpResp resp = httpPut(url,body);
-
-        ret.put("code",resp.getCode());
-        ret.put("body",resp.getBody());
-*/
         return null;
     }
 
