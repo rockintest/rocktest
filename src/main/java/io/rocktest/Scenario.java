@@ -436,6 +436,7 @@ public class Scenario {
             Object mapper = new ObjectMapper(new YAMLFactory());
 
             Step[] steps = ((ObjectMapper) mapper).readValue(new File(name), new TypeReference<Step[]>() {});
+            LOG.info("\n----------------------------------------");
 
             for (int i = 0; i < steps.length; i++) {
                 Step step = steps[i];
@@ -458,7 +459,7 @@ public class Scenario {
                 MDC.put("step",""+(i+1));
                 MDC.put("position","["+getStack()+"] Step#"+(i+1) );
 
-                LOG.info("----------------------------------------");
+                LOG.info("\n----------------------------------------");
                 LOG.info("{} {},{}",
                         currentDesc,
                         step.getType(),
