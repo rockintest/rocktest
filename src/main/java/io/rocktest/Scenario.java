@@ -81,6 +81,7 @@ public class Scenario {
     private String dir;
 
     private static Logger LOG = LoggerFactory.getLogger(Scenario.class);
+    public static Logger LINE = LoggerFactory.getLogger("noprefix");
 
     // HashMap for each instance of modules
     private HashMap<String,Object> moduleInstances=new HashMap<>();
@@ -436,7 +437,7 @@ public class Scenario {
             Object mapper = new ObjectMapper(new YAMLFactory());
 
             Step[] steps = ((ObjectMapper) mapper).readValue(new File(name), new TypeReference<Step[]>() {});
-            LOG.info("\n----------------------------------------");
+            LINE.info("----------------------------------------");
 
             for (int i = 0; i < steps.length; i++) {
                 Step step = steps[i];
@@ -459,7 +460,6 @@ public class Scenario {
                 MDC.put("step",""+(i+1));
                 MDC.put("position","["+getStack()+"] Step#"+(i+1) );
 
-                LOG.info("\n----------------------------------------");
                 LOG.info("{} {},{}",
                         currentDesc,
                         step.getType(),
@@ -479,7 +479,10 @@ public class Scenario {
                         returnVar(currentValue);
                         break;
                     case "var" :
-                        setVar(currentValue);
+                        if(step.getName()==null)
+                            setVar(currentValue);
+                        else
+                            setVar(expand(step.getName()),currentValue);
                         break;
                     case "exit" :
                         LOG.info("Exit");
@@ -531,11 +534,17 @@ public class Scenario {
 
                         exec(method,step.getParams());
                 }
+
+                LINE.info("----------------------------------------");
+
             }
+
+            MDC.remove("position");
 
         } catch (Exception e) {
 
             String basename = FilenameUtils.getBaseName(name);
+            MDC.remove("position");
 
             LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE",basename,title,currentStep,currentDesc);
             LOG.error("Exception",e);

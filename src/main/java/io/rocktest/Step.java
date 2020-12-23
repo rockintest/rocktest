@@ -16,6 +16,7 @@ public class Step {
     private String[] values;
     private String desc;
     private String body;
+    private String name;
     Map params;
 
 }

@@ -3,7 +3,7 @@
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
 	<property name="APPLI_NAME" value="rafTest" />
-	
+
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" >
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder" >
 			<charset>UTF-8</charset>
@@ -14,6 +14,20 @@
 			</layout>
 		</encoder>
 	</appender>
+
+	<appender name="STDOUT_NOPREFIX" class="ch.qos.logback.core.ConsoleAppender" >
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder" >
+			<charset>UTF-8</charset>
+			<layout class="ch.qos.logback.classic.PatternLayout" >
+				<pattern>%msg%n</pattern>
+			</layout>
+		</encoder>
+	</appender>
+
+	<logger name="noprefix" additivity="false" level="TRACE">
+		<appender-ref ref="STDOUT_NOPREFIX"/>
+	</logger>
+
 
 	<logger name="org.hibernate.SQL" additivity="false" level="DEBUG">
         <appender-ref ref="STDOUT"/>

@@ -1,0 +1,9 @@
+- type: var
+  name: singer
+  value: Joe Cocker
+
+- type: assert
+  value: equals
+  params:
+    expected: Joe Cocker
+    actual: ${singer}
