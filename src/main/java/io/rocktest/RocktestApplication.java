@@ -56,7 +56,7 @@ public class RocktestApplication
 
 			Map<String, List<Map<String,Object>>> functions = new HashMap<>();
 
-			String err=scenario.run(args[0],dir,new HashMap<String, Map<String,String>>(),stack,functions);
+			String err=scenario.run(args[0],dir,new HashMap<String, Map<String,String>>(),stack,null);
 			if(err!=null) {
 				LOG.error("Error : {}",err);
 				System.exit(1);

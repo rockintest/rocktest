@@ -1,0 +1,44 @@
+# module with multiple functions
+
+# Simply call the subscenario
+
+- type: skip
+- type: call
+  value: module/multilib
+
+- type: assert
+  value: equals
+  params:
+    expected: main returns Hello
+    actual: ${multilib.ret}
+
+- type: resume
+
+- type: call
+  value: module/multilib->func1
+  params:
+    param: Message1
+
+- type: display
+  value: ${multilib.func1.ret}
+
+- type: assert
+  value: equals
+  params:
+    expected: func1 returns Hello
+    actual: ${multilib.func1.ret}
+
+
+- type: call
+  value: module/multilib->func2
+  params:
+    param: Message2
+
+- type: display
+  value: ${multilib.func2.ret}
+
+- type: assert
+  value: equals
+  params:
+    expected: func2 returns Hello
+    actual: ${multilib.func2.ret}

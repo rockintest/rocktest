@@ -69,7 +69,7 @@ public class Scenario {
     private String dir;
 
     // Local functions
-    Map<String, List<Map>> functions;
+    Map<String, List<Map>> functions=new HashMap<>();
 
     private static Logger LOG = LoggerFactory.getLogger(Scenario.class);
     public static Logger LINE = LoggerFactory.getLogger("noprefix");
@@ -93,6 +93,7 @@ public class Scenario {
     private String datasourcePassword;
 
     private String getStack() {
+
         StringBuilder b = new StringBuilder();
 
         boolean first = true;
@@ -132,6 +133,9 @@ public class Scenario {
         initContext(getCurrentName());
         subContext = new StringSubstitutor(getLocalContext());
         subCond = new StringSubstitutor(new DefValueCompute(getLocalContext()));
+
+        subContext.setEnableSubstitutionInVariables(true);
+        subCond.setEnableSubstitutionInVariables(true);
 
     }
 
@@ -393,14 +397,14 @@ public class Scenario {
             if(functions.get(mod) != null) {
                 callInternal(mod,params);
             } else {
-                callExternal(mod, params);
+                callExternal(mod, params,null);
             }
 
         } else {
             if (m.group(1).equals("")) {
                 callInternal(m.group(2), params);
             } else {
-                callExternal(m.group(1), m.group(2), params);
+                callExternal(m.group(1), params, m.group(2));
             }
         }
     }
@@ -408,17 +412,19 @@ public class Scenario {
     public void callInternal(String function, Map params) throws NoSuchMethodException, InterruptedException, IOException, InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         LOG.debug("Call function {}",function);
 
-        Scenario module = new Scenario();
         stack.add(function);
 
         if (params != null)
             setContext(function, expand(params));
 
-        String err = module.run((List<Map>) functions.get(function), dir, context, stack,functions);
+        String err = run((List<Map>) functions.get(function), dir, context, stack);
 
         // Pop context
         deleteContext(function);
         stack.remove(stack.size() - 1);
+
+        // Recreates the string substitors with the local context
+        initLocalContext();
 
         if (err != null) {
             LOG.error("Error : {}", err);
@@ -427,14 +433,8 @@ public class Scenario {
 
     }
 
-    public void callExternal(String mod, String function, Map params) throws IOException, InterruptedException {
-        LOG.debug("Call function {} in module {}",function,mod);
 
-
-
-    }
-
-    public void callExternal(String mod, Map params) throws IOException, InterruptedException {
+    public void callExternal(String mod, Map params,String function) throws IOException, InterruptedException {
         LOG.debug("Call module {}",mod);
 
         Scenario module = new Scenario();
@@ -444,14 +444,18 @@ public class Scenario {
             file = file.concat(".yaml");
         }
 
-        // Push context for submodule
         String moduleName = new File(file).getName().replace(".yaml", "");
+        if(function!=null) {
+            moduleName = moduleName.concat(".").concat(function);
+        }
+
+        // Push context for submodule
         stack.add(moduleName);
 
         if (params != null)
             setContext(moduleName, expand(params));
 
-        String err = module.run(file, dir, context, stack,functions);
+        String err = module.run(file, dir, context, stack,function);
 
         // Pop context
         deleteContext(moduleName);
@@ -479,16 +483,25 @@ public class Scenario {
     }
 
 
-    public String run(String name, String dir, Map<String, Map<String, String>> context, List stack, Map functions) throws IOException, InterruptedException {
-        LOG.info("Start scenario. name={}, dir={}", name, dir);
+    public String run(String name, String dir, Map<String, Map<String, String>> context, List stack, String function) throws IOException, InterruptedException {
+        LOG.info("Load scenario. name={}, dir={}", name, dir);
 
         try {
             this.dir = dir;
-            this.functions = functions;
             Object mapper = new ObjectMapper(new YAMLFactory());
             List<Map> steps = ((ObjectMapper) mapper).readValue(new File(name), new TypeReference<List<Map>>() {});
             extractFunctions(steps);
-            return run(steps, dir, context, stack,functions);
+
+            if(function==null)
+                return run(steps, dir, context, stack);
+            else {
+                List<Map> stepsFunction=functions.get(function);
+                if(stepsFunction==null) {
+                    throw new RuntimeException("Function "+function+" not declared in module "+name);
+                }
+                return run(stepsFunction,dir, context, stack);
+            }
+
 
         } catch (Exception e) {
 
@@ -502,27 +515,36 @@ public class Scenario {
     }
 
 
-    public String run(List<Map> steps, String dir,Map<String, Map<String, String>> context, List stack,Map functions) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public String run(List<Map> steps, String dir,Map<String, Map<String, String>> context, List stack) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         this.context = context;
         this.stack = stack;
         this.dir = dir;
-        this.functions = functions;
 
         initLocalContext();
-        subContext.setEnableSubstitutionInVariables(true);
-        subCond.setEnableSubstitutionInVariables(true);
 
+        boolean skiped=false;
 
         LINE.info("----------------------------------------");
 
         for (int i = 0; i < steps.size(); i++) {
             Step step = new Step(steps.get(i));
 
-            // Do not execute functions until they are called
-            if (step.getType().equals("function")) {
-                continue;
+            switch (step.getType()) {
+                // Do not execute a function until it is called
+                case "function":
+                    continue;
+                case "skip" :
+                    skiped=true;
+                    break;
+                case "resume" :
+                    skiped=false;
+                    break;
             }
+
+            // Skip steps if necessary
+            if(skiped || step.getType().equals("resume"))
+                continue;
 
             currentStep = i + 1;
             currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ")" : "");
@@ -548,9 +570,6 @@ public class Scenario {
                     valueDetail);
 
             switch (step.getType()) {
-                // Do not execute a function until it is called
-                case "function":
-                    break;
                 case "exec":
                     exec(step.getValue(), step.getParams());
                     break;
@@ -610,6 +629,12 @@ public class Scenario {
                     break;
                 case "check":
                     execSql(currentValue, step.getExpect());
+                    break;
+
+                // Those steps are handled by the first switch, at the top of the function
+                case "function":
+                case "skip":
+                case "resume":
                     break;
                 default:
 

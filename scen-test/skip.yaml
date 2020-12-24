@@ -1,0 +1,18 @@
+- type: display
+  value: I am not skiped
+
+- type: skip
+
+- type: assert
+  value: equals
+  params:
+    expected: Led Zeppelin
+    actual: AC/DC
+    message: I should not be raised, because I am skiped
+
+- type: resume
+
+- type: display
+  value: I am not skiped
+
+

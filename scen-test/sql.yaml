@@ -2,8 +2,6 @@
   params:
     retry: 0
     url: "jdbc:h2:mem:"
-    user: sa
-    password: sa
 
 - type: sql.request
   params:

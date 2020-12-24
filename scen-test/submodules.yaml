@@ -29,7 +29,7 @@
     actual: ${whorocks.ret}
 
 - type: call
-  value: inception
+  value: subinception
   params:
     message: "Inception..."
 
@@ -57,3 +57,15 @@
       message: ${message}
   - type: return
     value: ret = ${whorocks.ret}
+
+# 3 levels imbrication
+
+- type: function
+  name: subinception
+  steps:
+    - type: call
+      value: inception
+      params:
+        message: ${message}
+    - type: return
+      value: ret = ${inception.ret}
