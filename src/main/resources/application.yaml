@@ -1,5 +1,5 @@
 topic:
-  name: ${KAFKA_FUNC_TOPIC}
+  name: ${KAFKA_FUNC_TOPIC:topic}
   partitions-num: 1
   replication-factor: 1
 
@@ -12,9 +12,9 @@ spring:
     location: classpath:banner/banner.txt
   kafka:
     bootstrap-servers:
-      - ${KAFKA_URI_PLAINTEXT}
+      - ${KAFKA_URI_PLAINTEXT:http://localhost:9192}
     properties:
-      schema.registry.url: ${KAFKA_SCHEMA_REGISTRY_URL}
+      schema.registry.url: ${KAFKA_SCHEMA_REGISTRY_URL:http://localhost:8083}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
@@ -29,7 +29,7 @@ logging:
 
 default:
   datasource:
-    url: ${DATASOURCE_URL}
+    url: ${DATASOURCE_URL:jdbc:h2:mem:rock}
     user: system
     password: system
   check:
