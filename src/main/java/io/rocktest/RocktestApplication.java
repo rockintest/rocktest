@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -53,7 +54,9 @@ public class RocktestApplication
 			ArrayList<String> stack=new ArrayList<>();
 			stack.add(new File(args[0]).getName().replace(".yaml",""));
 
-			String err=scenario.run(args[0],dir,new HashMap<String, Map<String,String>>(),stack);
+			Map<String, List<Map<String,Object>>> functions = new HashMap<>();
+
+			String err=scenario.run(args[0],dir,new HashMap<String, Map<String,String>>(),stack,functions);
 			if(err!=null) {
 				LOG.error("Error : {}",err);
 				System.exit(1);

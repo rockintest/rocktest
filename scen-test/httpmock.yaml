@@ -3,9 +3,13 @@
 - type: http.mock
   params:
     port: 8080
+    # Default header. Always set.
+    headers:
+      content-type: application/json
     when:
     - uri: /singer/springsteen
       method: get
+      # Response to send when condition is met
       response:
         code: 200
         body: >-
@@ -13,12 +17,56 @@
             "fullname": "Bruce Springsteen aka The Boss",
             "bestsong": "Born in the USA"
           }
+        # Extra headers, only for this condition
         headers:
-          content-type: application/json
+          rocker-1 : Chris Rea
+          rocker-2 : Sting
+
+    # Condition to simulate en error
     - uri: /singer/calimero
       method: get
       response:
         code: 400
+
+    # Call a "logic"
+    - uri: /singer/(.*)
+      method: post
+      # When the condition is met, call the module
+      call:
+        value: module/httpmockmodule
+        params:
+          singer: ${1}
+          body: ${body}
+          uri: ${uri}
+      response:
+        # Return code and body come from the module
+        code: ${httpmockmodule.code}
+        body: ${httpmockmodule.body}
+
+      # Extract patterns from the URL and use them in the body sent
+    - uri: /singer/([^?]*)(?:\?criteria=(.*))?
+      method: get
+      response:
+        code: 404
+        # Patterns extracted are available in variables ${1} .. ${n}
+        body: >-
+          {
+            error: "not found",
+            message: "Singer ${1} not found ${2?with criteria ${2}::without criteria}"
+          }
+
+    # Default condition.
+    - uri: (.*)
+      # Method could be ".*"
+      method: get|post|delete|put
+      response:
+        code: 404
+        body: >-
+          {
+            error: "not found",
+            message: "Unknown URI ${1}"
+          }
+
 
 - type: pause
   value: 1000

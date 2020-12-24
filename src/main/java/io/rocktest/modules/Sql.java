@@ -32,7 +32,8 @@ public class Sql extends RockModule {
     public Sql() {
     }
 
-    public Map<String, Object> connect(Map<String, Object> params) {
+    public Map<String, Object> connect(Map<String, Object> paramsNotExpanded) {
+        Map params=scenario.expand(paramsNotExpanded);
 
         String url = getStringParam(params, "url");
         String username = getStringParam(params, "user", "sa");
@@ -55,7 +56,8 @@ public class Sql extends RockModule {
     }
 
 
-    public Map<String, Object> update(Map<String, Object> params) throws InterruptedException {
+    public Map<String, Object> update(Map<String, Object> paramsNotExpanded) throws InterruptedException {
+        Map params=scenario.expand(paramsNotExpanded);
 
         String req = getStringParam(params, "request");
         jdbcTemplate.update(req);
@@ -64,7 +66,8 @@ public class Sql extends RockModule {
     }
 
 
-    public Map<String, Object> request(Map<String, Object> params) throws InterruptedException {
+    public Map<String, Object> request(Map<String, Object> paramsNotExpanded) throws InterruptedException {
+        Map params=scenario.expand(paramsNotExpanded);
 
         String req = getStringParam(params, "request");
         if(req.trim().toLowerCase().startsWith("select")) {
@@ -77,7 +80,8 @@ public class Sql extends RockModule {
 
 
 
-    public Map<String, Object> query(Map<String, Object> params) throws InterruptedException {
+    public Map<String, Object> query(Map<String, Object> paramsNotExpanded) throws InterruptedException {
+        Map params=scenario.expand(paramsNotExpanded);
 
         List<String> expect = getArrayParam(params, "expect", null);
         String req = getStringParam(params, "request");
