@@ -1,10 +1,10 @@
 # First part is main by default
 
 - type: display
-  value: main called with param ${param}
+  value: main called with param ${question}
 
 - type: return
-  value: ret = main returns Hello
+  value: "ret = ${question} It's RockTest"
 
 ## Functions
 

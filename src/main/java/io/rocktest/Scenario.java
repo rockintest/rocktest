@@ -33,6 +33,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 @Component
 @NoArgsConstructor
+@Setter
 public class Scenario {
 
 
@@ -69,13 +70,13 @@ public class Scenario {
     private String dir;
 
     // Local functions
-    Map<String, List<Map>> functions=new HashMap<>();
+    private Map<String, List<Map>> functions=new HashMap<>();
 
     private static Logger LOG = LoggerFactory.getLogger(Scenario.class);
     public static Logger LINE = LoggerFactory.getLogger("noprefix");
 
     // HashMap for each instance of modules
-    private HashMap<String, Object> moduleInstances = new HashMap<>();
+    private HashMap<String, Object> moduleInstances;
 
     @Value("${default.check.delay}")
     private int checkDelay;
@@ -123,9 +124,6 @@ public class Scenario {
         return (ret == null ? "" : ret);
     }
 
-    private void setVar(String var, String value) {
-        getLocalContext().put(var, value);
-    }
 
     // Initialise la hashmap pour les variable de ce script
     void initLocalContext() {
@@ -217,17 +215,17 @@ public class Scenario {
 
         switch (assertType) {
             case "equals":
-                String actual = params.get("actual");
+                String actual = String.valueOf(params.get("actual"));
                 if (actual == null) {
                     throw new RuntimeException("\"actual\" param is required");
                 }
 
-                String expected = params.get("expected");
+                String expected = String.valueOf(params.get("expected"));
                 if (expected == null) {
                     throw new RuntimeException("\"expected\" param is required");
                 }
 
-                String msg = params.get("message");
+                String msg = String.valueOf(params.get("message"));
                 if (msg == null) msg = "";
 
                 if (!actual.equals(expected)) {
@@ -258,9 +256,9 @@ public class Scenario {
         if (module == null) {
             module = moduleClass.getDeclaredConstructor().newInstance();
             moduleInstances.put(cls, module);
-            ((RockModule) module).setScenario(this);
         }
 
+        ((RockModule) module).setScenario(this);
         String methodName = function.substring(function.lastIndexOf('.') + 1, function.length());
 
         Class<?>[] paramTypes = {Map.class};
@@ -438,6 +436,9 @@ public class Scenario {
         LOG.debug("Call module {}",mod);
 
         Scenario module = new Scenario();
+        module.env=this.env;
+        module.setModuleInstances(this.moduleInstances);
+
         String file = dir + "/" + mod;
 
         if (!file.endsWith(".yaml")) {
@@ -546,6 +547,9 @@ public class Scenario {
             if(skiped || step.getType().equals("resume"))
                 continue;
 
+            if(step.getType().trim().startsWith("#"))
+                continue;
+
             currentStep = i + 1;
             currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ")" : "");
 
@@ -580,7 +584,10 @@ public class Scenario {
                     doAssert(currentValue, expand(step.getParams()));
                     break;
                 case "return":
-                    returnVar(currentValue);
+                    if (step.getName() == null)
+                        returnVar(expand(step.getValue()));
+                    else
+                        returnVar(expand(step.getName()), currentValue);
                     break;
                 case "var":
                     if (step.getName() == null)
@@ -656,7 +663,7 @@ public class Scenario {
 
 
     public Variable extractVariable(String exp) {
-        Pattern p = Pattern.compile("[ ]*([^ ]+)[ ]*=[ ]*(.+)[ ]*");
+        Pattern p = Pattern.compile("[ ]*([^ ]+)[ ]*=[ ]*(.+)[ ]*",Pattern.DOTALL);
         Matcher m = p.matcher(exp);
 
         if (!m.find()) {
@@ -672,16 +679,22 @@ public class Scenario {
 
     public void returnVar(String exp) {
         Variable v = extractVariable(exp);
-        LOG.info("Return variable {} = {}", v.var, v.value);
-        putCallerContext(getCurrentName() + "." + v.var, v.value);
+        returnVar(v.var,v.value);
     }
 
+    public void returnVar(String var, String value) {
+        LOG.info("Return variable {} = {}", var, value);
+        putCallerContext(getCurrentName() + "." + var, value);
+    }
 
     public void setVar(String exp) {
         Variable v = extractVariable(exp);
-        LOG.info("Set variable {} = {}", v.var, v.value);
-        getLocalContext().put(v.var, v.value);
+        setVar(v.var,v.value);
+    }
 
+    private void setVar(String var, String value) {
+        LOG.info("Set variable {} = {}", var, value);
+        getLocalContext().put(var, value);
     }
 
 

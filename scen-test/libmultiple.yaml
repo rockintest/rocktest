@@ -2,17 +2,16 @@
 
 # Simply call the subscenario
 
-- type: skip
 - type: call
   value: module/multilib
+  params:
+    question: Who Rocks ?
 
 - type: assert
   value: equals
   params:
-    expected: main returns Hello
+    expected: "Who Rocks ? It's RockTest"
     actual: ${multilib.ret}
-
-- type: resume
 
 - type: call
   value: module/multilib->func1

@@ -37,11 +37,43 @@ public class DefValueCompute  implements StringLookup {
 
         // On regarde si on a une expression du genre
         // ${variable?value if set::value if not set}
-        Pattern p = Pattern.compile("([^?]+)\\?(.+)::(.+)");
+        Pattern p = Pattern.compile("([^?]+)(?:\\?(.+))?::(.+)",Pattern.DOTALL);
         Matcher m = p.matcher(tmp);
 
-        if(!m.find()) {
+        if(m.find()) {
+            String var=m.group(1).trim();
+            String valIfSet=m.group(2);
+            String valIfNotSet=m.group(3);
 
+            // On n'a pas de "value if set"
+            if(valIfSet==null) {
+                String ret=System.getenv(var);
+                if(ret != null)
+                    return ret;
+
+                ret=context.get(var);
+                if( ret == null) {
+                    return valIfNotSet;
+                } else {
+                    return ret;
+                }
+
+            } else {
+
+                if(context.get(var) == null) {
+                    return valIfNotSet;
+                } else {
+                    return valIfSet;
+                }
+
+            }
+
+        }
+
+        return null;
+
+        /*
+        else {
             // On regarde si on a
             // ${variable::default value}
             Pattern p2 = Pattern.compile("(.+)::(.+)");
@@ -67,6 +99,7 @@ public class DefValueCompute  implements StringLookup {
 
         }
 
+
         String var=m.group(1).trim();
         String valIfSet=m.group(2);
         String valIfNotSet=m.group(3);
@@ -76,6 +109,7 @@ public class DefValueCompute  implements StringLookup {
         } else {
             return valIfSet;
         }
+        */
 
     }
 }

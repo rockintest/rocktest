@@ -7,7 +7,7 @@
     # Call the local "concatlocal" subscenario.
     # The result is the variable ${concatlocal.result} computed by the sub scenario
     # Variables 1..n are automatically allocated and passed to the module
-    actual: $.concatlocal(Led,Zeppelin)
+    actual: $->concatlocal(Led,Zeppelin)
 
 # The scenario can be in an external yaml
 - type: assert
