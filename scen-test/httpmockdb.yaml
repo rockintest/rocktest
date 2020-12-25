@@ -1,0 +1,22 @@
+# HTTP mock with persistence in an embedded database
+
+# Create the datasource
+- type: call
+  value: module/dbmock->connect
+
+- type: http.mock
+  params:
+    port: 8080
+    when:
+      - uri: /singer/(.*)
+        method: get
+        call:
+          value: module/dbmock
+          params:
+            singer: ${1}
+        response:
+          code: ${dbmock.code}
+          body: ${dbmock.body}
+
+- type: pause
+  value: 1000

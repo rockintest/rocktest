@@ -37,7 +37,7 @@ public class DefValueCompute  implements StringLookup {
 
         // On regarde si on a une expression du genre
         // ${variable?value if set::value if not set}
-        Pattern p = Pattern.compile("([^?]+)(?:\\?(.+))?::(.+)",Pattern.DOTALL);
+        Pattern p = Pattern.compile("([^?]+)(?:\\?(.*))?::(.*)",Pattern.DOTALL);
         Matcher m = p.matcher(tmp);
 
         if(m.find()) {

@@ -23,6 +23,12 @@ public class Step {
 
     private List valid = Arrays.asList("type","value","expect","steps","values","desc","body","name","params");
 
+    private String asString(Object o) {
+        if(o==null)
+            return null;
+        return String.valueOf(o);
+    }
+
     public Step(Map m) {
 
         m.keySet().forEach(o -> {
@@ -31,14 +37,14 @@ public class Step {
             }
         });
 
-        type=(String)m.get("type");
-        value=(String)m.get("value");
+        type=asString(m.get("type"));
+        value=asString(m.get("value"));
         expect=(List)m.get("expect");
         steps=(List)m.get("steps");
         values=(List)m.get("values");
-        desc=(String)m.get("desc");
-        body=(String)m.get("body");
-        name=(String)m.get("name");
+        desc=asString(m.get("desc"));
+        body=asString(m.get("body"));
+        name=asString(m.get("name"));
         params=(Map)m.get("params");
     }
 

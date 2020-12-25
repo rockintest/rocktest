@@ -44,3 +44,4 @@ modules:
   http.post : io.rocktest.modules.Http.post
   http.put : io.rocktest.modules.Http.put
   http.mock : io.rocktest.modules.Http.mock
+  json.parse : io.rocktest.modules.JSon.parse

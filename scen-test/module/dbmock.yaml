@@ -24,7 +24,7 @@
 
 - type: return
   # If no line is found, return an empty body
-  value: body = ${request.0?${tmp}::""}
+  value: body = ${request.0?${tmp}::}
 
 - type: return
   # If no line is found, return 404, else 200

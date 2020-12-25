@@ -126,7 +126,7 @@ public class Scenario {
 
 
     // Initialise la hashmap pour les variable de ce script
-    void initLocalContext() {
+    public void initLocalContext() {
 
         initContext(getCurrentName());
         subContext = new StringSubstitutor(getLocalContext());
@@ -267,7 +267,11 @@ public class Scenario {
 
         if (ret != null) {
             for (String k : ret.keySet()) {
-                getLocalContext().put(methodName + "." + k, String.valueOf(ret.get(k)));
+                if(ret.get(k)==null) {
+                    getLocalContext().remove(methodName + "." + k);
+                } else {
+                    getLocalContext().put(methodName + "." + k, String.valueOf(ret.get(k)));
+                }
             }
         }
 
@@ -433,7 +437,6 @@ public class Scenario {
 
 
     public void callExternal(String mod, Map params,String function) throws IOException, InterruptedException {
-        LOG.debug("Call module {}",mod);
 
         Scenario module = new Scenario();
         module.env=this.env;
@@ -568,9 +571,10 @@ public class Scenario {
             MDC.put("step", "" + (i + 1));
             MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
 
-            LOG.info("{} {},{}",
+            LOG.info("{}{}{}{}",
                     currentDesc,
                     step.getType(),
+                    (valueDetail.isEmpty()?"":","),
                     valueDetail);
 
             switch (step.getType()) {

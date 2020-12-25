@@ -18,6 +18,10 @@ public class RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(Http.class);
 
+    public Map expand(Map notExpanded) {
+        return scenario.expand(notExpanded);
+    }
+
     public String getStringParam(Map params, String key) {
         String ret=getStringParam(params,key,null);
         if(ret==null)

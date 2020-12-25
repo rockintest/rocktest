@@ -13,8 +13,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,28 +193,36 @@ public class Http extends RockModule {
 
                 if (condition == null) {
                     sendResponse(t, 404, "No match for URI",null);
+                } else {
+                    Map c=(Map)condition.get("call");
+                    if(c!=null) {
+                        call(scenario.expand(c));
+                        MDC.put("position",name);
+                    }
+
+                    Map condresp=(Map)condition.get("response");
+
+                    if(condresp==null) {
+                        throw new RuntimeException("Condition must have a reponse field");
+                    }
+
+                    Map resp = scenario.expand(condresp);
+                    int code=getIntParam(resp,"code",200);
+
+                    String bodyToSend=scenario.expand(getStringParam(resp,"body",null));
+                    Map headers = (Map) resp.get("headers");
+
+                    Map<String,String> mergeHeaders=new HashMap<>();
+                    if(this.headers!=null) {
+                        this.headers.forEach((k,v) -> mergeHeaders.put((String)k,(String)v));
+                    }
+                    if(headers!=null) {
+                        headers.forEach((k,v) -> mergeHeaders.put((String)k,(String)v));
+                    }
+
+                    sendResponse(t,code,bodyToSend,mergeHeaders);
+
                 }
-
-                Map c=(Map)condition.get("call");
-                if(c!=null) {
-                    call(scenario.expand(c));
-                }
-
-                Map resp = scenario.expand((Map) condition.get("response"));
-                int code=getIntParam(resp,"code",200);
-
-                String bodyToSend=scenario.expand(getStringParam(resp,"body",null));
-                Map headers = (Map) resp.get("headers");
-
-                Map<String,String> mergeHeaders=new HashMap<>();
-                if(this.headers!=null) {
-                    this.headers.forEach((k,v) -> mergeHeaders.put((String)k,(String)v));
-                }
-                if(headers!=null) {
-                    headers.forEach((k,v) -> mergeHeaders.put((String)k,(String)v));
-                }
-
-                sendResponse(t,code,bodyToSend,mergeHeaders);
 
             } catch(Exception e) {
                 LOG.error("Error processing request",e);
@@ -327,7 +333,7 @@ public class Http extends RockModule {
 
     public Map<String,Object> get(Map<String,Object> paramsNotExpanded) throws IOException {
 
-        Map params=scenario.expand(paramsNotExpanded);
+        Map params=expand(paramsNotExpanded);
 
         String url = getStringParam(params,"url");
 
@@ -344,7 +350,7 @@ public class Http extends RockModule {
     }
 
     public Map<String,Object> delete(Map<String,Object> paramsNotExpanded) throws IOException {
-        Map params=scenario.expand(paramsNotExpanded);
+        Map params=expand(paramsNotExpanded);
 
         String url = getStringParam(params,"url");
 
@@ -361,7 +367,7 @@ public class Http extends RockModule {
     }
 
     public Map<String,Object> post(Map<String,Object> paramsNotExpanded) throws IOException {
-        Map params=scenario.expand(paramsNotExpanded);
+        Map params=expand(paramsNotExpanded);
 
         String url = getStringParam(params,"url");
         String body = getStringParam(params,"body",null);
@@ -380,7 +386,7 @@ public class Http extends RockModule {
     }
 
     public Map<String,Object> put(Map<String,Object> paramsNotExpanded) throws IOException {
-        Map params=scenario.expand(paramsNotExpanded);
+        Map params=expand(paramsNotExpanded);
 
         String url = getStringParam(params,"url");
         String body = getStringParam(params,"body",null);
