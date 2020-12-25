@@ -175,6 +175,10 @@ public class Scenario {
     }
 
     public Map<String, Object> expand(Map<String, Object> in) {
+
+        if(in==null)
+            return null;
+
         HashMap<String, Object> ret = new HashMap<>();
         for (Map.Entry<String, Object> entry : in.entrySet()) {
 

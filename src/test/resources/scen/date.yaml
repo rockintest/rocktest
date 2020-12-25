@@ -1,0 +1,27 @@
+- type: date.now
+
+- type: display
+  value: ${now.result}
+
+- type: date.now
+  params:
+    format: yyyyMMdd
+
+- type: display
+  value: ${now.result}
+
+- type: date.minus
+  params:
+    date: 25/12/2020
+    years: 1
+    months: 1
+    days: 1
+
+- type: display
+  value: ${minus.result}
+
+- type: assert
+  value: equals
+  params:
+    expected: 24/11/2019
+    actual: ${minus.result}

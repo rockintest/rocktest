@@ -1,0 +1,10 @@
+- type: var
+  name: json
+  value: >-
+    {
+      "name" : "inxs",
+      "album" : "Kick"
+    }
+
+- type: display
+  value: ${json.parse(${json}).album}

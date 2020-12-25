@@ -45,3 +45,5 @@ modules:
   http.put : io.rocktest.modules.Http.put
   http.mock : io.rocktest.modules.Http.mock
   json.parse : io.rocktest.modules.JSon.parse
+  date.now : io.rocktest.modules.Date.now
+  date.minus : io.rocktest.modules.Date.minus

@@ -32,6 +32,9 @@ public class RockModule {
 
     public String getStringParam(Map params, String key, String def) {
 
+        if(params==null)
+            return def;
+
         Object o = params.get(key);
 
         if(o == null) {
@@ -48,6 +51,7 @@ public class RockModule {
 
 
     public Integer getIntParam(Map params, String key) {
+
         Integer ret=getIntParam(params,key,null);
         if(ret==null)
             throw new RuntimeException(key + " param mandatory");
@@ -57,6 +61,8 @@ public class RockModule {
 
 
     public Integer getIntParam(Map params, String key, Integer def) {
+        if(params==null)
+            return def;
 
         Object o = params.get(key);
 
@@ -83,6 +89,8 @@ public class RockModule {
 
 
     public List getArrayParam(Map params, String key, List def) {
+        if(params == null)
+            return def;
 
         Object o = params.get(key);
 

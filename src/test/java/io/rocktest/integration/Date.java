@@ -8,18 +8,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
 
 @SpringBootTest
-public class JSon extends RockTest {
-
-    private static Logger LOG = LoggerFactory.getLogger(JSon.class);
+public class Date extends RockTest {
+    private static Logger LOG = LoggerFactory.getLogger(Date.class);
 
     @Test
-    public void parse() throws IOException, InterruptedException {
-        String ret=run("json.yaml");
+    public void date() throws IOException, InterruptedException {
+        String ret=run("date.yaml");
         assertNull("Scenario should succeed",ret);
     }
-
 
 }
