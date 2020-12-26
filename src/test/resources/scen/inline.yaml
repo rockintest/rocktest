@@ -1,3 +1,7 @@
+- type: display
+  value: ${date.now()}
+
+
 - type: var
   name: json
   value: >-

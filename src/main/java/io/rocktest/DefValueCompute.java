@@ -35,8 +35,9 @@ public class DefValueCompute  implements StringLookup {
 
         tmp= subContext.replace(s);
 
-        // On regarde si on a une expression du genre
-        // ${variable?value if set::value if not set}
+        // De we have expression like
+        // ${variable?value if set::value if not set} or
+        // ${variable::value if not set}
         Pattern p = Pattern.compile("([^?]+)(?:\\?(.*))?::(.*)",Pattern.DOTALL);
         Matcher m = p.matcher(tmp);
 
@@ -68,48 +69,24 @@ public class DefValueCompute  implements StringLookup {
 
             }
 
+        } else {
+
+            // De we have expression like
+            // ${module(p1,p2).path}
+            p = Pattern.compile("([^(]+)\\(((?:[^,]+)?(?:,[^,]+)*)\\)(?:\\.(.+))?",Pattern.DOTALL);
+            m = p.matcher(tmp);
+
+            if(m.find()) {
+
+                String module=m.group(1);
+                String params=m.group(2);
+                String path=m.group(3);
+
+            }
+
         }
 
         return null;
-
-        /*
-        else {
-            // On regarde si on a
-            // ${variable::default value}
-            Pattern p2 = Pattern.compile("(.+)::(.+)");
-            Matcher m2 = p2.matcher(tmp);
-
-            if(!m2.find()) {
-                return null;
-            }
-
-            String var=m2.group(1).trim();
-            String valIfNotSet=m2.group(2);
-
-            String ret=System.getenv(var);
-            if(ret != null)
-                return ret;
-
-            ret=context.get(var);
-            if( ret == null) {
-                return valIfNotSet;
-            } else {
-                return ret;
-            }
-
-        }
-
-
-        String var=m.group(1).trim();
-        String valIfSet=m.group(2);
-        String valIfNotSet=m.group(3);
-
-        if(context.get(var) == null) {
-            return valIfNotSet;
-        } else {
-            return valIfSet;
-        }
-        */
 
     }
 }
