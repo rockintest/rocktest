@@ -34,6 +34,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 @Component
 @NoArgsConstructor
 @Setter
+@Getter
 public class Scenario {
 
 
@@ -60,8 +61,13 @@ public class Scenario {
 
     private StringSubstitutor subLast = new StringSubstitutor(last);
     private StringSubstitutor subCond;
+
+    // Quote the parameters for inline syntax
+    private StringSubstitutor subQuoter;
+
     private static final StringSubstitutor subEnv = new StringSubstitutor(System.getenv());
-    private StringSubstitutor subContext;
+
+    //private StringSubstitutor subContext;
 
     // Call stack
     private List<String> stack;
@@ -129,11 +135,15 @@ public class Scenario {
     public void initLocalContext() {
 
         initContext(getCurrentName());
-        subContext = new StringSubstitutor(getLocalContext());
-        subCond = new StringSubstitutor(new DefValueCompute(getLocalContext()));
 
-        subContext.setEnableSubstitutionInVariables(true);
+        subCond = new StringSubstitutor(new DefValueCompute(this));
         subCond.setEnableSubstitutionInVariables(true);
+
+        subQuoter = new StringSubstitutor(new ParamQuoter());
+        subQuoter.setEnableSubstitutionInVariables(true);
+
+        //subContext = new StringSubstitutor(getLocalContext());
+        //subContext.setEnableSubstitutionInVariables(true);
 
     }
 
@@ -149,7 +159,10 @@ public class Scenario {
 
     public String expand(String val) {
 
-        String ret = subLast.replace(val);
+        // First, quote the params for the inline syntax
+        String ret = subQuoter.replace(val);
+
+        ret = subLast.replace(ret);
         ret = subEnv.replace(ret);
         ret = subCond.replace(ret);
 
@@ -251,7 +264,7 @@ public class Scenario {
     }
 
 
-    private Map exec(String function, Map<String, Object> params) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    public Map exec(String function, Map<String, Object> params) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
         String cls = function.substring(0, function.lastIndexOf('.'));
         Class<?> moduleClass = Class.forName(cls);
@@ -653,7 +666,7 @@ public class Scenario {
                     break;
                 default:
 
-                    String method = env.getProperty("modules." + step.getType());
+                    String method = env.getProperty("modules." + step.getType()+ ".function");
                     if (method == null)
                         throw new RuntimeException("Type " + step.getType() + " unknown");
 

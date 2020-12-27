@@ -1,5 +1,33 @@
+- type: var
+  name: date
+  value: 25/12/2020
+
+- type: assert
+  value: equals
+  params:
+    expected: 24/11/2019
+    actual: ${$date.minus(${date},1,1,1)}
+
 - type: display
-  value: ${date.now()}
+  value: ${$date.now()}
+
+- type: display
+  value: ${$date.minus(25/12/2020,1,1,1)}
+
+- type: assert
+  value: equals
+  params:
+    expected: 24/11/2019
+    actual: ${$date.minus(25/12/2020,1,1,1)}
+
+- type: display
+  value: ${$date.minus(months:=1,date:=01/01/1999)}
+
+- type: assert
+  value: equals
+  params:
+    expected: 01/12/1998
+    actual: ${$date.minus(months:=1,date:=01/01/1999)}
 
 
 - type: var

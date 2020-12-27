@@ -3,9 +3,11 @@ package io.rocktest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,12 +18,15 @@ public class DefValueCompute  implements StringLookup {
 
     private Map<String,String> context;
     private StringSubstitutor subContext;
+    private Scenario scenario;
 
-    public DefValueCompute(Map<String,String> context) {
-        this.context=context;
+    public DefValueCompute(Scenario s) {
+        this.scenario=s;
+        this.context=s.getLocalContext();
         subContext=new StringSubstitutor(context);
     }
 
+    @SneakyThrows
     @Override
     public String lookup(String s) {
 
@@ -73,7 +78,7 @@ public class DefValueCompute  implements StringLookup {
 
             // De we have expression like
             // ${module(p1,p2).path}
-            p = Pattern.compile("([^(]+)\\(((?:[^,]+)?(?:,[^,]+)*)\\)(?:\\.(.+))?",Pattern.DOTALL);
+            p = Pattern.compile("\\$([^(]+)\\(((?:[^,]+)?(?:,[^,]+)*)\\)(?:\\.(.+))?",Pattern.DOTALL);
             m = p.matcher(tmp);
 
             if(m.find()) {
@@ -82,6 +87,57 @@ public class DefValueCompute  implements StringLookup {
                 String params=m.group(2);
                 String path=m.group(3);
 
+                String method = scenario.getEnv().getProperty("modules." + module+".function");
+                if (method == null)
+                    throw new RuntimeException("Module " + module + " unknown");
+
+                String result = scenario.getEnv().getProperty("modules." + module+".result");
+                if (result == null)
+                    throw new RuntimeException("Result not available for module " + module);
+
+                HashMap<String,Object> paramsMap=null;
+                if(params != null && !params.isEmpty()) {
+
+                    // Extract params (p1,p2,...) or (param1:=value1, param2:=value2...)
+                    // and put them according to their values in the hash table
+
+                    paramsMap=new HashMap<>();
+                    String[] paramArray = params.split(",");
+                    for (int i = 0; i < paramArray.length; i++) {
+
+                        String current=paramArray[i];
+
+                        p = Pattern.compile(" *<<\\[(.+)\\]>>");
+                        m = p.matcher(current);
+
+                        if(m.matches()) {
+                            current=m.group(1);
+                        }
+
+                        p = Pattern.compile(" *(.+) *:= *(.+) *",Pattern.DOTALL);
+                        m = p.matcher(current);
+
+                        if(m.matches()) {
+
+                            String paramName=m.group(1);
+                            String paramValue=m.group(2);
+                            paramsMap.put(paramName, paramValue);
+
+                        } else {
+                            String paramName = scenario.getEnv().getProperty("modules." + module + ".params." + (i + 1));
+                            if (paramName == null) {
+                                throw new RuntimeException("Param #" + i + " undefined for module " + module);
+                            }
+                            paramsMap.put(paramName, current);
+                        }
+                    }
+                }
+
+                Map ret = scenario.exec(method,paramsMap);
+
+                Object o=ret.get(result);
+                if(o!=null)
+                    return String.valueOf(o);
             }
 
         }

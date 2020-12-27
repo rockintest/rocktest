@@ -37,13 +37,30 @@ default:
     retry: 30
 
 modules:
-  sql.connect : io.rocktest.modules.Sql.connect
-  sql.request : io.rocktest.modules.Sql.request
-  http.get : io.rocktest.modules.Http.get
-  http.delete : io.rocktest.modules.Http.delete
-  http.post : io.rocktest.modules.Http.post
-  http.put : io.rocktest.modules.Http.put
-  http.mock : io.rocktest.modules.Http.mock
-  json.parse : io.rocktest.modules.JSon.parse
-  date.now : io.rocktest.modules.Date.now
-  date.minus : io.rocktest.modules.Date.minus
+  sql.connect :
+    function: io.rocktest.modules.Sql.connect
+  sql.request :
+    function: io.rocktest.modules.Sql.request
+  http.get :
+    function: io.rocktest.modules.Http.get
+  http.delete :
+    function: io.rocktest.modules.Http.delete
+  http.post :
+    function: io.rocktest.modules.Http.post
+  http.put :
+    function: io.rocktest.modules.Http.put
+  http.mock :
+    function: io.rocktest.modules.Http.mock
+  json.parse :
+    function: io.rocktest.modules.JSon.parse
+  date.now:
+    function: io.rocktest.modules.Date.now
+    result: result
+  date.minus :
+    function: io.rocktest.modules.Date.minus
+    result: result
+    params:
+      1: date
+      2: years
+      3: months
+      4: days
