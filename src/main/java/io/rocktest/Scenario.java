@@ -571,7 +571,7 @@ public class Scenario {
                 continue;
 
             currentStep = i + 1;
-            currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ")" : "");
+            currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ") " : "");
 
             String currentValue;
             String valueDetail;

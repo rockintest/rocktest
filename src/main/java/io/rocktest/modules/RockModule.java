@@ -42,7 +42,7 @@ public class RockModule {
         }
 
         if (!(o instanceof String)) {
-            throw new RuntimeException(key + " param must be a string");
+            throw new RuntimeException(key + " param must be a string but is \""+String.valueOf(o)+"\"");
         }
 
         return (String)o;
@@ -71,7 +71,7 @@ public class RockModule {
         }
 
         if (!(o instanceof Number)) {
-            throw new RuntimeException(key + " param must be a integer");
+            throw new RuntimeException(key + " param must be a integer but is \""+String.valueOf(o)+"\"");
         }
 
         return (Integer)o;
@@ -99,7 +99,7 @@ public class RockModule {
         }
 
         if (!(o instanceof List)) {
-            throw new RuntimeException(key + " param must be an array of string");
+            throw new RuntimeException(key + " param must be an array of string but is \""+String.valueOf(o)+"\"");
         }
 
         return (List)o;

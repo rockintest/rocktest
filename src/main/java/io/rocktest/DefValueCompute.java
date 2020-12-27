@@ -85,7 +85,7 @@ public class DefValueCompute  implements StringLookup {
 
                 String module=m.group(1);
                 String params=m.group(2);
-                String path=m.group(3);
+                String extension=m.group(3);
 
                 String method = scenario.getEnv().getProperty("modules." + module+".function");
                 if (method == null)
@@ -102,17 +102,32 @@ public class DefValueCompute  implements StringLookup {
                     // and put them according to their values in the hash table
 
                     paramsMap=new HashMap<>();
-                    String[] paramArray = params.split(",");
+
+                    if(extension!=null && !extension.isEmpty()) {
+                        String paramExtension = scenario.getEnv().getProperty("modules." + module+".extension");
+                        if (paramExtension == null)
+                            throw new RuntimeException("Param extension not available for module " + module);
+
+                        paramsMap.put(paramExtension,extension);
+                    }
+
+                    String[] paramArray = params.split("\\]>>,<<\\[");
                     for (int i = 0; i < paramArray.length; i++) {
 
                         String current=paramArray[i];
 
-                        p = Pattern.compile(" *<<\\[(.+)\\]>>");
+                        p = Pattern.compile(" *<<\\[(.+)",Pattern.DOTALL);
                         m = p.matcher(current);
-
                         if(m.matches()) {
                             current=m.group(1);
                         }
+
+                        p = Pattern.compile("(.+)\\]>>",Pattern.DOTALL);
+                        m = p.matcher(current);
+                        if(m.matches()) {
+                            current=m.group(1);
+                        }
+
 
                         p = Pattern.compile(" *(.+) *:= *(.+) *",Pattern.DOTALL);
                         m = p.matcher(current);
@@ -126,7 +141,7 @@ public class DefValueCompute  implements StringLookup {
                         } else {
                             String paramName = scenario.getEnv().getProperty("modules." + module + ".params." + (i + 1));
                             if (paramName == null) {
-                                throw new RuntimeException("Param #" + i + " undefined for module " + module);
+                                throw new RuntimeException("Param #" + (i+1) + " undefined for module " + module);
                             }
                             paramsMap.put(paramName, current);
                         }

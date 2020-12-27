@@ -1,9 +1,43 @@
+- type: assert
+  value: equals
+  desc: Inline call with multiple parameters
+  params:
+    expected: 24/11/2019
+    actual: ${$date.minus(25/12/2020,1,1,1)}
+
+
+- type: var
+  name: json
+  value: >-
+    {
+      "name" : "inxs",
+      "album" : "Kick"
+    }
+
+- type: display
+  value: ${$json.parse(${json}).album}
+
+- type: assert
+  value: equals
+  desc: Parse JSON with inline syntax
+  params:
+    expected: Kick
+    actual: ${$json.parse(${json}).album}
+
+
 - type: var
   name: date
   value: 25/12/2020
 
+- type: var
+  name: now
+  value: ${$date.now()}
+
+
+
 - type: assert
   value: equals
+  desc: You can use variables in inline calls
   params:
     expected: 24/11/2019
     actual: ${$date.minus(${date},1,1,1)}
@@ -16,27 +50,20 @@
 
 - type: assert
   value: equals
+  desc: Check that inline calls can be nested
   params:
-    expected: 24/11/2019
-    actual: ${$date.minus(25/12/2020,1,1,1)}
+    expected: ${$date.minus(${now},1,1,1)}
+    actual: ${$date.minus(${$date.now()},1,1,1)}
+
 
 - type: display
   value: ${$date.minus(months:=1,date:=01/01/1999)}
 
 - type: assert
   value: equals
+  desc: Parameters can be named
   params:
     expected: 01/12/1998
     actual: ${$date.minus(months:=1,date:=01/01/1999)}
 
 
-- type: var
-  name: json
-  value: >-
-    {
-      "name" : "inxs",
-      "album" : "Kick"
-    }
-
-- type: display
-  value: ${json.parse(${json}).album}

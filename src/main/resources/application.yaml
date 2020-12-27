@@ -53,6 +53,10 @@ modules:
     function: io.rocktest.modules.Http.mock
   json.parse :
     function: io.rocktest.modules.JSon.parse
+    result: result
+    extension: path
+    params:
+      1: json
   date.now:
     function: io.rocktest.modules.Date.now
     result: result

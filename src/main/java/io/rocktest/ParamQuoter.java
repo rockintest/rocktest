@@ -21,7 +21,7 @@ public class ParamQuoter implements StringLookup {
             String params = m.group(2);
             String path = m.group(3);
 
-            if(params.startsWith("<<["))
+            if(params.startsWith("<<[") || params.isEmpty())
                 return null;
 
             StringBuilder sb=new StringBuilder();
@@ -30,6 +30,8 @@ public class ParamQuoter implements StringLookup {
             sb.append("(");
 
             String[] paramArray = params.split(",");
+
+
             for (int i = 0; i < paramArray.length; i++) {
                 sb.append("<<[");
                 sb.append(paramArray[i]);
