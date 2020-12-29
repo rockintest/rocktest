@@ -50,7 +50,7 @@
 
 - type: assert
   value: equals
-  desc: Check that inline calls can be nested
+  desc: Inline calls can be nested
   params:
     expected: ${$date.minus(${now},1,1,1)}
     actual: ${$date.minus(${$date.now()},1,1,1)}

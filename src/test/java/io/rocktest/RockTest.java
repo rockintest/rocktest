@@ -47,7 +47,7 @@ public class RockTest {
         String dir=".";
 
         if(parent != null) {
-            dir=parent.getName();
+            dir=parent.getAbsolutePath();
         }
 
         ArrayList<String> stack=new ArrayList<>();

@@ -15,8 +15,8 @@ public class Date extends RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(JSon.class);
 
-    public Map<String,Object> now(Map<String,Object> paramsNotExpanded) {
-        Map params=expand(paramsNotExpanded);
+    public Map<String,Object> now(Map<String,Object> params) {
+
         String pattern = getStringParam(params,"format","dd/MM/yyyy");
 
         LocalDateTime now = LocalDateTime.now();
@@ -33,7 +33,7 @@ public class Date extends RockModule {
 
 
     /**
-     * @param paramsNotExpanded
+     * @param params
      *
      * Paramters :
      * <ul>
@@ -43,8 +43,8 @@ public class Date extends RockModule {
      *
      * @return
      */
-    public Map<String,Object> minus(Map<String,Object> paramsNotExpanded) {
-        Map params=expand(paramsNotExpanded);
+    public Map<String,Object> minus(Map<String,Object> params) {
+
         String pattern = getStringParam(params,"format","dd/MM/yyyy");
         String start = getStringParam(params,"date",null);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
@@ -80,7 +80,5 @@ public class Date extends RockModule {
 
         return ret;
     }
-
-
 
 }

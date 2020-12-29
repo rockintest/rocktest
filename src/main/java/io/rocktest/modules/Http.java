@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 
 public class Http extends RockModule {
 
+    private static Logger LOG = LoggerFactory.getLogger(Http.class);
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -234,8 +236,6 @@ public class Http extends RockModule {
         }
     }
 
-    private static Logger LOG = LoggerFactory.getLogger(Http.class);
-
 
     private HttpResp httpGet(String url) throws IOException {
 
@@ -331,9 +331,15 @@ public class Http extends RockModule {
         }
     }
 
-    public Map<String,Object> get(Map<String,Object> paramsNotExpanded) throws IOException {
 
-        Map params=expand(paramsNotExpanded);
+
+    // Functions in this array will get unexpanded parameters
+
+    String[] noExpand={"mock"};
+
+    // Functions exposed as modules
+
+    public Map<String,Object> get(Map<String,Object> params) throws IOException {
 
         String url = getStringParam(params,"url");
 
@@ -349,8 +355,7 @@ public class Http extends RockModule {
         return ret;
     }
 
-    public Map<String,Object> delete(Map<String,Object> paramsNotExpanded) throws IOException {
-        Map params=expand(paramsNotExpanded);
+    public Map<String,Object> delete(Map<String,Object> params) throws IOException {
 
         String url = getStringParam(params,"url");
 
@@ -366,8 +371,7 @@ public class Http extends RockModule {
         return ret;
     }
 
-    public Map<String,Object> post(Map<String,Object> paramsNotExpanded) throws IOException {
-        Map params=expand(paramsNotExpanded);
+    public Map<String,Object> post(Map<String,Object> params) throws IOException {
 
         String url = getStringParam(params,"url");
         String body = getStringParam(params,"body",null);
@@ -385,8 +389,7 @@ public class Http extends RockModule {
         return ret;
     }
 
-    public Map<String,Object> put(Map<String,Object> paramsNotExpanded) throws IOException {
-        Map params=expand(paramsNotExpanded);
+    public Map<String,Object> put(Map<String,Object> params) throws IOException {
 
         String url = getStringParam(params,"url");
         String body = getStringParam(params,"body",null);
@@ -404,11 +407,13 @@ public class Http extends RockModule {
     }
 
 
-    public Map<String,Object> mock(Map<String,Object> params) throws IOException {
+    public Map<String,Object> mock(Map<String,Object> paramsNotExpanded) throws IOException {
+
+        Map params=expand(paramsNotExpanded);
 
         int port=getIntParam(params,"port",8080);
-        List conditions=getArrayParam(params,"when");
-        Map headers=(Map)params.get("headers");
+        List conditions=getArrayParam(paramsNotExpanded,"when");
+        Map headers=(Map)paramsNotExpanded.get("headers");
         String name=getStringParam(params,"name","MOCK");
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port),10);

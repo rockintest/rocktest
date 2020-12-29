@@ -2,6 +2,7 @@ package io.rocktest;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -66,8 +67,6 @@ public class Scenario {
     private StringSubstitutor subQuoter;
 
     private static final StringSubstitutor subEnv = new StringSubstitutor(System.getenv());
-
-    //private StringSubstitutor subContext;
 
     // Call stack
     private List<String> stack;
@@ -141,9 +140,6 @@ public class Scenario {
 
         subQuoter = new StringSubstitutor(new ParamQuoter());
         subQuoter.setEnableSubstitutionInVariables(true);
-
-        //subContext = new StringSubstitutor(getLocalContext());
-        //subContext.setEnableSubstitutionInVariables(true);
 
     }
 
@@ -223,6 +219,9 @@ public class Scenario {
         if (stack.size() == 1) {
             LOG.warn("Cannot return value in main scenario");
         } else {
+
+            LOG.debug("Put variable {}={} in context {}",var,value,stack.get(stack.size() - 2));
+
             Map<String, String> callerContext = context.get(stack.get(stack.size() - 2));
             callerContext.put(var, value);
         }
@@ -280,6 +279,24 @@ public class Scenario {
 
         Class<?>[] paramTypes = {Map.class};
         Method setNameMethod = module.getClass().getMethod(methodName, paramTypes);
+
+        // Do we need to expand the parameters ?
+        boolean expand;
+        try {
+            Field f = module.getClass().getDeclaredField("noExpand");
+            f.setAccessible(true);
+            String[] noExpand = (String[]) f.get(module);
+
+            expand= !(Arrays.asList(noExpand).contains(methodName));
+
+        } catch(NoSuchFieldException e) {
+            expand=true;
+        }
+
+        if(expand) {
+            params = expand(params);
+        }
+
         Map<String, Object> ret = (Map<String, Object>) setNameMethod.invoke(module, params);
 
         if (ret != null) {

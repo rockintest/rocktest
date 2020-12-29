@@ -14,8 +14,8 @@ public class JSon extends RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(JSon.class);
 
-    public Map<String,Object> parse(Map<String,Object> paramsNotExpanded) throws JsonProcessingException {
-        Map params=expand(paramsNotExpanded);
+    public Map<String,Object> parse(Map<String,Object> params) throws JsonProcessingException {
+
         Map<String,Object> ret=new HashMap<>();
 
         String json=getStringParam(params,"json");
