@@ -16,7 +16,7 @@ public class Setup extends RockTest {
 
     @Test
     public void setupTest() throws IOException, InterruptedException {
-        String ret=run("setupmain.yaml");
+        String ret=run("/scen-setup/setupmain.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

@@ -41,7 +41,7 @@ public class RockTest {
 
 
     public String run(String file) throws IOException, InterruptedException {
-        String filePath = this.getClass().getResource("/scen/"+file).getPath();
+        String filePath = this.getClass().getResource(file).getPath();
 
         File parent =new File(filePath).getParentFile();
         String dir=".";

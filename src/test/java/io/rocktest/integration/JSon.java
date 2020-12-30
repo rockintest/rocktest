@@ -17,7 +17,7 @@ public class JSon extends RockTest {
 
     @Test
     public void parse() throws IOException, InterruptedException {
-        String ret=run("json.yaml");
+        String ret=run("/scen/json.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

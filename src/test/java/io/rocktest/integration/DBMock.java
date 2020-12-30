@@ -16,7 +16,7 @@ public class DBMock extends RockTest {
 
     @Test
     public void testDBMock() throws IOException, InterruptedException {
-        String ret=run("dbmocktest.yaml");
+        String ret=run("/scen/dbmocktest.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

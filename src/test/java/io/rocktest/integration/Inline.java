@@ -16,7 +16,7 @@ public class Inline extends RockTest {
 
     @Test
     public void inline() throws IOException, InterruptedException {
-        String ret=run("inline.yaml");
+        String ret=run("/scen/inline.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

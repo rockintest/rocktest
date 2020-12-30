@@ -16,7 +16,7 @@ public class Date extends RockTest {
 
     @Test
     public void date() throws IOException, InterruptedException {
-        String ret=run("date.yaml");
+        String ret=run("/scen/date.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

@@ -16,7 +16,7 @@ public class Return extends RockTest {
 
     @Test
     public void returnTest() throws IOException, InterruptedException {
-        String ret=run("returntest.yaml");
+        String ret=run("/scen/returntest.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

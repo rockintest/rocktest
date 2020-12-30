@@ -17,13 +17,13 @@ public class Sql extends RockTest {
 
     @Test
     public void oneConnection() throws IOException, InterruptedException {
-        String ret=run("sql.yaml");
+        String ret=run("/scen/sql.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
     @Test
     public void multipleConnections() throws IOException, InterruptedException {
-        String ret=run("sqlMulti.yaml");
+        String ret=run("/scen/sqlMulti.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

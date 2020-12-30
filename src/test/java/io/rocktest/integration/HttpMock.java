@@ -16,19 +16,19 @@ public class HttpMock extends RockTest {
 
     @Test
     public void simpleMock() throws IOException, InterruptedException {
-        String ret=run("simplehttpmock.yaml");
+        String ret=run("/scen/simplehttpmock.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
     @Test
     public void mockCall() throws IOException, InterruptedException {
-        String ret=run("http.yaml");
+        String ret=run("/scen/http.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
     @Test
     public void mockDB() throws IOException, InterruptedException {
-        String ret=run("httpmockdb.yaml");
+        String ret=run("/scen/httpmockdb.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
