@@ -745,7 +745,12 @@ public class Scenario {
 
     public void returnVar(String var, String value) {
         LOG.info("Return variable {} = {}", var, value);
-        putCallerContext(getCurrentName() + "." + var, value);
+
+        if(var.trim().startsWith(".")) {
+            putCallerContext(var.substring(1), value);
+        } else {
+            putCallerContext(getCurrentName() + "." + var, value);
+        }
     }
 
     public void setVar(String exp) {
