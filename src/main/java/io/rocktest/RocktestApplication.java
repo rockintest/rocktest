@@ -59,7 +59,9 @@ public class RocktestApplication
 			// HashMap for each instance of modules
 			scenario.setModuleInstances(new HashMap<>());
 
-			String err=scenario.run(args[0],dir,new HashMap<String, Map<String,String>>(),stack,null);
+			Map<String,Object> glob=new HashMap<>();
+
+			String err=scenario.main(args[0],dir,new HashMap<String, Map<String,String>>(),stack,glob);
 			if(err!=null) {
 				LOG.error("Error : {}",err);
 				System.exit(1);

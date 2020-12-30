@@ -6,8 +6,6 @@
     name : rockers
     retry: 0
     url: "jdbc:h2:mem:rockers"
-    user: sa
-    password: sa
 
 - type: sql.request
   params:
@@ -16,7 +14,7 @@
       CREATE TABLE rock (
          id VARCHAR(50) NOT NULL,
          fullname VARCHAR(50) NOT NULL,
-         bestsong VARCHAR(50) NOT NULL,
+         bestsong VARCHAR(50) NOT NULL
       );
       insert into rock (id,fullname,bestsong) values('springsteen','Bruce Springsteen aka The Boss','Land of hope and dreams');
       insert into rock (id,fullname,bestsong) values('acdc','AC/DC','Thunderstruck');
@@ -26,8 +24,6 @@
     name : rockers2
     retry: 0
     url: "jdbc:h2:mem:rockers2"
-    user: sa
-    password: sa
 
 - type: sql.request
   params:
@@ -36,7 +32,7 @@
       CREATE TABLE rock (
          id VARCHAR(50) NOT NULL,
          fullname VARCHAR(50) NOT NULL,
-         bestsong VARCHAR(50) NOT NULL,
+         bestsong VARCHAR(50) NOT NULL
       );
       insert into rock (id,fullname,bestsong) values('knopfler','Mark Knopfler','Sultans of swing');
       insert into rock (id,fullname,bestsong) values('springsteen','Bruce Springsteen aka The Boss','Cover me');

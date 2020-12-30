@@ -52,8 +52,8 @@ public class RockTest {
 
         ArrayList<String> stack=new ArrayList<>();
         stack.add(new File(filePath).getName().replace(".yaml",""));
-
-        return scenario.run(filePath,dir,new HashMap<String, Map<String,String>>(),stack,null);
+        Map<String,Object> glob=new HashMap<>();
+        return scenario.main(filePath,dir,new HashMap<String, Map<String,String>>(),stack,glob);
     }
 
 

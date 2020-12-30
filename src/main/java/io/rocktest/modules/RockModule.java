@@ -129,4 +129,8 @@ public class RockModule {
 
     }
 
+    // Default implementation : nothing to cleanup
+    public void cleanup() {
+    }
+
 }

@@ -77,6 +77,10 @@ public class Scenario {
     // Local functions
     private Map<String, List<Map>> functions=new HashMap<>();
 
+    // Global objects (params, ...)
+    // 1 instance, injected by the 1st call to the run method
+    private Map<String,Object> glob;
+
     private static Logger LOG = LoggerFactory.getLogger(Scenario.class);
     public static Logger LINE = LoggerFactory.getLogger("noprefix");
 
@@ -313,12 +317,19 @@ public class Scenario {
     }
 
 
+    public void cleanupModules() {
+        moduleInstances.forEach((key, mod) -> {
+            ((RockModule)mod).cleanup();
+        });
+    }
+
+
     private void checkSqlConnection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         // If the SQL connection it not open, open it with the default params
 
         Object module = moduleInstances.get("io.rocktest.modules.Sql");
-        if (module == null || ((Sql) module).getJdbcTemplate() == null) {
+        if (module == null || ((Sql) module).getConnections().get("default") == null) {
 
             HashMap<String, Object> params = new HashMap<>();
             params.put("url", datasourceUrl);
@@ -326,6 +337,7 @@ public class Scenario {
             params.put("password", datasourceUser);
             params.put("delay", checkDelay);
             params.put("retry", checkRetry);
+            params.put("name", "default");
 
             exec("io.rocktest.modules.Sql.connect", params);
         }
@@ -453,7 +465,7 @@ public class Scenario {
         if (params != null)
             setContext(function, expand(params));
 
-        String err = run((List<Map>) functions.get(function), dir, context, stack);
+        String err = run((List<Map>) functions.get(function), dir, context, stack,glob);
 
         // Pop context
         deleteContext(function);
@@ -493,7 +505,7 @@ public class Scenario {
         if (params != null)
             setContext(moduleName, expand(params));
 
-        String err = module.run(file, dir, context, stack,function);
+        String err = module.run(file, dir, context, stack,function,glob);
 
         // Pop context
         deleteContext(moduleName);
@@ -521,8 +533,19 @@ public class Scenario {
     }
 
 
-    public String run(String name, String dir, Map<String, Map<String, String>> context, List stack, String function) throws IOException, InterruptedException {
+    public String main(String name, String dir, Map<String, Map<String, String>> context, List stack, Map<String,Object> glob) throws IOException, InterruptedException {
+        try {
+            return run(name, dir, context, stack, null, glob);
+        } finally {
+            cleanupModules();
+        }
+    }
+
+
+
+    public String run(String name, String dir, Map<String, Map<String, String>> context, List stack, String function,Map<String,Object> glob) throws IOException, InterruptedException {
         LOG.info("Load scenario. name={}, dir={}", name, dir);
+        this.glob=glob;
 
         try {
             this.dir = dir;
@@ -531,13 +554,13 @@ public class Scenario {
             extractFunctions(steps);
 
             if(function==null)
-                return run(steps, dir, context, stack);
+                return run(steps, dir, context, stack,glob);
             else {
                 List<Map> stepsFunction=functions.get(function);
                 if(stepsFunction==null) {
                     throw new RuntimeException("Function "+function+" not declared in module "+name);
                 }
-                return run(stepsFunction,dir, context, stack);
+                return run(stepsFunction,dir, context, stack,glob);
             }
 
 
@@ -553,7 +576,7 @@ public class Scenario {
     }
 
 
-    public String run(List<Map> steps, String dir,Map<String, Map<String, String>> context, List stack) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public String run(List<Map> steps, String dir,Map<String, Map<String, String>> context, List stack,Map<String,Object> glob) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         this.context = context;
         this.stack = stack;

@@ -1,13 +1,17 @@
 package io.rocktest.modules;
 
+import com.sun.net.httpserver.HttpServer;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.SerializationUtils;
 
+import javax.sql.DataSource;
 import java.sql.Blob;
 import java.sql.ResultSetMetaData;
 import java.util.HashMap;
@@ -22,14 +26,31 @@ public class Sql extends RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(Sql.class);
 
-    private HikariConfig config = new HikariConfig();
-    private HikariDataSource ds;
-    private JdbcTemplate jdbcTemplate;
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    private class Connection {
+        private int retry;
+        private int interval;
+        private JdbcTemplate jdbcTemplate;
+        private HikariDataSource dataSource;
+    }
 
-    private int retry = 0;
-    private int interval = 1;
+    private Map<String,Connection> connections = new HashMap<>();
 
     public Sql() {
+    }
+
+    @Override
+    public void cleanup() {
+        connections.forEach((key, connection) -> {
+            LOG.debug("Close SQL connection {}",key);
+            try {
+                connection.dataSource.close();
+            } catch (Exception e) {
+            }
+        });
+
     }
 
     public Map<String, Object> connect(Map<String, Object> params) {
@@ -37,9 +58,14 @@ public class Sql extends RockModule {
         String url = getStringParam(params, "url");
         String username = getStringParam(params, "user", "sa");
         String password = getStringParam(params, "password", "sa");
+        String name = getStringParam(params,"name","default");
+
+        LOG.info("Connect SQL {}, datasource = {}",name,url);
 
         Integer retry = getIntParam(params, "retry", 0);
         Integer interval = getIntParam(params, "interval", 0);
+
+        HikariConfig config = new HikariConfig();
 
         config.setJdbcUrl(url);
         config.setUsername(username);
@@ -47,9 +73,11 @@ public class Sql extends RockModule {
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        ds = new HikariDataSource(config);
 
-        jdbcTemplate = new JdbcTemplate(ds);
+        HikariDataSource ds = new HikariDataSource(config);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
+
+        connections.put(name,new Connection(retry,interval,jdbcTemplate,ds));
 
         return null;
     }
@@ -58,7 +86,14 @@ public class Sql extends RockModule {
     public Map<String, Object> update(Map<String, Object> params) throws InterruptedException {
 
         String req = getStringParam(params, "request");
-        jdbcTemplate.update(req);
+
+        String name = getStringParam(params,"name","default");
+        Connection connection=connections.get(name);
+        if(connection == null) {
+            throw new RuntimeException("SQL connection "+name+" does not exist");
+        }
+
+        connection.jdbcTemplate.update(req);
         return null;
 
     }
@@ -67,6 +102,9 @@ public class Sql extends RockModule {
     public Map<String, Object> request(Map<String, Object> params) throws InterruptedException {
 
         String req = getStringParam(params, "request");
+
+        LOG.info(req);
+
         if(req.trim().toLowerCase().startsWith("select")) {
             return query(params);
         } else {
@@ -79,16 +117,20 @@ public class Sql extends RockModule {
 
     public Map<String, Object> query(Map<String, Object> params) throws InterruptedException {
 
+        String name = getStringParam(params,"name","default");
+        Connection connection=connections.get(name);
+        if(connection == null) {
+            throw new RuntimeException("SQL connection "+name+" does not exist");
+        }
+
         List<String> expect = getArrayParam(params, "expect", null);
         String req = getStringParam(params, "request");
 
-        LOG.info(req);
-
         HashMap<String, Object> last = new HashMap<>();
 
-        for (int iRetry = 1; iRetry <= retry + 1; iRetry++) {
+        for (int iRetry = 1; iRetry <= connection.retry + 1; iRetry++) {
 
-            List<String> data = jdbcTemplate.query(req, (rs, n) -> {
+            List<String> data = connection.jdbcTemplate.query(req, (rs, n) -> {
                 ResultSetMetaData rsmd = rs.getMetaData();
                 int max = rsmd.getColumnCount();
                 last.clear();
@@ -169,11 +211,11 @@ public class Sql extends RockModule {
                 }
             } catch (RuntimeException e) {
                 // Au bout de checkRetry tentatives, on lance l'exception et le test échoue.
-                if (iRetry == retry + 1) {
+                if (iRetry == connection.retry + 1) {
                     throw e;
                 }
                 LOG.info("No match - retry #{}", iRetry);
-                Thread.sleep(interval * 1000);
+                Thread.sleep(connection.interval * 1000);
             }
         }
 
