@@ -11,12 +11,12 @@ import java.io.IOException;
 import static org.junit.Assert.assertNull;
 
 @SpringBootTest
-public class Return extends RockTest {
-    private static Logger LOG = LoggerFactory.getLogger(Date.class);
+public class Setup extends RockTest {
+    private static Logger LOG = LoggerFactory.getLogger(Setup.class);
 
     @Test
-    public void returnTest() throws IOException, InterruptedException {
-        String ret=run("returntest.yaml");
+    public void setupTest() throws IOException, InterruptedException {
+        String ret=run("setupmain.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

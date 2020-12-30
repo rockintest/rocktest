@@ -535,6 +535,18 @@ public class Scenario {
 
     public String main(String name, String dir, Map<String, Map<String, String>> context, List stack, Map<String,Object> glob) throws IOException, InterruptedException {
         try {
+            this.glob=glob;
+            this.dir = dir;
+            this.context = context;
+            this.stack = stack;
+            this.dir = dir;
+
+            initLocalContext();
+
+            if(new File(dir+"/"+"setup.yaml").exists()) {
+                callExternal("setup",null,null);
+            }
+
             return run(name, dir, context, stack, null, glob);
         } finally {
             cleanupModules();
@@ -548,7 +560,7 @@ public class Scenario {
         this.glob=glob;
 
         try {
-            this.dir = dir;
+
             Object mapper = new ObjectMapper(new YAMLFactory());
             List<Map> steps = ((ObjectMapper) mapper).readValue(new File(name), new TypeReference<List<Map>>() {});
             extractFunctions(steps);

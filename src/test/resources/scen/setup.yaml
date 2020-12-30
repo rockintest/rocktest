@@ -1,4 +1,4 @@
 # setup.yaml is executed if present in the same directory as the main script
 
-- type: var
-  value: setupdone = Setup has been called
+- type: return
+  value: .setupdone = Setup has been called

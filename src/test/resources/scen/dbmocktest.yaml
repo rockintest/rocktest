@@ -5,7 +5,7 @@
   value: module/dbmock->connect
 
 - type: call
-  value: module/dbmock
+  value: module/dbmock->get
   params:
     singer: springsteen
 
@@ -13,7 +13,7 @@
   value: equals
   params:
     expected: 200
-    actual: ${dbmock.code}
+    actual: ${dbmock.get.code}
 
 - type: assert
   value: equals
@@ -24,4 +24,4 @@
         "fullname" : "Bruce Springsteen aka The Boss",
         "bestsong" : "Land of hope and dreams"
       }
-    actual: ${dbmock.body}
+    actual: ${dbmock.get.body}
