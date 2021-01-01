@@ -1,0 +1,6 @@
+- type: web.get
+  params:
+    url: https://angular.io/generated/live-examples/toh-pt6/stackblitz.html
+
+- type: pause
+  value: 1000

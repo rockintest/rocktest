@@ -37,34 +37,61 @@ default:
     retry: 30
 
 modules:
-  sql.connect :
-    function: io.rocktest.modules.Sql.connect
-  sql.request :
-    function: io.rocktest.modules.Sql.request
-  http.get :
-    function: io.rocktest.modules.Http.get
-  http.delete :
-    function: io.rocktest.modules.Http.delete
-  http.post :
-    function: io.rocktest.modules.Http.post
-  http.put :
-    function: io.rocktest.modules.Http.put
-  http.mock :
-    function: io.rocktest.modules.Http.mock
-  json.parse :
-    function: io.rocktest.modules.JSon.parse
-    result: result
-    extension: path
-    params:
-      1: json
-  date.now:
-    function: io.rocktest.modules.Date.now
-    result: result
-  date.minus :
-    function: io.rocktest.modules.Date.minus
-    result: result
-    params:
-      1: date
-      2: years
-      3: months
-      4: days
+  sql:
+    connect :
+      function: io.rocktest.modules.Sql.connect
+    request :
+      function: io.rocktest.modules.Sql.request
+
+  http:
+    get:
+      function: io.rocktest.modules.Http.get
+    delete :
+      function: io.rocktest.modules.Http.delete
+    post :
+      function: io.rocktest.modules.Http.post
+    put :
+      function: io.rocktest.modules.Http.put
+    mock :
+      function: io.rocktest.modules.Http.mock
+
+  json :
+    parse :
+      function: io.rocktest.modules.JSon.parse
+      result: result
+      extension: path
+      params:
+        1: json
+
+  date:
+    now:
+      function: io.rocktest.modules.Date.now
+      result: result
+
+    minus :
+      function: io.rocktest.modules.Date.minus
+      result: result
+      params:
+        1: date
+        2: years
+        3: months
+        4: days
+
+  web:
+    get:
+      function: io.rocktest.modules.Web.get
+    title:
+      function: io.rocktest.modules.Web.title
+      result: result
+    url:
+      function: io.rocktest.modules.Web.url
+      result: result
+
+  regex:
+    match:
+      function: io.rocktest.modules.Regex.match
+      result: result
+      extension: group
+      params:
+        1: pattern
+        2: string

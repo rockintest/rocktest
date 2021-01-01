@@ -22,6 +22,12 @@ public class RockModule {
         return scenario.expand(notExpanded);
     }
 
+
+    public String getSetting(String label) {
+        return scenario.getEnv().getProperty(label);
+    }
+
+
     public String getStringParam(Map params, String key) {
         String ret=getStringParam(params,key,null);
         if(ret==null)

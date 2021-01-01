@@ -208,6 +208,8 @@ public class Scenario {
                 ret.put(entry.getKey(), expand((List) entry.getValue()));
             } else if (entry.getValue() instanceof Number) {
                 ret.put(entry.getKey(), (Number) entry.getValue());
+            } else if (entry.getValue() instanceof Boolean) {
+                ret.put(entry.getKey(), (Boolean) entry.getValue());
             } else {
                 throw new RuntimeException("Error expanding node. Type " + entry.getValue().getClass().getName() + " unexpected");
             }
@@ -247,6 +249,8 @@ public class Scenario {
 
                 String msg = String.valueOf(params.get("message"));
                 if (msg == null) msg = "";
+
+                LOG.debug("Actual value: {}",actual);
 
                 if (!actual.equals(expected)) {
                     throw new RuntimeException("Assert fail: " + msg + " - expected \"" + expected + "\" but was \"" + actual + "\"");

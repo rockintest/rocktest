@@ -1,0 +1,12 @@
+- type: web.get
+  params:
+    url: https://www.google.com
+
+- type: display
+  value: ${$web.title()}
+
+- type: display
+  value: ${$web.url()}
+
+- type: pause
+  value: 5
