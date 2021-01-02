@@ -50,41 +50,8 @@
     param2: value2
     param3: ${localvar}
 
-- type: display
-  value: ${HOMEDRIVE}
-
-- type: assert
-  value: equals
-  params:
-    expected: 'C:'
-    actual: ${HOMEDRIVE}
-
-- type: var
-  value: HOMEDRIVE = unset
-
-- type: display
-  value: 1 - ${HOMEDRIVE}
-
-- type: assert
-  value: equals
-  params:
-    expected: 'C:'
-    actual: ${HOMEDRIVE}
-
-- type: display
-  value: 2 - ${HOMEDRIVE}
-
 - type: assert
   value: equals
   params:
     expected: default value
     actual: ${noexist::default value}
-
-- type: display
-  value: 3 - ${HOMEDRIVE}
-
-- type: assert
-  value: equals
-  params:
-    expected: 'C:'
-    actual: ${HOMEDRIVE::default value}

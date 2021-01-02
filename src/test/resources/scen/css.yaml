@@ -6,9 +6,14 @@
   params:
     by.css: h1
 
-- type: assert
-  value: equals
+- type: assert.match
+  desc: Check the web.text function
   params:
     expected: Welcome to My Homepage
     actual: ${text.result}
 
+# CSS selector : inline syntax
+- type: assert.match
+  params:
+    expected: Duck
+    actual: "${$web.text(by.css:=#Lastname)}"
