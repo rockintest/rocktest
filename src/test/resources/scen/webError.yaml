@@ -1,0 +1,10 @@
+- type: web.get
+  params:
+    url: https://www.google.fr
+
+- type: web.attribute
+  params:
+    by.name: noexist
+    name: value
+    wait: 10
+

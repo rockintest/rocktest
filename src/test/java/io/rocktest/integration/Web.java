@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @SpringBootTest
 public class Web extends RockTest {
@@ -22,8 +22,20 @@ public class Web extends RockTest {
     }
 
     @Test
+    public void error() throws IOException, InterruptedException {
+        String ret=run("/scen/webError.yaml");
+        assertNotNull("Scenario should fail",ret);
+    }
+
+    @Test
     public void angular() throws IOException, InterruptedException {
         String ret=run("/scen/angular.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void css() throws IOException, InterruptedException {
+        String ret=run("/scen/css.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

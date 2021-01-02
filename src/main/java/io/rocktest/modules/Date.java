@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class Date extends RockModule {
 
-    private static Logger LOG = LoggerFactory.getLogger(JSon.class);
+    private static Logger LOG = LoggerFactory.getLogger(Date.class);
 
     public Map<String,Object> now(Map<String,Object> params) {
 

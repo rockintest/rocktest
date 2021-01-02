@@ -47,11 +47,11 @@ public class RockModule {
             return def;
         }
 
-        if (!(o instanceof String)) {
+        if (!(o instanceof String || o instanceof Number)) {
             throw new RuntimeException(key + " param must be a string but is \""+String.valueOf(o)+"\"");
         }
 
-        return (String)o;
+        return String.valueOf(o);
 
     }
 
@@ -84,6 +84,23 @@ public class RockModule {
 
     }
 
+    public Boolean getBooleanParam(Map params, String key, Boolean def) {
+        if(params==null)
+            return def;
+
+        Object o = params.get(key);
+
+        if(o == null) {
+            return def;
+        }
+
+        if (!(o instanceof Boolean)) {
+            throw new RuntimeException(key + " param must be a boolean but is \""+String.valueOf(o)+"\"");
+        }
+
+        return (Boolean)o;
+
+    }
 
     public List getArrayParam(Map params, String key) {
         List ret=getArrayParam(params,key,null);

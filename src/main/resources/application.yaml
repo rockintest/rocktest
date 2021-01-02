@@ -80,6 +80,33 @@ modules:
   web:
     get:
       function: io.rocktest.modules.Web.get
+    quit:
+      function: io.rocktest.modules.Web.quit
+    click:
+      function: io.rocktest.modules.Web.click
+    window:
+      function: io.rocktest.modules.Web.window
+      result: result
+    switch:
+      function: io.rocktest.modules.Web.switchTo
+    newwindow:
+      function: io.rocktest.modules.Web.newWindow
+      result: result
+    sendkeys:
+      function: io.rocktest.modules.Web.sendKeys
+    clear:
+      function: io.rocktest.modules.Web.clear
+    css:
+      function: io.rocktest.modules.Web.css
+      result: result
+      extension: name
+    text:
+      function: io.rocktest.modules.Web.text
+      result: result
+    attribute:
+      function: io.rocktest.modules.Web.attribute
+      result: result
+      extension: name
     title:
       function: io.rocktest.modules.Web.title
       result: result
@@ -95,3 +122,9 @@ modules:
       params:
         1: pattern
         2: string
+
+  assert:
+    equals:
+      function: io.rocktest.modules.Assert.equals
+    match:
+      function: io.rocktest.modules.Assert.match

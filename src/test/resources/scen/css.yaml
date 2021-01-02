@@ -1,0 +1,14 @@
+- type: web.get
+  params:
+    url: https://www.w3schools.com/cssref/trysel.asp
+
+- type: web.text
+  params:
+    by.css: h1
+
+- type: assert
+  value: equals
+  params:
+    expected: Welcome to My Homepage
+    actual: ${text.result}
+
