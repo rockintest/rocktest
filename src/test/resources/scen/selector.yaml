@@ -1,0 +1,86 @@
+- type: web.get
+  params:
+    url: https://www.w3schools.com/cssref/trysel.asp
+
+- type: web.text
+  params:
+    by.css: h1
+
+- type: assert.match
+  desc: Check the web.text function
+  params:
+    expected: Welcome to My Homepage
+    actual: ${text.result}
+
+# CSS selector : inline syntax
+- type: assert.match
+  params:
+    expected: Duck
+    actual: "${$web.text(by.css:=#Lastname)}"
+
+# Id selector
+- type: web.text
+  params:
+    by.id: my-Address
+
+- type: assert.match
+  desc: Search by ID
+  params:
+    expected: I live in Duckburg
+    actual: ${text.result}
+
+# tag name
+- type: assert.equals
+  params:
+    expected: h1
+    actual: "${$web.tag(by.content:=Welcome to My Homepage)}"
+
+# Count the number of divs
+- type: web.count
+  params:
+    by.tag: div
+
+- type: display
+  value: ${count.result}
+
+- type: assert.equals
+  desc: Count number of divs - inline syntax
+  params:
+    expected: 85
+    actual: "${$web.count(by.tag:=div)}"
+
+# Search from an element
+- type: web.count
+  params:
+    by.tag: tr
+    from:
+      by.tag: table
+
+- type: assert.equals
+  params:
+    expected: 5
+    actual: ${count.result}
+
+# Nested from
+- type: web.text
+  params:
+    by.tag: td
+    order: 2
+    from:
+      by.tag: tr
+      order: 3
+      from:
+        by.tag: table
+
+- type: display
+  value: ${text.result}
+
+# Search from an element using xpath
+- type: web.text
+  params:
+    by.xpath: //tr[3]/td[2]
+    from:
+      by.tag: table
+
+- type: display
+  value: ${text.result}

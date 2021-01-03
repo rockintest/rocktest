@@ -34,8 +34,14 @@ public class Web extends RockTest {
     }
 
     @Test
-    public void css() throws IOException, InterruptedException {
-        String ret=run("/scen/css.yaml");
+    public void selector() throws IOException, InterruptedException {
+        String ret=run("/scen/selector.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void submit() throws IOException, InterruptedException {
+        String ret=run("/scen/submit.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

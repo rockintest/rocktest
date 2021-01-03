@@ -228,20 +228,9 @@ public class Web extends RockModule {
     public Map<String, Object> attribute(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
-
-        Integer wait = getIntParam(params,"wait",10);
         String attribute = getStringParam(params,"name");
 
-        WebElement elt=null;
-        if(wait==0) {
-            elt = driver.findElement(by(params));
-        } else {
-            LOG.debug("Wait for element to be present");
-            elt = new WebDriverWait(driver, wait)
-                    .until(ExpectedConditions.presenceOfElementLocated(by(params)));
-
-        }
-
+        WebElement elt=getElement(params);
         ret.put("result",elt.getAttribute(attribute));
 
         return ret;
@@ -251,82 +240,114 @@ public class Web extends RockModule {
     public Map<String, Object> css(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
-
-        Integer wait = getIntParam(params,"wait",10);
         String attribute = getStringParam(params,"name");
 
-        WebElement elt=null;
-        if(wait==0) {
-            elt = driver.findElement(by(params));
-        } else {
-            LOG.debug("Wait for element to be present");
-            elt = new WebDriverWait(driver, wait)
-                    .until(ExpectedConditions.presenceOfElementLocated(by(params)));
-
-        }
-
+        WebElement elt=getElement(params);
         ret.put("result",elt.getCssValue(attribute));
 
         return ret;
     }
 
 
-
-    public Map<String, Object> text(Map<String, Object> params) {
+    public Map<String, Object> tag(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
 
-        Integer wait = getIntParam(params,"wait",10);
+        WebElement elt=getElement(params);
+        ret.put("result",elt.getTagName());
 
-        WebElement elt=null;
-        if(wait==0) {
-            elt = driver.findElement(by(params));
-        } else {
-            LOG.debug("Wait for element to be present");
-            elt = new WebDriverWait(driver, wait)
-                    .until(ExpectedConditions.presenceOfElementLocated(by(params)));
+        return ret;
 
-        }
+    }
 
+
+    public Map<String, Object> text(Map<String, Object> params) {
+
+        Map<String,Object> ret = new HashMap<>();
+
+        WebElement elt=getElement(params);
         ret.put("result",elt.getText());
 
         return ret;
+
+    }
+
+
+
+    public Map<String, Object> submit(Map<String, Object> params) {
+
+        WebElement elt = getElement(params);
+        elt.submit();
+        return null;
     }
 
 
 
     public Map<String, Object> sendKeys(Map<String, Object> params) {
 
-        Integer wait = getIntParam(params,"wait",10);
+        WebElement elt = getElement(params);
         String value = getStringParam(params,"value");
-
-        WebElement elt=null;
-        if(wait==0) {
-            elt = driver.findElement(by(params));
-        } else {
-            LOG.debug("Wait for element to be present");
-            elt = new WebDriverWait(driver, wait)
-                    .until(ExpectedConditions.presenceOfElementLocated(by(params)));
-
-        }
-
         elt.sendKeys(value);
 
         return null;
     }
 
 
+    private WebElement getElement(Map<String, Object> params) {
+
+        Map<String, Object> paramsFrom=(Map<String, Object>)params.get("from");
+
+        if(paramsFrom != null) {
+
+            WebElement from = getElement(paramsFrom);
+            Integer order = getIntParam(params, "order", 1);
+            By by = by(params);
+            return from.findElements(by).get(order -1);
+
+        } else {
+
+            Integer order = getIntParam(params, "order", 1);
+            By by = by(params);
+            wait(params, by);
+            return driver.findElements(by).get(order - 1);
+
+        }
+    }
+
+
     public Map<String, Object> clear(Map<String, Object> params) {
 
-        Integer wait = getIntParam(params,"wait",10);
-
-        LOG.debug("Wait for element to be present");
-        WebElement elt = new WebDriverWait(driver, wait)
-                .until(ExpectedConditions.presenceOfElementLocated(by(params)));
-        elt.clear();
-
+        getElement(params).clear();
         return null;
+
     }
+
+
+    private void wait(Map<String, Object> params, By by) {
+        Integer wait = getIntParam(params,"wait",10);
+        if(wait > 0) {
+            LOG.debug("Wait for element to be present");
+            new WebDriverWait(driver, wait)
+                    .until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
+        }
+    }
+
+
+
+    public Map<String, Object> count(Map<String, Object> params) {
+
+        Map<String,Object> ret=new HashMap<>();
+
+        By by=by(params);
+        wait(params,by);
+
+        List<WebElement> l = driver.findElements(by);
+
+        ret.put("result",l.size());
+
+        return ret;
+    }
+
 
     public Map<String, Object> click(Map<String, Object> params) {
 
@@ -335,9 +356,11 @@ public class Web extends RockModule {
         Integer wait = getIntParam(params,"wait",10);
         Boolean sw = getBooleanParam(params,"switch",true);
 
+        WebElement elt = getElement(params);
+
         LOG.debug("Wait for element to be clickable");
-        WebElement elt = new WebDriverWait(driver, wait)
-                .until(ExpectedConditions.elementToBeClickable(by(params)));
+        new WebDriverWait(driver, wait)
+                .until(ExpectedConditions.elementToBeClickable(elt));
         elt.click();
 
         computeNewWindow();

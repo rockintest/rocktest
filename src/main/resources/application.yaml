@@ -96,6 +96,8 @@ modules:
       function: io.rocktest.modules.Web.sendKeys
     clear:
       function: io.rocktest.modules.Web.clear
+    submit:
+      function: io.rocktest.modules.Web.submit
     css:
       function: io.rocktest.modules.Web.css
       result: result
@@ -112,6 +114,12 @@ modules:
       result: result
     url:
       function: io.rocktest.modules.Web.url
+      result: result
+    tag:
+      function: io.rocktest.modules.Web.tag
+      result: result
+    count:
+      function: io.rocktest.modules.Web.count
       result: result
 
   regex:

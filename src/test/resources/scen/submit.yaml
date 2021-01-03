@@ -1,0 +1,15 @@
+- type: web.get
+  params:
+    url: https://www.google.com
+
+- type: web.sendkeys
+  params:
+    by.name: q
+    value: rocktest
+
+- type: web.submit
+  params:
+    by.name: q
+
+- type: pause
+  value: 5
