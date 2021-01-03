@@ -75,12 +75,22 @@
 - type: display
   value: ${text.result}
 
+- type: assert.equals
+  params:
+    expected: Dog
+    actual: ${text.result}
+
 # Search from an element using xpath
 - type: web.text
   params:
-    by.xpath: //tr[3]/td[2]
+    by.xpath: //tr[4]/td[2]
     from:
       by.tag: table
 
 - type: display
   value: ${text.result}
+
+- type: assert.equals
+  params:
+    expected: Duck
+    actual: ${text.result}

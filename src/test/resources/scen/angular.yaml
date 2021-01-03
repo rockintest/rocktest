@@ -14,27 +14,28 @@
 # Wait is optional. By default, the timeout is 10 seconds.
 # If the click opens a new window, RockTest automatically switches to  it
 # unless the parameter "switch: false" is set.
-- type: web.click
-  params:
-    by.linktext: Open in New Window
-    wait : 20
+
+#- type: web.click
+#  params:
+#    by.linktext: Open in New Window
+#    wait : 20
 
 # You can decide not to switch automatically to the new window
 # Use the parameter switch = false
 # You need to switch explicitly after
 
-#- type: web.click
-#  params:
-#    by.content : Open in New Window
-#    wait : 20
-#    switch: false
+- type: web.click
+  params:
+    by.content : Open in New Window
+    wait : 20
+    switch: false
 
-#- type: display
-#  value: New window = ${$web.newwindow()}
+- type: display
+  value: New window = ${$web.newwindow()}
 
-#- type: web.switch
-#  params:
-#    to: ${$web.newwindow()}
+- type: web.switch
+  params:
+    window: ${$web.newwindow()}
 
 - type: web.click
   params:

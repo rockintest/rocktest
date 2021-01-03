@@ -195,7 +195,9 @@ public class Scenario {
         HashMap<String, Object> ret = new HashMap<>();
         for (Map.Entry<String, Object> entry : in.entrySet()) {
 
-            if (entry.getValue() instanceof String) {
+            if(entry.getValue()==null) {
+                ret.put(entry.getKey(),null);
+            } else if (entry.getValue() instanceof String) {
                 String expanded = expand((String) entry.getValue());
                 if (StringUtils.isNumeric(expanded)) {
                     ret.put(entry.getKey(), Integer.parseInt(expanded));

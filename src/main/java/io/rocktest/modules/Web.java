@@ -129,10 +129,46 @@ public class Web extends RockModule {
 
     public Map<String, Object> switchTo(Map<String, Object> params) {
 
-        String to=getStringParam(params,"to");
+        String to=getStringParam(params,"window",null);
+        if(to != null) {
+            LOG.debug("Switch to window {}",to);
+            driver.switchTo().window(to);
+            return null;
+        }
 
-        LOG.debug("Switch to {}",to);
-        driver.switchTo().window(to);
+        to=getStringParam(params,"default",null);
+        if(to != null) {
+            LOG.debug("Switch to default content");
+            driver.switchTo().defaultContent();
+            return null;
+        }
+
+        Map<String, Object> frameParams=(Map<String, Object>) params.get("frame");
+        if(frameParams != null) {
+
+            String id=getStringParam(frameParams,"id",null);
+            if(id!=null) {
+                driver.switchTo().frame(id);
+                return null;
+            }
+
+            String name=getStringParam(frameParams,"name",null);
+            if(id!=null) {
+                driver.switchTo().frame(name);
+                return null;
+            }
+
+            Integer index=getIntParam(frameParams,"index",null);
+            if(index!=null) {
+                driver.switchTo().frame(index);
+                return null;
+            }
+
+            WebElement elt=getElement(frameParams);
+            driver.switchTo().frame(elt);
+            return null;
+
+        }
 
         return null;
     }
