@@ -1,6 +1,5 @@
 package io.rocktest.modules;
 
-import com.sun.net.httpserver.HttpServer;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.SerializationUtils;
 
-import javax.sql.DataSource;
 import java.sql.Blob;
 import java.sql.ResultSetMetaData;
 import java.util.HashMap;

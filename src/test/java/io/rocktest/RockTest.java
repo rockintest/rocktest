@@ -27,7 +27,7 @@ public class RockTest {
     @Before
     public void initScenario() {
         scenario=new Scenario();
-        Map<String, Map<String, String>> context=new HashMap<>();
+        Map<String, Map<String, Object>> context=new HashMap<>();
         scenario.setContext(context);
         ArrayList<String> stack=new ArrayList<>();
         stack.add("junit");
@@ -53,7 +53,7 @@ public class RockTest {
         ArrayList<String> stack=new ArrayList<>();
         stack.add(new File(filePath).getName().replace(".yaml",""));
         Map<String,Object> glob=new HashMap<>();
-        return scenario.main(filePath,dir,new HashMap<String, Map<String,String>>(),stack,glob);
+        return scenario.main(filePath,dir,new HashMap<String, Map<String,Object>>(),stack,glob);
     }
 
 

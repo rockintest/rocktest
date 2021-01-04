@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.jayway.jsonpath.JsonPath;
 
 import io.rocktest.modules.Http;
 import io.rocktest.modules.RockModule;
@@ -42,7 +41,7 @@ public class Scenario {
     @Getter
     @Setter
     @AllArgsConstructor
-    private class Variable {
+    public class Variable {
         private String var;
         private String value;
     }
@@ -57,7 +56,7 @@ public class Scenario {
     // Variables.
     // Key = scenario name (top of the stack)
     // Value = variables
-    private Map<String, Map<String, String>> context;
+    private Map<String, Map<String, Object>> context;
     private HashMap<String, String> last = new HashMap<>();
 
     private StringSubstitutor subLast = new StringSubstitutor(last);
@@ -124,13 +123,13 @@ public class Scenario {
     }
 
     // Retourne la map des variables du scenario en cours
-    public Map<String, String> getLocalContext() {
+    public Map<String, Object> getLocalContext() {
         return context.get(getCurrentName());
     }
 
     private String getVar(String var) {
-        String ret = getLocalContext().get(var);
-        return (ret == null ? "" : ret);
+        Object ret = getLocalContext().get(var);
+        return (ret == null ? "" : String.valueOf(ret));
     }
 
 
@@ -219,7 +218,7 @@ public class Scenario {
         return ret;
     }
 
-    private void setContext(String name, Map<String, String> vars) {
+    private void setContext(String name, Map<String, Object> vars) {
         context.put(name, vars);
     }
 
@@ -230,7 +229,7 @@ public class Scenario {
 
             LOG.debug("Put variable {}={} in context {}",var,value,stack.get(stack.size() - 2));
 
-            Map<String, String> callerContext = context.get(stack.get(stack.size() - 2));
+            Map<String, Object> callerContext = context.get(stack.get(stack.size() - 2));
             callerContext.put(var, value);
         }
     }
@@ -397,6 +396,12 @@ public class Scenario {
     }
 
 
+    private void httpCheck(List<Object> expect, Http.HttpResp resp) {
+        Http mod=(Http)moduleInstances.get("io.rocktest.modules.Http");
+        mod.httpCheck(expect,resp);
+    }
+
+
     private Http.HttpResp httpDelete(String url) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("url", url);
@@ -494,6 +499,15 @@ public class Scenario {
         module.env=this.env;
         module.setModuleInstances(this.moduleInstances);
 
+        // Ugly. The new scenario is not managed by Spring...
+        // So we need to to the job ourselves.
+        // To be fixed.
+        module.checkDelay=checkDelay;
+        module.checkRetry=checkRetry;
+        module.datasourceUrl=datasourceUrl;
+        module.datasourceUser=datasourceUser;
+        module.datasourcePassword=datasourcePassword;
+
         String file = dir + "/" + mod;
 
         if (!file.endsWith(".yaml")) {
@@ -539,7 +553,7 @@ public class Scenario {
     }
 
 
-    public String main(String name, String dir, Map<String, Map<String, String>> context, List stack, Map<String,Object> glob) throws IOException, InterruptedException {
+    public String main(String name, String dir, Map<String, Map<String, Object>> context, List stack, Map<String,Object> glob) throws IOException, InterruptedException {
         try {
             this.glob=glob;
             this.dir = dir;
@@ -561,7 +575,7 @@ public class Scenario {
 
 
 
-    public String run(String name, String dir, Map<String, Map<String, String>> context, List stack, String function,Map<String,Object> glob) throws IOException, InterruptedException {
+    public String run(String name, String dir, Map<String, Map<String, Object>> context, List stack, String function,Map<String,Object> glob) throws IOException, InterruptedException {
         LOG.info("Load scenario. name={}, dir={}", name, dir);
         this.glob=glob;
 
@@ -594,7 +608,7 @@ public class Scenario {
     }
 
 
-    public String run(List<Map> steps, String dir,Map<String, Map<String, String>> context, List stack,Map<String,Object> glob) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public String run(List<Map> steps, String dir,Map<String, Map<String, Object>> context, List stack,Map<String,Object> glob) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         this.context = context;
         this.stack = stack;
@@ -779,139 +793,6 @@ public class Scenario {
     private void setVar(String var, String value) {
         LOG.info("Set variable {} = {}", var, value);
         getLocalContext().put(var, value);
-    }
-
-
-    // Return false or throws an exception if a condition is false
-    private boolean isConditionTrue(String var, String val, Http.HttpResp response, boolean throwErrorIfNotTrue) {
-        if (var.equals("code")) {
-            LOG.info("\tResponse code = {}", response.getCode());
-
-            String status = "" + response.getCode();
-
-            if (!val.equals(status)) {
-                if (throwErrorIfNotTrue) {
-                    throw new RuntimeException("Status code does not match. Expected " + val + " but was " + status);
-                }
-                return false;
-            }
-            LOG.info("OK");
-
-        } else if (var.startsWith("response.json")) {
-
-            String path = var.replaceFirst("response.json", "");
-
-            Object actualObject = JsonPath.parse(response.getBody()).read("$" + path);
-
-            if (actualObject == null) {
-                LOG.info("\tJSON body{} = NULL", path);
-
-                if (!val.equals("null")) {
-                    if (throwErrorIfNotTrue) {
-                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was NULL");
-                    }
-                    return false;
-                }
-
-            } else {
-
-                String actual = actualObject.toString();
-
-                LOG.info("\tJSON body{} = {}", path, actual);
-
-                if (!val.equals(actual)) {
-                    if (throwErrorIfNotTrue) {
-                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was " + actual);
-                    }
-                    return false;
-                }
-            }
-        } else {
-            throw new RuntimeException("Syntax error. Expect in HTTP clause \"" + var + " = " + val + "\".");
-        }
-
-        return true;
-    }
-
-    // TODO: multiple or in or does not work
-    private boolean isSubConditionTrue(String curr, Http.HttpResp response) {
-        curr = curr.substring(1, curr.length() - 1);
-        if (curr.startsWith("or=")) {
-            curr = curr.substring(4, curr.length() - 1);
-
-            String subCondition = null;
-
-            // Check if contains another sub condition and remove it from curr
-            if (curr.contains("{")) {
-                int startArray = curr.indexOf("{");
-                int endArray = curr.lastIndexOf("}");
-
-                subCondition = curr.substring(startArray, endArray + 1);
-                curr = curr.replace(" " + subCondition + ",", "");
-            }
-
-            String[] orLinesString = curr.split(",");
-            Map<String, List<String>> orLines = new HashMap<>();
-
-            // Fold every val (that are not sub conditions) by the var checked
-            for (String s : orLinesString) {
-                Variable v = extractVariable(s);
-                String var = v.var;
-                String val = v.value;
-
-                if (!orLines.keySet().contains(var)) {
-                    orLines.put(var, new ArrayList<>());
-                }
-                orLines.get(var).add(val);
-            }
-
-            // Check if one of the conditions (that are not sub conditions) is true
-            boolean isOrTrue = false;
-            for (String k : orLines.keySet()) {
-                for (String s : orLines.get(k)) {
-                    LOG.info("OR sub condition, checks whether {} = {}", k, s);
-                    if (isConditionTrue(k, s, response, false)) {
-                        isOrTrue = true;
-                        break;
-                    }
-                }
-                if (isOrTrue) {
-                    break;
-                }
-            }
-            // Check if we find a condition or a sub condition true
-            if (!isOrTrue) {
-                if (subCondition != null && isSubConditionTrue(subCondition, response)) {
-                    return true;
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void httpCheck(List<Object> expect, Http.HttpResp response) {
-        if (expect == null) {
-            return;
-        }
-
-        for (int i = 0; i < expect.size(); i++) {
-            String curr = expect.get(i).toString();
-
-            if (curr.startsWith("{")) {
-                if (!isSubConditionTrue(curr, response)) {
-                    throw new RuntimeException("Sub condition returns false");
-                }
-            } else {
-                Variable v = extractVariable(curr);
-                String var = v.var;
-                String val = v.value;
-
-                LOG.info("Checks whether {} = {}", var, val);
-
-                isConditionTrue(var, val, response, true);
-            }
-        }
     }
 
 }

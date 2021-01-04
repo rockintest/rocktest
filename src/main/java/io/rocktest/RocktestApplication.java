@@ -61,7 +61,7 @@ public class RocktestApplication
 
 			Map<String,Object> glob=new HashMap<>();
 
-			String err=scenario.main(args[0],dir,new HashMap<String, Map<String,String>>(),stack,glob);
+			String err=scenario.main(args[0],dir,new HashMap<String, Map<String,Object>>(),stack,glob);
 			if(err!=null) {
 				LOG.error("Error : {}",err);
 				System.exit(1);

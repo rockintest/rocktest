@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @Setter
 public class DefValueCompute  implements StringLookup {
 
-    private Map<String,String> context;
+    private Map<String,Object> context;
     private StringSubstitutor subContext;
     private Scenario scenario;
 
@@ -34,11 +34,11 @@ public class DefValueCompute  implements StringLookup {
         if(tmp!=null)
             return tmp;
 
-        tmp=context.get(s);
-        if(tmp!=null)
-            return tmp;
+        Object otmp=context.get(s);
+        if(otmp!=null)
+            return String.valueOf(otmp);
 
-        tmp= subContext.replace(s);
+        tmp = subContext.replace(s);
 
         // De we have expression like
         // ${variable?value if set::value if not set} or
@@ -57,11 +57,11 @@ public class DefValueCompute  implements StringLookup {
                 if(ret != null)
                     return ret;
 
-                ret=context.get(var);
-                if( ret == null) {
+                Object oret=context.get(var);
+                if( oret == null) {
                     return valIfNotSet;
                 } else {
-                    return ret;
+                    return String.valueOf(oret);
                 }
 
             } else {

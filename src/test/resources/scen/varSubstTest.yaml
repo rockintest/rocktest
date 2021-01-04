@@ -39,3 +39,31 @@
   params:
     expected: I am alive
     actual: ${notexist::${exist}}
+
+- type: assert
+  value: equals
+  params:
+    expected: 1
+    actual: ${notexist?${notexist}::1}
+
+- type: assert
+  value: equals
+  params:
+    expected: 1
+    actual: ${notexist::1}
+
+- type: var
+  name: id
+  value: 10
+
+- type: assert
+  value: equals
+  params:
+    expected: 10
+    actual: ${id?${id}::99}
+
+- type: assert
+  value: equals
+  params:
+    expected: 10
+    actual: ${id::99}

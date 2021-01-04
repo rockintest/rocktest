@@ -1,8 +1,10 @@
 package io.rocktest.modules;
 
+import com.jayway.jsonpath.JsonPath;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import io.rocktest.Scenario;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,6 +56,139 @@ public class Http extends RockModule {
     public static class HttpResp {
         private int code;
         private String body;
+    }
+
+
+    // Return false or throws an exception if a condition is false
+    private boolean isConditionTrue(String var, String val, Http.HttpResp response, boolean throwErrorIfNotTrue) {
+        if (var.equals("code")) {
+            LOG.info("\tResponse code = {}", response.getCode());
+
+            String status = "" + response.getCode();
+
+            if (!val.equals(status)) {
+                if (throwErrorIfNotTrue) {
+                    throw new RuntimeException("Status code does not match. Expected " + val + " but was " + status);
+                }
+                return false;
+            }
+            LOG.info("OK");
+
+        } else if (var.startsWith("response.json")) {
+
+            String path = var.replaceFirst("response.json", "");
+
+            Object actualObject = JsonPath.parse(response.getBody()).read("$" + path);
+
+            if (actualObject == null) {
+                LOG.info("\tJSON body{} = NULL", path);
+
+                if (!val.equals("null")) {
+                    if (throwErrorIfNotTrue) {
+                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was NULL");
+                    }
+                    return false;
+                }
+
+            } else {
+
+                String actual = actualObject.toString();
+
+                LOG.info("\tJSON body{} = {}", path, actual);
+
+                if (!val.equals(actual)) {
+                    if (throwErrorIfNotTrue) {
+                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was " + actual);
+                    }
+                    return false;
+                }
+            }
+        } else {
+            throw new RuntimeException("Syntax error. Expect in HTTP clause \"" + var + " = " + val + "\".");
+        }
+
+        return true;
+    }
+
+    // TODO: multiple or in or does not work
+    private boolean isSubConditionTrue(String curr, Http.HttpResp response) {
+        curr = curr.substring(1, curr.length() - 1);
+        if (curr.startsWith("or=")) {
+            curr = curr.substring(4, curr.length() - 1);
+
+            String subCondition = null;
+
+            // Check if contains another sub condition and remove it from curr
+            if (curr.contains("{")) {
+                int startArray = curr.indexOf("{");
+                int endArray = curr.lastIndexOf("}");
+
+                subCondition = curr.substring(startArray, endArray + 1);
+                curr = curr.replace(" " + subCondition + ",", "");
+            }
+
+            String[] orLinesString = curr.split(",");
+            Map<String, List<String>> orLines = new HashMap<>();
+
+            // Fold every val (that are not sub conditions) by the var checked
+            for (String s : orLinesString) {
+                Scenario.Variable v = scenario.extractVariable(s);
+                String var = v.getVar();
+                String val = v.getValue();
+
+                if (!orLines.keySet().contains(var)) {
+                    orLines.put(var, new ArrayList<>());
+                }
+                orLines.get(var).add(val);
+            }
+
+            // Check if one of the conditions (that are not sub conditions) is true
+            boolean isOrTrue = false;
+            for (String k : orLines.keySet()) {
+                for (String s : orLines.get(k)) {
+                    LOG.info("OR sub condition, checks whether {} = {}", k, s);
+                    if (isConditionTrue(k, s, response, false)) {
+                        isOrTrue = true;
+                        break;
+                    }
+                }
+                if (isOrTrue) {
+                    break;
+                }
+            }
+            // Check if we find a condition or a sub condition true
+            if (!isOrTrue) {
+                if (subCondition != null && isSubConditionTrue(subCondition, response)) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void httpCheck(List<Object> expect, Http.HttpResp response) {
+        if (expect == null) {
+            return;
+        }
+
+        for (int i = 0; i < expect.size(); i++) {
+            String curr = expect.get(i).toString();
+
+            if (curr.startsWith("{")) {
+                if (!isSubConditionTrue(curr, response)) {
+                    throw new RuntimeException("Sub condition returns false");
+                }
+            } else {
+                Scenario.Variable v = scenario.extractVariable(curr);
+                String var = v.getVar();
+                String val = v.getValue();
+
+                LOG.info("Checks whether {} = {}", var, val);
+
+                isConditionTrue(var, val, response, true);
+            }
+        }
     }
 
 
@@ -336,6 +471,12 @@ public class Http extends RockModule {
     }
 
 
+    void check(Map<String, Object> params,HttpResp resp) {
+        List<Object> expect=(List<Object>)params.get("expect");
+        httpCheck(expect,resp);
+    }
+
+
     // Functions in this array will get unexpanded parameters
 
     String[] noExpand = {"mock"};
@@ -351,6 +492,7 @@ public class Http extends RockModule {
         HashMap<String, Object> ret = new HashMap<>();
 
         HttpResp resp = httpGet(url);
+        check(params,resp);
 
         ret.put("code", resp.getCode());
         ret.put("body", resp.getBody());
@@ -431,6 +573,7 @@ public class Http extends RockModule {
 
         return null;
     }
+
 
 
     @Override
