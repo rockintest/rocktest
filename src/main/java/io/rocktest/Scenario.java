@@ -496,6 +496,10 @@ public class Scenario {
 
 
     Map expandAndComplete(Map params) {
+
+        if(params==null)
+            return null;
+
         Object context=params.get("context");
 
         // Checks whether we have the special param "context" with value "all"

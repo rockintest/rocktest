@@ -1,5 +1,3 @@
-- type: skip
-
 - type: var
   name: fromContext1
   value: Mick
@@ -61,8 +59,3 @@
     expect.fromContext1: unset
     expect.fromContext2: Jagger
     expect.fromParams: E Street Band
-
-- type: resume
-
-- type: call
-  value: module/sublibcontext
