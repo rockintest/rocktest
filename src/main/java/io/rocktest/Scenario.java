@@ -495,6 +495,56 @@ public class Scenario {
     }
 
 
+    Map expandAndComplete(Map params) {
+        Object context=params.get("context");
+
+        // Checks whether we have the special param "context" with value "all"
+        if(context instanceof String && ((String) context).equalsIgnoreCase("all")) {
+
+            Map<String,Object> ret = new HashMap<>(params);
+            ret.remove("context");
+            ret=expand(ret);
+
+            // Put all the variables of the local context as parameters
+            // But keep the parameters if they exist.
+            // The passed parameters are priority on the context
+            Map<String,Object> localContext=getLocalContext();
+            for (Map.Entry<String, Object> entry : localContext.entrySet()) {
+                if(ret.get(entry.getKey())==null)
+                    ret.put(entry.getKey(),entry.getValue());
+            }
+
+            return ret;
+        }
+
+        // Do we have a list of variables to pass ?
+        if(context instanceof List) {
+
+            Map<String,Object> ret = new HashMap<>(params);
+            ret.remove("context");
+            ret=expand(ret);
+
+            List<Object> vars = (List<Object>)params.get("context");
+
+            Map<String,Object> localContext=getLocalContext();
+            for(Object var : vars) {
+                String varname=String.valueOf(var);
+                Object inContext=localContext.get(varname);
+                if(inContext!=null && ret.get(varname)==null) {
+                    ret.put(varname,inContext);
+                }
+            }
+
+            return ret;
+        }
+
+        // Nothing to pass from the context as parameters.
+        // Just expand the params
+
+        return expand(params);
+    }
+
+
     public void callExternal(String mod, Map params,String function) throws IOException, InterruptedException {
 
         Scenario module = new Scenario();
@@ -523,7 +573,7 @@ public class Scenario {
 
         // Expand params BEFORE push the name of the module
         // else, there will be a context mismatch
-        Map paramsExpanded = expand(params);
+        Map paramsExpanded = expandAndComplete(params);
 
         // Push context for submodule
         stack.add(moduleName);
