@@ -33,4 +33,10 @@ public class Var extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void varBuiltin() throws IOException, InterruptedException {
+        String ret=run("/scen/varBuiltin.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
 }

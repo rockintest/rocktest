@@ -144,6 +144,8 @@ public class Scenario {
         subQuoter = new StringSubstitutor(new ParamQuoter());
         subQuoter.setEnableSubstitutionInVariables(true);
 
+        setVar("module",getCurrentName());
+
     }
 
     void initContext(String name) {
@@ -648,6 +650,13 @@ public class Scenario {
             String currentValue;
             String valueDetail;
 
+            MDC.put("stack", getStack());
+            MDC.put("step", "" + (i + 1));
+            MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
+
+            // Set builtin var "step"
+            getLocalContext().put("step", currentStep);
+
             if (step.getValue() == null) {
                 currentValue = "";
                 valueDetail = "";
@@ -655,10 +664,6 @@ public class Scenario {
                 currentValue = expand(step.getValue());
                 valueDetail = (currentValue.equals(step.getValue()) ? currentValue : step.getValue() + " => " + currentValue);
             }
-
-            MDC.put("stack", getStack());
-            MDC.put("step", "" + (i + 1));
-            MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
 
             LOG.info("{}{}{}{}",
                     currentDesc,

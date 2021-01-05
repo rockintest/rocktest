@@ -122,6 +122,18 @@ modules:
       function: io.rocktest.modules.Web.count
       result: result
 
+  id:
+    initseq:
+      function: io.rocktest.modules.Id.initseq
+    seq:
+      function: io.rocktest.modules.Id.seq
+      result: result
+      params:
+        1: name
+    uuid:
+      function: io.rocktest.modules.Id.uuid
+      result: result
+
   regex:
     match:
       function: io.rocktest.modules.Regex.match

@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +42,13 @@ public class RockTest {
 
 
     public String run(String file) throws IOException, InterruptedException {
-        String filePath = this.getClass().getResource(file).getPath();
+
+        URL f = this.getClass().getResource(file);
+        if(f==null) {
+            throw new RuntimeException("Scenario not found in classpath : "+file);
+        }
+
+        String filePath = f.getPath();
 
         File parent =new File(filePath).getParentFile();
         String dir=".";
