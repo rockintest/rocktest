@@ -1,0 +1,2 @@
+- type: display
+  value: ${message}

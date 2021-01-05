@@ -67,6 +67,8 @@ modules:
     now:
       function: io.rocktest.modules.Date.now
       result: result
+      params:
+        1: format
 
     minus :
       function: io.rocktest.modules.Date.minus

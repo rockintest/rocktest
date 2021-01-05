@@ -1,3 +1,8 @@
+- type: call
+  value: module/display
+  params:
+    message: ${noexist::${$date.now(yyyyMMdd)}}
+
 - type: date.now
 
 - type: display
@@ -25,3 +30,15 @@
   params:
     expected: 24/11/2019
     actual: ${minus.result}
+
+# Inline syntax
+- type: assert.equals
+  params:
+    expected: ${now.result}
+    actual: ${$date.now(yyyyMMdd)}
+
+
+- type: assert.equals
+  params:
+    expected: ${now.result}
+    actual: ${noexist::${$date.now(yyyyMMdd)}}

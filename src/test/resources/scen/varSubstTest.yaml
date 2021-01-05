@@ -67,3 +67,7 @@
   params:
     expected: 10
     actual: ${id::99}
+
+- type: var
+  name: today
+  value:

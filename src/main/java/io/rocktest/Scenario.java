@@ -201,7 +201,7 @@ public class Scenario {
             } else if (entry.getValue() instanceof String) {
                 String expanded = expand((String) entry.getValue());
                 if (StringUtils.isNumeric(expanded)) {
-                    ret.put(entry.getKey(), Integer.parseInt(expanded));
+                    ret.put(entry.getKey(), Long.parseLong(expanded));
                 } else {
                     ret.put(entry.getKey(), expanded);
                 }
@@ -521,11 +521,15 @@ public class Scenario {
             moduleName = moduleName.concat(".").concat(function);
         }
 
+        // Expand params BEFORE push the name of the module
+        // else, there will be a context mismatch
+        Map paramsExpanded = expand(params);
+
         // Push context for submodule
         stack.add(moduleName);
 
         if (params != null)
-            setContext(moduleName, expand(params));
+            setContext(moduleName, paramsExpanded);
 
         String err = module.run(file, dir, context, stack,function,glob);
 
