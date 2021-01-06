@@ -699,7 +699,7 @@ public class Scenario {
             if(skiped || step.getType().equals("resume"))
                 continue;
 
-            if(step.getType().trim().startsWith("#"))
+            if(step.getType().trim().startsWith("--"))
                 continue;
 
             currentStep = i + 1;

@@ -80,7 +80,7 @@ public class RockModule {
             throw new RuntimeException(key + " param must be a integer but is \""+String.valueOf(o)+"\"");
         }
 
-        return (Integer)o;
+        return Integer.valueOf(String.valueOf(o));
 
     }
 
