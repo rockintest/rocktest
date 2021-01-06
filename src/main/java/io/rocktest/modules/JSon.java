@@ -21,6 +21,13 @@ public class JSon extends RockModule {
         String json=getStringParam(params,"json");
         String path=getStringParam(params,"path");
 
+        // If the path is empty, avoid an exception and return a blank string
+        if(json.isEmpty()) {
+            LOG.debug("No value found");
+            ret.put("result",null);
+            return ret;
+        }
+
         path=path.trim();
         if(!path.startsWith("["))
             path="."+path;

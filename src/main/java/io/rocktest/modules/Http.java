@@ -78,6 +78,16 @@ public class Http extends RockModule {
 
             String path = var.replaceFirst("response.json", "");
 
+            if(response.getBody() == null || response.getBody().isEmpty()) {
+                LOG.info("\tJSON body empty");
+                if (!val.isEmpty()) {
+                    if (throwErrorIfNotTrue) {
+                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was empty");
+                    }
+                    return false;
+                }
+            }
+
             Object actualObject = JsonPath.parse(response.getBody()).read("$" + path);
 
             if (actualObject == null) {
