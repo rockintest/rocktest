@@ -54,4 +54,13 @@ public class JSon extends RockModule {
         return ret;
     }
 
+
+    public Map<String,Object> check(Map<String,Object> params) throws JsonProcessingException {
+
+        Map<String, Object> ret = new HashMap<>();
+
+        return ret;
+
+    }
+
 }
