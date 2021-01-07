@@ -1,4 +1,4 @@
-# Rocktest
+![rocktest.png](rocktest.png)
 Test automation that rocks !
 
 ## Compilation
