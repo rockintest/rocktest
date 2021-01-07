@@ -35,3 +35,36 @@
     url: http://localhost:8080/singer/springsteen
     expect:
       - code=200
+
+# Put data to the Mock
+- type: http.post
+  params:
+    url: http://localhost:8080/singer
+    body: >-
+      {
+          "bestsong": "Suicide Blonde",
+          "name": "inxs",
+          "fullname": "INXS"
+      }
+    expect:
+      - code=201
+
+- type: http.get
+  params:
+    url: http://localhost:8080/singer/inxs
+    expect:
+      - code=200
+
+
+# Put data to the Mock - legacy syntax
+- type: http.post
+  desc: Post with legacy syntax
+  value: http://localhost:8080/singer
+  body: >-
+    {
+        "bestsong": "Suicide Blonde",
+        "name": "inxs",
+        "fullname": "INXS"
+    }
+  expect:
+    - code=201

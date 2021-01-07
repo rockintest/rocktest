@@ -27,7 +27,7 @@
       - code=200
 
 # Legacy syntax
-- type: http-get
+- type: http.get
   value: http://localhost:8080/singer/springsteen
   expect:
     - code=200
