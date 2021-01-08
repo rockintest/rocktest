@@ -418,10 +418,14 @@ public class Http extends RockModule {
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json;charset=UTF-8");
-        StringEntity entity = new StringEntity(body, "UTF-8");
-        httpPost.setEntity(entity);
 
-        LOG.info("Sent Post request : {}, body :\n{}", url, new JSONObject(body).toString(4));
+        if(body!=null) {
+            StringEntity entity = new StringEntity(body, "UTF-8");
+            httpPost.setEntity(entity);
+            LOG.info("Sent Post request : {}, body :\n{}", url, new JSONObject(body).toString(4));
+        } else {
+            LOG.info("Sent Post request : {}, body empty", url);
+        }
 
         return httpRequest(httpPost);
 
@@ -433,10 +437,14 @@ public class Http extends RockModule {
         HttpPut httpPut = new HttpPut(url);
         httpPut.setHeader("Accept", "application/json");
         httpPut.setHeader("Content-type", "application/json;charset=UTF-8");
-        StringEntity entity = new StringEntity(body, "UTF-8");
-        httpPut.setEntity(entity);
 
-        LOG.info("Sent Put request : {}, body :\n{}", url, new JSONObject(body).toString(4));
+        if(body!=null) {
+            StringEntity entity = new StringEntity(body, "UTF-8");
+            httpPut.setEntity(entity);
+            LOG.info("Sent Put request : {}, body :\n{}", url, new JSONObject(body).toString(4));
+        } else {
+            LOG.info("Sent Put request : {}, body empty", url);
+        }
 
         return httpRequest(httpPut);
 

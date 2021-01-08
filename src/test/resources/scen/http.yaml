@@ -18,6 +18,15 @@
               fullname: "Bruce Springsteen aka The Boss",
               bestsong: "Born in the USA"
             }
+      - uri: /singer/springsteen
+        method: post
+        response:
+          code: 200
+          body: >-
+            {
+              fullname: "Bruce Springsteen aka The Boss",
+              bestsong: "Born in the USA"
+            }
 
 # Call the mock
 - type: http.get
@@ -32,3 +41,29 @@
   expect:
     - code=200
 
+# Check JSON body
+- type: http.get
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - response.json.bestsong = Born in the USA
+
+# Check JSON body with a variable
+- type: var
+  name: song
+  value: Born in the USA
+
+- type: http.get
+  desc: Check with variable
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - response.json.bestsong = ${song}
+
+
+- type: http.post
+  desc: Check with variable
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - response.json.bestsong = ${song}

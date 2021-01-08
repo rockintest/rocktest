@@ -39,3 +39,15 @@
       - ^2,Highway to hell.*$
       - Born in the USA
       - Suicide Blonde
+
+- type: var
+  name: song
+  value: Suicide Blonde
+
+- type: sql.request
+  params:
+    request: select * from rock
+    expect:
+      - ${song}
+      - Highway to hell
+      - Born in the USA
