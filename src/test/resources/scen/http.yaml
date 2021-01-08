@@ -63,7 +63,7 @@
 
 - type: http.post
   desc: Check with variable
-  params:
-    url: http://localhost:8080/singer/springsteen
-    expect:
-      - response.json.bestsong = ${song}
+  value: http://localhost:8080/singer/springsteen
+  expect:
+    - response.json.fullname = Bruce Springsteen aka The Boss
+    - response.json.bestsong = ${song}

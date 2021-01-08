@@ -306,7 +306,7 @@ public class Http extends RockModule {
                 t.sendResponseHeaders(code, 0);
                 t.getResponseBody().close();
             } else {
-                t.sendResponseHeaders(code, body.length());
+                t.sendResponseHeaders(code, body.getBytes().length);
                 OutputStream os = t.getResponseBody();
                 os.write(body.getBytes());
                 os.close();

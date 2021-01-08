@@ -67,14 +67,7 @@ public class JSon extends RockModule {
     }
 
 
-    public Map<String,Object> check(Map<String,Object> params) throws JsonProcessingException {
-
-        Map<String, Object> ret = new HashMap<>();
-
-        String json=getStringParam(params,"json");
-        Map<String,Object> equals=getMapParam(params,"equals",null);
-        Map<String,Object> match=getMapParam(params,"match",null);
-
+    public void check(String json, Map<String,Object> equals, Map<String,Object> match) throws JsonProcessingException {
         if(equals != null) {
 
             for (Map.Entry<String, Object>  entry : equals.entrySet()) {
@@ -111,6 +104,18 @@ public class JSon extends RockModule {
 
         }
 
+    }
+
+
+    public Map<String,Object> check(Map<String,Object> params) throws JsonProcessingException {
+
+        Map<String, Object> ret = new HashMap<>();
+
+        String json=getStringParam(params,"json");
+        Map<String,Object> equals=getMapParam(params,"equals",null);
+        Map<String,Object> match=getMapParam(params,"match",null);
+
+        check(json,equals,match);
 
         return ret;
 

@@ -873,7 +873,7 @@ public class Scenario {
                     case "http.get": {
                         if (step.getParams() == null) {
                             Http.HttpResp resp = httpRequest("get", currentValue, null);
-                            httpCheck(step.getExpect(), resp);
+                            httpCheck(expand(step.getExpect()), resp);
                         } else {
                             String method = env.getProperty("modules." + step.getType() + ".function");
                             if (method == null)
@@ -885,7 +885,7 @@ public class Scenario {
                     case "http.post": {
                         if (step.getParams() == null) {
                             Http.HttpResp resp = httpRequest("post", currentValue, step.getBody());
-                            httpCheck(step.getExpect(), resp);
+                            httpCheck(expand(step.getExpect()), resp);
                         } else {
                             String method = env.getProperty("modules." + step.getType() + ".function");
                             if (method == null)
@@ -897,7 +897,7 @@ public class Scenario {
                     case "http.put": {
                         if (step.getParams() == null) {
                             Http.HttpResp resp = httpRequest("put", currentValue, step.getBody());
-                            httpCheck(step.getExpect(), resp);
+                            httpCheck(expand(step.getExpect()), resp);
                         } else {
                             String method = env.getProperty("modules." + step.getType() + ".function");
                             if (method == null)
@@ -909,7 +909,7 @@ public class Scenario {
                     case "http.delete": {
                         if (step.getParams() == null) {
                             Http.HttpResp resp = httpRequest("delete", currentValue, null);
-                            httpCheck(step.getExpect(), resp);
+                            httpCheck(expand(step.getExpect()), resp);
                         } else {
                             String method = env.getProperty("modules." + step.getType() + ".function");
                             if (method == null)

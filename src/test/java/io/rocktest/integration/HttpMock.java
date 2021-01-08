@@ -32,5 +32,4 @@ public class HttpMock extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
-
 }
