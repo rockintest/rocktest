@@ -22,4 +22,22 @@ public class JSon extends RockTest {
     }
 
 
+    @Test
+    public void check() throws IOException, InterruptedException {
+        String ret=run("/scen/jsoncheck.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void checkFailEquals() throws IOException, InterruptedException {
+        String ret=run("/scen/jsoncheck-failequals.yaml");
+        assertNotNull("Scenario should fail",ret);
+    }
+
+    @Test
+    public void checkFailMatch() throws IOException, InterruptedException {
+        String ret=run("/scen/jsoncheck-failmatch.yaml");
+        assertNotNull("Scenario should fail",ret);
+    }
+
 }

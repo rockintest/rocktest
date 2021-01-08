@@ -62,6 +62,8 @@ modules:
       extension: path
       params:
         1: json
+    check:
+      function: io.rocktest.modules.JSon.check
 
   date:
     now:

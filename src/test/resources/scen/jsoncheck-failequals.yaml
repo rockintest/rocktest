@@ -19,7 +19,4 @@
     json: ${jsonarray}
     equals:
       albums[1].name : Pink Floyd
-      albums[0].album : Kick
-    match:
-      albums[1].name : Pink.*d
-      albums[0].album : ic
+      albums[0].album : Suicide Blonde

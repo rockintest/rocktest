@@ -134,6 +134,25 @@ public class RockModule {
 
     }
 
+    public Map getMapParam(Map params, String key, Map def) {
+        if(params == null)
+            return def;
+
+        Object o = params.get(key);
+
+        if(o == null) {
+            return def;
+        }
+
+        if (!(o instanceof Map)) {
+            fail(key + " param must be a map but is \""+String.valueOf(o)+"\"");
+        }
+
+        return (Map)o;
+
+    }
+
+
     public void logJson(String message,String content) {
 
         try {
