@@ -2,14 +2,19 @@ package io.rocktest;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @NoArgsConstructor
 public class Step {
+
+    private Map origin;
 
     private String type;
     private String value;
@@ -31,9 +36,11 @@ public class Step {
 
     public Step(Map m) {
 
+        origin = m;
+
         m.keySet().forEach(o -> {
             if(! valid.contains(o)) {
-                throw new RuntimeException("Property \""+o+"\" for step invalid. Expected "+valid.toString());
+                throw new RockException("Property \""+o+"\" for step invalid. Expected "+valid.toString());
             }
         });
 
@@ -46,6 +53,27 @@ public class Step {
         body=asString(m.get("body"));
         name=asString(m.get("name"));
         params=(Map)m.get("params");
+    }
+
+
+    public String toYaml() {
+        return toYaml(null);
+    }
+
+
+    public String toYaml(String node) {
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        Yaml yaml = new Yaml(options);
+
+        if(node!=null) {
+            HashMap<String,Map> tmp=new HashMap<>();
+            tmp.put(node,origin);
+            return yaml.dump(tmp);
+        }
+
+        return yaml.dump(origin);
     }
 
 }

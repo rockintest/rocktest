@@ -1,6 +1,7 @@
 package io.rocktest;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +12,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.rocktest.modules.Http;
 import io.rocktest.modules.RockModule;
 import io.rocktest.modules.Sql;
@@ -273,54 +275,115 @@ public class Scenario {
         }
     }
 
+    /**
+     * Search for root cause as a RockException
+     * @param t
+     * @return
+     */
+    private RockException findRockCause(Throwable t) {
+        Throwable etmp=t;
+
+        if(t instanceof RockException) {
+            return (RockException) t;
+        }
+
+        while(! (etmp instanceof RockException)) {
+            if(etmp.getCause()==null) {
+                break;
+            }
+
+            if(etmp.getCause() instanceof RockException) {
+                return (RockException) etmp.getCause();
+            }
+
+            etmp=etmp.getCause();
+        }
+
+        return null;
+    }
+
 
     public Map exec(String function, Map<String, Object> params) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
-        String cls = function.substring(0, function.lastIndexOf('.'));
-        Class<?> moduleClass = Class.forName(cls);
-
-        Object module = moduleInstances.get(cls);
-        if (module == null) {
-            module = moduleClass.getDeclaredConstructor().newInstance();
-            moduleInstances.put(cls, module);
-        }
-
-        ((RockModule) module).setScenario(this);
-        String methodName = function.substring(function.lastIndexOf('.') + 1, function.length());
-
-        Class<?>[] paramTypes = {Map.class};
-        Method setNameMethod = module.getClass().getMethod(methodName, paramTypes);
-
-        // Do we need to expand the parameters ?
-        boolean expand;
         try {
-            Field f = module.getClass().getDeclaredField("noExpand");
-            f.setAccessible(true);
-            String[] noExpand = (String[]) f.get(module);
+            String cls = function.substring(0, function.lastIndexOf('.'));
+            Class<?> moduleClass = Class.forName(cls);
 
-            expand= !(Arrays.asList(noExpand).contains(methodName));
+            Object module = moduleInstances.get(cls);
+            if (module == null) {
+                module = moduleClass.getDeclaredConstructor().newInstance();
+                moduleInstances.put(cls, module);
+            }
 
-        } catch(NoSuchFieldException e) {
-            expand=true;
-        }
+            ((RockModule) module).setScenario(this);
+            String methodName = function.substring(function.lastIndexOf('.') + 1, function.length());
 
-        if(expand) {
-            params = expand(params);
-        }
+            Class<?>[] paramTypes = {Map.class};
+            Method setNameMethod = module.getClass().getMethod(methodName, paramTypes);
 
-        Map<String, Object> ret = (Map<String, Object>) setNameMethod.invoke(module, params);
+            // Do we need to expand the parameters ?
+            boolean expand;
+            try {
+                Field f = module.getClass().getDeclaredField("noExpand");
+                f.setAccessible(true);
+                String[] noExpand = (String[]) f.get(module);
 
-        if (ret != null) {
-            for (String k : ret.keySet()) {
-                if(ret.get(k)==null) {
-                    getLocalContext().remove(methodName + "." + k);
-                } else {
-                    getLocalContext().put(methodName + "." + k, String.valueOf(ret.get(k)));
+                expand = !(Arrays.asList(noExpand).contains(methodName));
+
+            } catch (NoSuchFieldException e) {
+                expand = true;
+            }
+
+            if (expand) {
+                params = expand(params);
+            }
+
+            Map<String, Object> ret = (Map<String, Object>) setNameMethod.invoke(module, params);
+
+            if (ret != null) {
+                for (String k : ret.keySet()) {
+                    if (ret.get(k) == null) {
+                        getLocalContext().remove(methodName + "." + k);
+                    } else {
+                        getLocalContext().put(methodName + "." + k, String.valueOf(ret.get(k)));
+                    }
                 }
             }
-        }
 
-        return ret;
+            return ret;
+        } catch(InvocationTargetException e) {
+
+            RockException erock=findRockCause(e);
+            if(erock != null) {
+                erock.setModule(function);
+                throw erock;
+            }
+
+            if(e.getCause()!=null) {
+                erock = new RockException("Error invoking module "+function,e.getCause());
+                LOG.error("Exception {} {} while calling module {}",e.getClass().getName(),(e.getMessage()!=null?e.getMessage():""),function,e.getCause());
+            } else {
+                erock = new RockException("Error invoking module "+function,e);
+                LOG.error("Exception {} {} while calling module {}",e.getClass().getName(),(e.getMessage()!=null?e.getMessage():""),function,e);
+            }
+
+            erock.setModule(function);
+
+            throw erock;
+
+        } catch(ClassNotFoundException e) {
+
+            RockException erock=new RockException("Cannot load module "+e.getMessage(),e);
+            erock.setScenario(function);
+            throw erock;
+
+        } catch(NoSuchMethodException e) {
+
+            RockException erock=new RockException("Cannot find method in module "+e.getMessage(),e);
+            erock.setScenario(function);
+            throw erock;
+
+        }
     }
 
 
@@ -478,7 +541,7 @@ public class Scenario {
         if (params != null)
             setContext(function, expand(params));
 
-        String err = run((List<Map>) functions.get(function), dir, context, stack,glob);
+        run((List<Map>) functions.get(function), dir, context, stack,glob);
 
         // Pop context
         deleteContext(function);
@@ -486,11 +549,6 @@ public class Scenario {
 
         // Recreates the string substitors with the local context
         initLocalContext();
-
-        if (err != null) {
-            LOG.error("Error : {}", err);
-            System.exit(1);
-        }
 
     }
 
@@ -638,6 +696,7 @@ public class Scenario {
     public String run(String name, String dir, Map<String, Map<String, Object>> context, List stack, String function,Map<String,Object> glob) throws IOException, InterruptedException {
         LOG.info("Load scenario. name={}, dir={}", name, dir);
         this.glob=glob;
+        String basename = FilenameUtils.getBaseName(name);
 
         try {
 
@@ -646,57 +705,65 @@ public class Scenario {
             extractFunctions(steps);
 
             if(function==null)
-                return run(steps, dir, context, stack,glob);
+                run(steps, dir, context, stack,glob);
             else {
                 List<Map> stepsFunction=functions.get(function);
                 if(stepsFunction==null) {
                     throw new RockException("Function "+function+" not declared in module "+name);
                 }
-                return run(stepsFunction,dir, context, stack,glob);
+                run(stepsFunction,dir, context, stack,glob);
             }
 
 
-        } catch (RockException e) {
-            String basename = FilenameUtils.getBaseName(name);
-            MDC.remove("position");
+        } catch(FileNotFoundException e) {
 
             LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
-            LOG.error(e.getMessage());
-            return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + e.getMessage();
+            if(e.getCause()!=null)
+                LOG.error(e.getCause().getMessage());
+
+            RockException erock=new RockException("Scenario not found",e);
+            erock.setScenario(basename);
+
+            return erock.getDescription();
+
+        } catch (RockException e) {
+
+            LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
+            LOG.error("Details=\n{}",e.getDescription());
+
+            return e.getDescription();
+
+        } catch (MismatchedInputException e) {
+
+            LOG.error("Scen {} - Scenario FAILURE", basename);
+            LOG.error("Parse error: {}",e.getMessage());
+
+            RockException erock=new RockException("Scenario not found",e);
+            erock.setScenario(basename);
+
+            return erock.getDescription();
 
         } catch (Exception e) {
 
-            String basename = FilenameUtils.getBaseName(name);
-            MDC.remove("position");
-
-            // Find is a root cause is a RockException
-            Throwable etmp=e;
-            while(! (etmp instanceof RockException)) {
-                if(etmp.getCause()==null) {
-                    break;
-                }
-
-                if(etmp.getCause() instanceof RockException) {
-                    LOG.error("RockException thrown from "+e.getClass().getName()+(e.getMessage()!=null?": "+e.getMessage():""));
-                    LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
-                    LOG.error(etmp.getCause().getMessage());
-                    return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + etmp.getCause().getMessage();
-                }
-
-                etmp=etmp.getCause();
-            }
-
-            // If there, no RockException in the stack
             LOG.error("Exception", e);
             LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
-            LOG.error(e.getCause().getMessage());
-            return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + e.getMessage();
+            if(e.getCause()!=null)
+                LOG.error(e.getCause().getMessage());
 
+            RockException erock=new RockException("Scenario not found",e);
+            erock.setScenario(basename);
+
+            return erock.getDescription();
+
+        } finally {
+            MDC.remove("position");
         }
+
+        return null;
     }
 
 
-    public String run(List<Map> steps, String dir,Map<String, Map<String, Object>> context, List stack,Map<String,Object> glob) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void run(List<Map> steps, String dir,Map<String, Map<String, Object>> context, List stack,Map<String,Object> glob) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         this.context = context;
         this.stack = stack;
@@ -709,170 +776,192 @@ public class Scenario {
         LINE.info("----------------------------------------");
 
         for (int i = 0; i < steps.size(); i++) {
-            Step step = new Step(steps.get(i));
 
-            switch (step.getType()) {
-                // Do not execute a function until it is called
-                case "function":
+            Step step=null;
+            try {
+
+                step = new Step(steps.get(i));
+
+                switch (step.getType()) {
+                    // Do not execute a function until it is called
+                    case "function":
+                        continue;
+                    case "skip":
+                        skiped = true;
+                        break;
+                    case "resume":
+                        skiped = false;
+                        break;
+                }
+
+                // Skip steps if necessary
+                if (skiped || step.getType().equals("resume"))
                     continue;
-                case "skip" :
-                    skiped=true;
+
+                if (step.getType().trim().startsWith("--"))
+                    continue;
+
+                currentStep = i + 1;
+                currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ") " : "");
+
+                String currentValue;
+                String valueDetail;
+
+                MDC.put("stack", getStack());
+                MDC.put("step", "" + (i + 1));
+                MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
+
+                // Set builtin var "step"
+                getLocalContext().put("step", currentStep);
+
+                if (step.getValue() == null) {
+                    currentValue = "";
+                    valueDetail = "";
+                } else {
+                    currentValue = expand(step.getValue());
+                    valueDetail = (currentValue.equals(step.getValue()) ? currentValue : step.getValue() + " => " + currentValue);
+                }
+
+                LOG.info("{}{}{}{}",
+                        currentDesc,
+                        step.getType(),
+                        (valueDetail.isEmpty() ? "" : ","),
+                        valueDetail);
+
+                LOG.trace("\n{}", step.toYaml());
+
+                switch (step.getType()) {
+                    case "exec":
+                        exec(step.getValue(), step.getParams());
+                        break;
+                    case "checkParams":
+                        checkParams(step.getValues());
+                        break;
+                    case "assert":
+                        doAssert(currentValue, expand(step.getParams()));
+                        break;
+                    case "return":
+                        if (step.getName() == null)
+                            returnVar(expand(step.getValue()));
+                        else
+                            returnVar(expand(step.getName()), currentValue);
+                        break;
+                    case "var":
+                        if (step.getName() == null)
+                            setVar(currentValue);
+                        else
+                            setVar(expand(step.getName()), currentValue);
+                        break;
+                    case "exit":
+                        LOG.info("Exit");
+                        i = steps.size();
+                        break;
+                    case "title":
+                        title = currentValue;
+                        break;
+                    case "display":
+                        LOG.info(currentValue);
+                        break;
+                    case "request":
+                        execSql(currentValue, null);
+                        break;
+                    case "pause":
+                        Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
+                        break;
+
+                    // Legacy syntax, to be removed...
+                    case "http.get": {
+                        if (step.getParams() == null) {
+                            Http.HttpResp resp = httpRequest("get", currentValue, null);
+                            httpCheck(step.getExpect(), resp);
+                        } else {
+                            String method = env.getProperty("modules." + step.getType() + ".function");
+                            if (method == null)
+                                throw new RockException("Type " + step.getType() + " unknown");
+                            exec(method, step.getParams());
+                        }
+                    }
                     break;
-                case "resume" :
-                    skiped=false;
+                    case "http.post": {
+                        if (step.getParams() == null) {
+                            Http.HttpResp resp = httpRequest("post", currentValue, step.getBody());
+                            httpCheck(step.getExpect(), resp);
+                        } else {
+                            String method = env.getProperty("modules." + step.getType() + ".function");
+                            if (method == null)
+                                throw new RockException("Type " + step.getType() + " unknown");
+                            exec(method, step.getParams());
+                        }
+                    }
                     break;
+                    case "http.put": {
+                        if (step.getParams() == null) {
+                            Http.HttpResp resp = httpRequest("put", currentValue, step.getBody());
+                            httpCheck(step.getExpect(), resp);
+                        } else {
+                            String method = env.getProperty("modules." + step.getType() + ".function");
+                            if (method == null)
+                                throw new RockException("Type " + step.getType() + " unknown");
+                            exec(method, step.getParams());
+                        }
+                    }
+                    break;
+                    case "http.delete": {
+                        if (step.getParams() == null) {
+                            Http.HttpResp resp = httpRequest("delete", currentValue, null);
+                            httpCheck(step.getExpect(), resp);
+                        } else {
+                            String method = env.getProperty("modules." + step.getType() + ".function");
+                            if (method == null)
+                                throw new RockException("Type " + step.getType() + " unknown");
+                            exec(method, step.getParams());
+                        }
+                    }
+                    break;
+                    case "call":
+                        call(step.getValue(), step.getParams());
+                        break;
+                    case "check":
+                        execSql(currentValue, step.getExpect());
+                        break;
+
+                    // Those steps are handled by the first switch, at the top of the function
+                    case "function":
+                    case "skip":
+                    case "resume":
+                        break;
+                    default:
+
+                        String method = env.getProperty("modules." + step.getType() + ".function");
+                        if (method == null)
+                            throw new RockException("Type " + step.getType() + " unknown");
+
+                        exec(method, step.getParams());
+                }
+
+                LINE.info("----------------------------------------");
+
+            } catch(Exception e) {
+
+                // Find if a root cause is a RockException
+                RockException erock = findRockCause(e);
+
+                if(erock == null) {
+                    LOG.error("Exception: ",e);
+                    erock=new RockException("Exception "+e.getClass().getName(),e);
+                }
+
+                erock.setStep(step);
+                erock.setStepNumber(currentStep);
+                erock.setScenario(getCurrentName());
+                erock.setStack(this.stack);
+                throw erock;
+
             }
-
-            // Skip steps if necessary
-            if(skiped || step.getType().equals("resume"))
-                continue;
-
-            if(step.getType().trim().startsWith("--"))
-                continue;
-
-            currentStep = i + 1;
-            currentDesc = (step.getDesc() != null ? "(" + step.getDesc() + ") " : "");
-
-            String currentValue;
-            String valueDetail;
-
-            MDC.put("stack", getStack());
-            MDC.put("step", "" + (i + 1));
-            MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
-
-            // Set builtin var "step"
-            getLocalContext().put("step", currentStep);
-
-            if (step.getValue() == null) {
-                currentValue = "";
-                valueDetail = "";
-            } else {
-                currentValue = expand(step.getValue());
-                valueDetail = (currentValue.equals(step.getValue()) ? currentValue : step.getValue() + " => " + currentValue);
-            }
-
-            LOG.info("{}{}{}{}",
-                    currentDesc,
-                    step.getType(),
-                    (valueDetail.isEmpty()?"":","),
-                    valueDetail);
-
-            switch (step.getType()) {
-                case "exec":
-                    exec(step.getValue(), step.getParams());
-                    break;
-                case "checkParams":
-                    checkParams(step.getValues());
-                    break;
-                case "assert":
-                    doAssert(currentValue, expand(step.getParams()));
-                    break;
-                case "return":
-                    if (step.getName() == null)
-                        returnVar(expand(step.getValue()));
-                    else
-                        returnVar(expand(step.getName()), currentValue);
-                    break;
-                case "var":
-                    if (step.getName() == null)
-                        setVar(currentValue);
-                    else
-                        setVar(expand(step.getName()), currentValue);
-                    break;
-                case "exit":
-                    LOG.info("Exit");
-                    i = steps.size();
-                    break;
-                case "title":
-                    title = currentValue;
-                    break;
-                case "display":
-                    LOG.info(currentValue);
-                    break;
-                case "request":
-                    execSql(currentValue, null);
-                    break;
-                case "pause":
-                    Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
-                    break;
-
-                // Legacy syntax, to be removed...
-                case "http.get": {
-                    if(step.getParams()==null) {
-                        Http.HttpResp resp = httpRequest("get", currentValue, null);
-                        httpCheck(step.getExpect(), resp);
-                    } else {
-                        String method = env.getProperty("modules." + step.getType()+ ".function");
-                        if (method == null)
-                            throw new RockException("Type " + step.getType() + " unknown");
-                        exec(method, step.getParams());
-                    }
-                }
-                break;
-                case "http.post": {
-                    if(step.getParams()==null) {
-                        Http.HttpResp resp = httpRequest("post", currentValue, step.getBody());
-                        httpCheck(step.getExpect(), resp);
-                    } else {
-                        String method = env.getProperty("modules." + step.getType()+ ".function");
-                        if (method == null)
-                            throw new RockException("Type " + step.getType() + " unknown");
-                        exec(method, step.getParams());
-                    }
-                }
-                break;
-                case "http.put": {
-                    if(step.getParams()==null) {
-                        Http.HttpResp resp = httpRequest("put", currentValue, step.getBody());
-                        httpCheck(step.getExpect(), resp);
-                    } else {
-                        String method = env.getProperty("modules." + step.getType()+ ".function");
-                        if (method == null)
-                            throw new RockException("Type " + step.getType() + " unknown");
-                        exec(method, step.getParams());
-                    }
-                }
-                break;
-                case "http.delete": {
-                    if(step.getParams()==null) {
-                        Http.HttpResp resp = httpRequest("delete", currentValue, null);
-                        httpCheck(step.getExpect(), resp);
-                    } else {
-                        String method = env.getProperty("modules." + step.getType()+ ".function");
-                        if (method == null)
-                            throw new RockException("Type " + step.getType() + " unknown");
-                        exec(method, step.getParams());
-                    }
-                }
-                break;
-                case "call":
-                    call(step.getValue(), step.getParams());
-                    break;
-                case "check":
-                    execSql(currentValue, step.getExpect());
-                    break;
-
-                // Those steps are handled by the first switch, at the top of the function
-                case "function":
-                case "skip":
-                case "resume":
-                    break;
-                default:
-
-                    String method = env.getProperty("modules." + step.getType()+ ".function");
-                    if (method == null)
-                        throw new RockException("Type " + step.getType() + " unknown");
-
-                    exec(method, step.getParams());
-            }
-
-            LINE.info("----------------------------------------");
-
         }
 
         MDC.remove("position");
 
-        return null;
     }
 
 

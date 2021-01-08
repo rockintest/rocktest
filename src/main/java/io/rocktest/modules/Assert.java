@@ -33,7 +33,7 @@ public class Assert extends RockModule {
 
         LOG.debug("Actual value: {}",String.valueOf(actual));
 
-        if (!actual.equals(expected)) {
+        if (!String.valueOf(actual).equals(String.valueOf(expected))) {
             fail("Assert fail: " + msg + " - expected \"" + String.valueOf(expected) + "\" but was \"" + String.valueOf(actual) + "\"");
         }
 
