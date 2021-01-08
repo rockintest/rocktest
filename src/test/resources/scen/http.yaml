@@ -51,13 +51,14 @@
 # Check JSON body with a variable
 - type: var
   name: song
-  value: Born in the USA
+  value: Born
 
 - type: http.get
   desc: Check with variable
   params:
     url: http://localhost:8080/singer/springsteen
     expect:
+      - code = 201|200
       - response.json.bestsong = ${song}
 
 

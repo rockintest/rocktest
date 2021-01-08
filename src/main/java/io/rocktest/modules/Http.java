@@ -64,14 +64,26 @@ public class Http extends RockModule {
         if (var.equals("code")) {
             LOG.info("\tResponse code = {}", response.getCode());
 
-            String status = "" + response.getCode();
+            String actual = "" + response.getCode();
 
+            Pattern p = Pattern.compile(val,Pattern.DOTALL);
+            Matcher m = p.matcher(actual);
+
+            if (!m.find()) {
+                if (throwErrorIfNotTrue) {
+                    fail("Status code does not match. Expected " + val + " but was " + actual);
+                }
+                return false;
+            }
+
+/*
             if (!val.equals(status)) {
                 if (throwErrorIfNotTrue) {
                     fail("Status code does not match. Expected " + val + " but was " + status);
                 }
                 return false;
-            }
+            }*/
+
             LOG.info("OK");
 
         } else if (var.startsWith("response.json")) {
@@ -106,12 +118,16 @@ public class Http extends RockModule {
 
                 LOG.info("\tJSON body{} = {}", path, actual);
 
-                if (!val.equals(actual)) {
+                Pattern p = Pattern.compile(val,Pattern.DOTALL);
+                Matcher m = p.matcher(actual);
+
+                if (!m.find()) {
                     if (throwErrorIfNotTrue) {
-                        fail("Value JSON" + path + " does not match. Expected " + val + " but was " + actual);
+                        fail("JSON content at path " + path + " does not match REGEX. Expected " + val + " but was " + actual);
                     }
                     return false;
                 }
+
             }
         } else {
             fail("Syntax error. Expect in HTTP clause \"" + var + " = " + val + "\".");
