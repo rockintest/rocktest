@@ -173,6 +173,9 @@ public class Scenario {
     }
 
     public List expand(List val) {
+        if(val==null)
+            return null;
+
         ArrayList<Object> ret = new ArrayList<>();
 
         for (int i = 0; i < val.size(); i++) {
