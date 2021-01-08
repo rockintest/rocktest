@@ -59,6 +59,9 @@ public class JSon extends RockModule {
 
         Map<String, Object> ret = new HashMap<>();
 
+        String json=getStringParam(params,"json");
+
+
         return ret;
 
     }

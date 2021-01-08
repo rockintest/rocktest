@@ -2,6 +2,7 @@ package io.rocktest.modules;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.rocktest.RockException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,7 +89,7 @@ public class Sql extends RockModule {
         String name = getStringParam(params,"name","default");
         Connection connection=connections.get(name);
         if(connection == null) {
-            throw new RuntimeException("SQL connection "+name+" does not exist");
+            fail("SQL connection "+name+" does not exist");
         }
 
         connection.jdbcTemplate.update(req);
@@ -118,7 +119,7 @@ public class Sql extends RockModule {
         String name = getStringParam(params,"name","default");
         Connection connection=connections.get(name);
         if(connection == null) {
-            throw new RuntimeException("SQL connection "+name+" does not exist");
+            fail("SQL connection "+name+" does not exist");
         }
 
         List<String> expect = getArrayParam(params, "expect", null);
@@ -172,7 +173,7 @@ public class Sql extends RockModule {
 
                 if (expect != null) {
                     if (data.size() != expect.size()) {
-                        throw new RuntimeException("Size does not match. Expected " + expect.size() + " elements but was " + data.size() + " elements");
+                        fail("Size does not match. Expected " + expect.size() + " elements but was " + data.size() + " elements");
                     }
 
                     int nb = 0;
@@ -197,7 +198,7 @@ public class Sql extends RockModule {
                         }
 
                         if (!found) {
-                            throw new RuntimeException("Record " + nb + " : Record does not match any regex : " + next);
+                            fail("Record " + nb + " : Record does not match any regex : " + next);
                         }
 
                     }
@@ -207,7 +208,7 @@ public class Sql extends RockModule {
                     // If nothing to check => OK
                     break;
                 }
-            } catch (RuntimeException e) {
+            } catch (RockException e) {
                 // Au bout de checkRetry tentatives, on lance l'exception et le test échoue.
                 if (iRetry == connection.retry + 1) {
                     throw e;

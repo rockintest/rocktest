@@ -66,7 +66,7 @@ public class Web extends RockModule {
                 windows=driver.getWindowHandles();
                 break;
             default:
-                throw new RuntimeException("Browser "+browser+" not supported");
+                fail("Browser "+browser+" not supported");
         }
 
     }
@@ -256,8 +256,8 @@ public class Web extends RockModule {
             return ret;
         }
 
-        throw new RuntimeException("Unknown criteria");
-
+        fail("Unknown criteria");
+        return null;
     }
 
 

@@ -68,7 +68,7 @@ public class Http extends RockModule {
 
             if (!val.equals(status)) {
                 if (throwErrorIfNotTrue) {
-                    throw new RuntimeException("Status code does not match. Expected " + val + " but was " + status);
+                    fail("Status code does not match. Expected " + val + " but was " + status);
                 }
                 return false;
             }
@@ -82,7 +82,7 @@ public class Http extends RockModule {
                 LOG.info("\tJSON body empty");
                 if (!val.isEmpty()) {
                     if (throwErrorIfNotTrue) {
-                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was empty");
+                        fail("Value JSON" + path + " does not match. Expected " + val + " but was empty");
                     }
                     return false;
                 }
@@ -95,7 +95,7 @@ public class Http extends RockModule {
 
                 if (!val.equals("null")) {
                     if (throwErrorIfNotTrue) {
-                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was NULL");
+                        fail("Value JSON" + path + " does not match. Expected " + val + " but was NULL");
                     }
                     return false;
                 }
@@ -108,13 +108,13 @@ public class Http extends RockModule {
 
                 if (!val.equals(actual)) {
                     if (throwErrorIfNotTrue) {
-                        throw new RuntimeException("Value JSON" + path + " does not match. Expected " + val + " but was " + actual);
+                        fail("Value JSON" + path + " does not match. Expected " + val + " but was " + actual);
                     }
                     return false;
                 }
             }
         } else {
-            throw new RuntimeException("Syntax error. Expect in HTTP clause \"" + var + " = " + val + "\".");
+            fail("Syntax error. Expect in HTTP clause \"" + var + " = " + val + "\".");
         }
 
         return true;
@@ -187,7 +187,7 @@ public class Http extends RockModule {
 
             if (curr.startsWith("{")) {
                 if (!isSubConditionTrue(curr, response)) {
-                    throw new RuntimeException("Sub condition returns false");
+                    fail("Sub condition returns false");
                 }
             } else {
                 Scenario.Variable v = scenario.extractVariable(curr);
@@ -354,7 +354,7 @@ public class Http extends RockModule {
                     Map condresp = (Map) condition.get("response");
 
                     if (condresp == null) {
-                        throw new RuntimeException("Condition must have a reponse field");
+                        fail("Condition must have a reponse field");
                     }
 
                     Map resp = scenario.expand(condresp);

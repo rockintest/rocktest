@@ -214,7 +214,7 @@ public class Scenario {
             } else if (entry.getValue() instanceof Boolean) {
                 ret.put(entry.getKey(), (Boolean) entry.getValue());
             } else {
-                throw new RuntimeException("Error expanding node. Type " + entry.getValue().getClass().getName() + " unexpected");
+                throw new RockException("Error expanding node. Type " + entry.getValue().getClass().getName() + " unexpected");
             }
         }
         return ret;
@@ -242,12 +242,12 @@ public class Scenario {
             case "equals":
                 String actual = String.valueOf(params.get("actual"));
                 if (actual == null) {
-                    throw new RuntimeException("\"actual\" param is required");
+                    throw new RockException("\"actual\" param is required");
                 }
 
                 String expected = String.valueOf(params.get("expected"));
                 if (expected == null) {
-                    throw new RuntimeException("\"expected\" param is required");
+                    throw new RockException("\"expected\" param is required");
                 }
 
                 String msg = String.valueOf(params.get("message"));
@@ -256,19 +256,19 @@ public class Scenario {
                 LOG.debug("Actual value: {}",actual);
 
                 if (!actual.equals(expected)) {
-                    throw new RuntimeException("Assert fail: " + msg + " - expected \"" + expected + "\" but was \"" + actual + "\"");
+                    throw new RockException("Assert fail: " + msg + " - expected \"" + expected + "\" but was \"" + actual + "\"");
                 }
 
                 break;
             default:
-                throw new RuntimeException("Bad assertion type :" + assertType);
+                throw new RockException("Bad assertion type :" + assertType);
         }
     }
 
     private void checkParams(List<String> p) {
         for (String curr : p) {
             if (getLocalContext().get(curr) == null) {
-                throw new RuntimeException("Parameter " + curr + " is mandatory for module " + getCurrentName());
+                throw new RockException("Parameter " + curr + " is mandatory for module " + getCurrentName());
             }
         }
     }
@@ -650,20 +650,48 @@ public class Scenario {
             else {
                 List<Map> stepsFunction=functions.get(function);
                 if(stepsFunction==null) {
-                    throw new RuntimeException("Function "+function+" not declared in module "+name);
+                    throw new RockException("Function "+function+" not declared in module "+name);
                 }
                 return run(stepsFunction,dir, context, stack,glob);
             }
 
+
+        } catch (RockException e) {
+            String basename = FilenameUtils.getBaseName(name);
+            MDC.remove("position");
+
+            LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
+            LOG.error(e.getMessage());
+            return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + e.getMessage();
 
         } catch (Exception e) {
 
             String basename = FilenameUtils.getBaseName(name);
             MDC.remove("position");
 
-            LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
+            // Find is a root cause is a RockException
+            Throwable etmp=e;
+            while(! (etmp instanceof RockException)) {
+                if(etmp.getCause()==null) {
+                    break;
+                }
+
+                if(etmp.getCause() instanceof RockException) {
+                    LOG.error("RockException thrown from "+e.getClass().getName()+(e.getMessage()!=null?": "+e.getMessage():""));
+                    LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
+                    LOG.error(etmp.getCause().getMessage());
+                    return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + etmp.getCause().getMessage();
+                }
+
+                etmp=etmp.getCause();
+            }
+
+            // If there, no RockException in the stack
             LOG.error("Exception", e);
+            LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
+            LOG.error(e.getCause().getMessage());
             return "Scen " + basename + " [" + title + "] step #" + currentStep + " " + currentDesc + " " + e.getMessage();
+
         }
     }
 
@@ -776,7 +804,7 @@ public class Scenario {
                     } else {
                         String method = env.getProperty("modules." + step.getType()+ ".function");
                         if (method == null)
-                            throw new RuntimeException("Type " + step.getType() + " unknown");
+                            throw new RockException("Type " + step.getType() + " unknown");
                         exec(method, step.getParams());
                     }
                 }
@@ -788,7 +816,7 @@ public class Scenario {
                     } else {
                         String method = env.getProperty("modules." + step.getType()+ ".function");
                         if (method == null)
-                            throw new RuntimeException("Type " + step.getType() + " unknown");
+                            throw new RockException("Type " + step.getType() + " unknown");
                         exec(method, step.getParams());
                     }
                 }
@@ -800,7 +828,7 @@ public class Scenario {
                     } else {
                         String method = env.getProperty("modules." + step.getType()+ ".function");
                         if (method == null)
-                            throw new RuntimeException("Type " + step.getType() + " unknown");
+                            throw new RockException("Type " + step.getType() + " unknown");
                         exec(method, step.getParams());
                     }
                 }
@@ -812,7 +840,7 @@ public class Scenario {
                     } else {
                         String method = env.getProperty("modules." + step.getType()+ ".function");
                         if (method == null)
-                            throw new RuntimeException("Type " + step.getType() + " unknown");
+                            throw new RockException("Type " + step.getType() + " unknown");
                         exec(method, step.getParams());
                     }
                 }
@@ -833,7 +861,7 @@ public class Scenario {
 
                     String method = env.getProperty("modules." + step.getType()+ ".function");
                     if (method == null)
-                        throw new RuntimeException("Type " + step.getType() + " unknown");
+                        throw new RockException("Type " + step.getType() + " unknown");
 
                     exec(method, step.getParams());
             }
@@ -853,7 +881,7 @@ public class Scenario {
         Matcher m = p.matcher(exp);
 
         if (!m.find()) {
-            throw new RuntimeException("Syntax error. Declaration \"" + exp + "\" must be formed \"<VAR>=<VALUE>\".");
+            throw new RockException("Syntax error. Declaration \"" + exp + "\" must be formed \"<VAR>=<VALUE>\".");
         }
 
         String var = m.group(1);

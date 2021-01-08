@@ -21,12 +21,12 @@ public class Assert extends RockModule {
 
         Object actual = params.get("actual");
         if (actual == null) {
-            throw new RuntimeException("\"actual\" param is required");
+            fail("\"actual\" param is required");
         }
 
         Object expected = params.get("expected");
         if (expected == null) {
-            throw new RuntimeException("\"expected\" param is required");
+            fail("\"expected\" param is required");
         }
 
         String msg = getStringParam(params,"message","");
@@ -34,7 +34,7 @@ public class Assert extends RockModule {
         LOG.debug("Actual value: {}",String.valueOf(actual));
 
         if (!actual.equals(expected)) {
-            throw new RuntimeException("Assert fail: " + msg + " - expected \"" + String.valueOf(expected) + "\" but was \"" + String.valueOf(actual) + "\"");
+            fail("Assert fail: " + msg + " - expected \"" + String.valueOf(expected) + "\" but was \"" + String.valueOf(actual) + "\"");
         }
 
         return null;
@@ -53,7 +53,7 @@ public class Assert extends RockModule {
         Matcher m = p.matcher(actual);
 
         if(!m.find()) {
-            throw new RuntimeException("Assert fail: " + msg + " - expected \"" + actual + "\" does not match \"" + expected + "\"");
+            fail("Assert fail: " + msg + " - expected \"" + actual + "\" does not match \"" + expected + "\"");
         }
 
         return null;
