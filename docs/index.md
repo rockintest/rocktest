@@ -2,7 +2,19 @@
 
 ## Getting started
 
-To setup RockTest, please refer to [README](https://github.com/rockintest/rocktest/blob/main/README.md)
+To setup RockTest, please refer to [README](https://github.com/rockintest/rocktest/blob/main/README.md) on GitHub.
+
+Sample scenario, with a variable :
+
+```yaml
+- step: var
+  name: rock
+  value: Hello RockTest
+
+- step: display
+  value: ${rock}
+```
+
 
 ## Features
 
