@@ -1,4 +1,4 @@
-- type: var
+- step: var
   name: jsonarray
   value: >-
       "albums" : [
@@ -13,7 +13,7 @@
       ]
     }
 
-- type: json.check
+- step: json.check
   params:
     json: ${jsonarray}
     equals:

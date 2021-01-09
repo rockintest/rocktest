@@ -1,6 +1,6 @@
 # Mock for "singer" REST API
 
-- type: http.mock
+- step: http.mock
   params:
     port: 8080
     # Default header. Always set.
@@ -68,5 +68,5 @@
           }
 
 
-- type: pause
+- step: pause
   value: 1000

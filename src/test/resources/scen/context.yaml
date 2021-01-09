@@ -1,14 +1,14 @@
-- type: skip
+- step: skip
 
-- type: var
+- step: var
   name: fromContext1
   value: Mick
 
-- type: var
+- step: var
   name: fromContext2
   value: Jagger
 
-- type: call
+- step: call
   desc: No context
   value: module/libcontext
   params:
@@ -19,7 +19,7 @@
     expect.fromContext2: Springsteen
     expect.fromParams: E Street Band
 
-- type: call
+- step: call
   desc: Var in param
   value: module/libcontext
   params:
@@ -30,7 +30,7 @@
     expect.fromContext2: Springsteen
     expect.fromParams: Mick
 
-- type: call
+- step: call
   desc: All context
   value: module/libcontext
   params:
@@ -40,7 +40,7 @@
     expect.fromContext2: Jagger
     expect.fromParams: E Street Band
 
-- type: call
+- step: call
   desc: All context with replacement in call
   value: module/libcontext
   params:
@@ -51,7 +51,7 @@
     expect.fromContext2: Jagger
     expect.fromParams: E Street Band
 
-- type: call
+- step: call
   desc: Partial context
   value: module/libcontext
   params:
@@ -62,7 +62,7 @@
     expect.fromContext2: Jagger
     expect.fromParams: E Street Band
 
-- type: resume
+- step: resume
 
-- type: call
+- step: call
   value: module/sublibcontext

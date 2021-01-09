@@ -1,6 +1,6 @@
 # Function : get
 
-- type: function
+- step: function
   name : get
 
   steps:
@@ -38,7 +38,7 @@
 
 # Function : create
 
-- type: function
+- step: function
   name : create
 
   steps:
@@ -54,7 +54,7 @@
 
 # Function to initialize the database
 
-- type: function
+- step: function
   name : connect
   steps:
   - type : sql.connect

@@ -1,21 +1,21 @@
-- type: assert
+- step: assert
   value: equals
   params:
     expected: abc
     actual: abc
     message: I should not be raised
 
-- type: var
+- step: var
   value: myvar = myvalue
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: myvalue
     actual: ${myvar}
     message: I should not be raised
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: ${myvar}

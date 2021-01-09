@@ -1,11 +1,11 @@
 # Basic test : match
 
-- type: regex.match
+- step: regex.match
   params:
     pattern: ro.k
     string: rock
 
-- type: assert
+- step: assert
   value: equals
   desc: Basic regex check - match
   params:
@@ -14,12 +14,12 @@
 
 # Basic test : no match
 
-- type: regex.match
+- step: regex.match
   params:
     pattern: ro.k
     string: rocK
 
-- type: assert
+- step: assert
   value: equals
   desc: Basic regex check - no match
   params:
@@ -28,33 +28,33 @@
 
 # Extraction
 
-- type: regex.match
+- step: regex.match
   params:
     string: I love INXS and Mick Jagger but not XX
     pattern: I love (.*) and (.*) but not (.*)
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
     expected: true
     actual: ${match.match}
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
     expected: INXS
     actual: ${match.1}
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
     expected: Mick Jagger
     actual: ${match.2}
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
@@ -63,33 +63,33 @@
 
 # Extraction with unset group
 
-- type: regex.match
+- step: regex.match
   params:
     string: I love INXS but not XX
     pattern: I love (.*) (?:and (.*) )?but not (.*)
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
     expected: true
     actual: ${match.match}
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
     expected: INXS
     actual: ${match.1}
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction with unset variable
   params:
     expected: unset
     actual: ${match.2::unset}
 
-- type: assert
+- step: assert
   value: equals
   desc: Extraction
   params:
@@ -98,7 +98,7 @@
 
 # Inline syntax
 
-- type: assert
+- step: assert
   value: equals
   desc: Inline syntax
   params:

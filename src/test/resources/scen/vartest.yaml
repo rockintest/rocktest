@@ -1,56 +1,56 @@
-- type: var
+- step: var
   value : myvar = myvalue
 
-- type: var
+- step: var
   value : myvar2 = myvalue2
 
-- type: display
+- step: display
   value: Variable = ${myvar}
 
-- type: display
+- step: display
   value: Variable = ${myvar2}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: myvalue
     actual: ${myvar}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: myvalue myvalue2
     actual: ${myvar} ${myvar2}
 
-- type: call
+- step: call
   value: module/libWithVar
 
-- type: var
+- step: var
   value: localvar = localvalueTop
 
-- type: display
+- step: display
   value: 'Should be localvalueTop : "${localvar}"'
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: localvalueTop
     actual: ${localvar}
 
-- type: display
+- step: display
   value: 'should not be replaced : "${noexist}"'
 
-- type: display
+- step: display
   value: 'should not be replaced : "${localvar2}"'
 
-- type: call
+- step: call
   value: module/libWithParams
   params:
     param1: value1
     param2: value2
     param3: ${localvar}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: default value

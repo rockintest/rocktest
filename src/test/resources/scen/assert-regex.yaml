@@ -1,14 +1,14 @@
-- type: assert.match
+- step: assert.match
   params:
     expected: Bruce .* is the Bo..
     actual: Bruce Springsteen is the Boss
     message: I should not be raised
 
-- type: var
+- step: var
   name: band
   value: Bruce and the E-Street Band
 
-- type: assert.match
+- step: assert.match
   params:
     expected: .* and the E-Street B...
     actual: ${band}

@@ -1,4 +1,4 @@
-- type : display
+- step: display
   value : Hello from lib !
-- type : call
+- step: call
   value : module/sublib.yaml

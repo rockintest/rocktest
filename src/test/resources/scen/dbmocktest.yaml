@@ -1,21 +1,21 @@
-- type: title
+- step: title
   value: Test of the dbmock module
 
-- type: call
+- step: call
   value: module/dbmock->connect
 
-- type: call
+- step: call
   value: module/dbmock->get
   params:
     singer: springsteen
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: 200
     actual: ${dbmock.get.code}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: >-

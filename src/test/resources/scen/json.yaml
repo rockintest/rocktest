@@ -1,4 +1,4 @@
-- type: var
+- step: var
   name: json
   value: >-
     {
@@ -6,7 +6,7 @@
       "album" : "Kick"
     }
 
-- type: var
+- step: var
   name: jsonarray
   value: >-
     {
@@ -22,7 +22,7 @@
       ]
     }
 
-- type: var
+- step: var
   name: arrayroot
   value: >-
     [
@@ -38,15 +38,15 @@
 
 # Nominal case
 
-- type: json.parse
+- step: json.parse
   params:
     json: ${json}
     path: album
 
-- type: display
+- step: display
   value: Result = ${parse.result}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: Kick
@@ -54,15 +54,15 @@
 
 # Non existing field
 
-- type: json.parse
+- step: json.parse
   params:
     json: ${json}
     path: noexist
 
-- type: display
+- step: display
   value: Result = ${parse.result::EMPTY}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: EMPTY
@@ -70,15 +70,15 @@
 
 # Returning an array
 
-- type: json.parse
+- step: json.parse
   params:
     json: ${jsonarray}
     path: albums
 
-- type: display
+- step: display
   value: Result = ${parse.result}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: '[{"name":"inxs","album":"Kick"},{"name":"Pink Floyd","album":"The dark side of the moon"}]'
@@ -86,15 +86,15 @@
 
 # Array as root
 
-- type: json.parse
+- step: json.parse
   params:
     json: ${arrayroot}
     path: "[1].name"
 
-- type: display
+- step: display
   value: Result = ${parse.result}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: Pink Floyd
@@ -102,15 +102,15 @@
 
 # Returning a map
 
-- type: json.parse
+- step: json.parse
   params:
     json: ${jsonarray}
     path: albums[1]
 
-- type: display
+- step: display
   value: Result = ${parse.result}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: '{"name":"Pink Floyd","album":"The dark side of the moon"}'
@@ -118,12 +118,12 @@
 
 # Parse result of a previous parse
 
-- type: json.parse
+- step: json.parse
   params:
     json: ${parse.result}
     path: name
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: Pink Floyd
@@ -131,7 +131,7 @@
 
 # Inline syntax
 
-- type: var
+- step: var
   name: json
   value: >-
     {
@@ -139,5 +139,5 @@
       "album" : "Kick"
     }
 
-- type: display
+- step: display
   value: ${$json.parse(${json}).album}

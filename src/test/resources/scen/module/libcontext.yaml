@@ -1,23 +1,23 @@
-- type: display
+- step: display
   value: ${fromContext1}
 
-- type: display
+- step: display
   value: ${fromContext2}
 
-- type: display
+- step: display
   value: ${fromParams}
 
-- type : assert.equals
+- step: assert.equals
   params:
     expected: ${expect.fromContext1}
     actual: ${fromContext1::unset}
 
-- type : assert.equals
+- step: assert.equals
   params:
     expected: ${expect.fromContext2}
     actual: ${fromContext2::unset}
 
-- type : assert.equals
+- step: assert.equals
   params:
     expected: ${expect.fromParams}
     actual: ${fromParams::unset}

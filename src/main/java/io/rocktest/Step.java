@@ -26,7 +26,7 @@ public class Step {
     private String name;
     private Map params;
 
-    private List valid = Arrays.asList("type","value","expect","steps","values","desc","body","name","params");
+    private List valid = Arrays.asList("step","type","value","expect","steps","values","desc","body","name","params");
 
     private String asString(Object o) {
         if(o==null)
@@ -44,7 +44,14 @@ public class Step {
             }
         });
 
-        type=asString(m.get("type"));
+        if(m.get("type")!=null) {
+            type=asString(m.get("type"));
+        }
+
+        if(m.get("step")!=null) {
+            type=asString(m.get("step"));
+        }
+
         value=asString(m.get("value"));
         expect=(List)m.get("expect");
         steps=(List)m.get("steps");

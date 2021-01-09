@@ -28,6 +28,7 @@ RockTest is a low code tool, designed to automate your tests. It's easy to use, 
 - [Assertions](assert.md): do checks using exact match or regex
 - [JSON](json.md): JSON is supported, with the use of JSONPath API
 - [Date](date.md): manipulate dates, get current date and do calculations on dates
+- [Id](id.md): generate IDs, based on sequences, with custom starting and increment, or UUIDs
 
 All of these features can be combined in a single scenario. You can spin a Mock of your API, and do e2e tests
 on your web application using this Mock. Or you can test your REST API by provisioning your database and calling 

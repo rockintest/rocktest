@@ -1,14 +1,14 @@
-- type: var
+- step: var
   name: singer
   value: Joe Cocker
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: Joe Cocker
     actual: ${singer}
 
-- type: var
+- step: var
   name: record
   value: >-
     {
@@ -16,7 +16,7 @@
       "band" : "Genesis"
     }
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: >-

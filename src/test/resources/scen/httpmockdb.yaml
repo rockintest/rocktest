@@ -1,10 +1,10 @@
 # HTTP mock with persistence in an embedded database
 
 # Create the datasource
-- type: call
+- step: call
   value: module/dbmock->connect
 
-- type: http.mock
+- step: http.mock
   params:
     port: 8080
     headers:
@@ -30,14 +30,14 @@
           code: ${dbmock.create.code}
 
 # Call the mock
-- type: http.get
+- step: http.get
   params:
     url: http://localhost:8080/singer/springsteen
     expect:
       - code=200
 
 # Put data to the Mock
-- type: http.post
+- step: http.post
   params:
     url: http://localhost:8080/singer
     body: >-
@@ -49,7 +49,7 @@
     expect:
       - code=201
 
-- type: http.get
+- step: http.get
   params:
     url: http://localhost:8080/singer/inxs
     expect:
@@ -57,7 +57,7 @@
 
 
 # Put data to the Mock - legacy syntax
-- type: http.post
+- step: http.post
   desc: Post with legacy syntax
   value: http://localhost:8080/singer
   body: >-

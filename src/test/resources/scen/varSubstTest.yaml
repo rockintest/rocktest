@@ -1,73 +1,73 @@
-- type: display
+- step: display
   value: 'should be "default value" : ${notexist?${notexist}::default value}'
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: default value
     actual: ${notexist?${notexist}::default value}
 
-- type: var
+- step: var
   value: exist = I am alive
 
-- type: display
+- step: display
   value: 'should be "I am alive" : ${exist?${exist}::default value}'
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: I am alive
     actual: ${exist?${exist}::default value}
 
-- type: display
+- step: display
   value: 'should be "Yes ! I am alive and kicking" : ${exist?Yes ! ${exist} and kicking::default value}'
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: Yes ! I am alive and kicking
     actual: ${exist?Yes ! ${exist} and kicking::default value}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: default value
     actual: ${notexist::default value}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: I am alive
     actual: ${notexist::${exist}}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: 1
     actual: ${notexist?${notexist}::1}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: 1
     actual: ${notexist::1}
 
-- type: var
+- step: var
   name: id
   value: 10
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: 10
     actual: ${id?${id}::99}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: 10
     actual: ${id::99}
 
-- type: var
+- step: var
   name: today
   value:

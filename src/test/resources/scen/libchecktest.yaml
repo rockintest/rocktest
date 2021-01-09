@@ -1,18 +1,18 @@
-- type: call
+- step: call
   value: module/libCheck
   params:
     mandatory1: val1
     mandatory2: val2
     optional1: val3
 
-- type: call
+- step: call
   value: module/libCheck
   params:
     mandatory1: val1
     mandatory2: val2
 
 # Fails, because a mandatory param is missing
-- type: call
+- step: call
   value: module/libCheck
   params:
     mandatory2: val2

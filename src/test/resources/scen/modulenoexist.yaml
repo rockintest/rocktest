@@ -1,4 +1,4 @@
-- type: title
+- step: title
   value: Test with non existant include
 
-- type: no.exist
+- step: no.exist

@@ -1,9 +1,9 @@
-- type : sql.connect
+- step: sql.connect
   params:
     retry: 0
     url: "jdbc:h2:mem:"
 
-- type: sql.request
+- step: sql.request
   params:
     request: >-
       CREATE TABLE rock (
@@ -14,25 +14,25 @@
       );
       insert into rock (id,title,author,date) values(3,'Suicide Blonde','INXS',parsedatetime('19900902','yyyyMMdd'));
 
-- type: sql.request
+- step: sql.request
   params:
     request: insert into rock (id,title,author,date) values(1,'Born in the USA','Bruce Springsteen',parsedatetime('19840604','yyyyMMdd'))
 
-- type: sql.request
+- step: sql.request
   params:
     request: select * from rock
 
-- type: display
+- step: display
   value: ${request.3} rocks !!
 
-- type: display
+- step: display
   value: '"${request.TITLE}" is the best song ever.'
 
-- type: sql.request
+- step: sql.request
   params:
     request: insert into rock (id,title,author,date) values(2,'Highway to hell','AC/DC',parsedatetime('19790727','yyyyMMdd'))
 
-- type: sql.request
+- step: sql.request
   params:
     request: select * from rock
     expect:
@@ -40,11 +40,11 @@
       - Born in the USA
       - Suicide Blonde
 
-- type: var
+- step: var
   name: song
   value: Suicide Blonde
 
-- type: sql.request
+- step: sql.request
   params:
     request: select * from rock
     expect:

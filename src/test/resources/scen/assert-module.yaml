@@ -1,19 +1,19 @@
-- type: assert.equals
+- step: assert.equals
   params:
     expected: Springsteen
     actual: Springsteen
     message: I should not be raised
 
-- type: var
+- step: var
   value: myvar = 10
 
-- type: assert.equals
+- step: assert.equals
   params:
     expected: 10
     actual: ${myvar}
     message: I should not be raised
 
-- type: assert.equals
+- step: assert.equals
   params:
     expected: ${myvar}
     actual: 10

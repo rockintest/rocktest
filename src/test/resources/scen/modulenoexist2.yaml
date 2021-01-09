@@ -1,5 +1,5 @@
-- type: title
+- step: title
   value: Test with non existant include
 
-- type: exec
+- step: exec
   value: io.rocktest.noexist.function

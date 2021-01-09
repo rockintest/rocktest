@@ -1,44 +1,44 @@
-- type: call
+- step: call
   value: module/display
   params:
     message: ${noexist::${$date.now(yyyyMMdd)}}
 
-- type: date.now
+- step: date.now
 
-- type: display
+- step: display
   value: ${now.result}
 
-- type: date.now
+- step: date.now
   params:
     format: yyyyMMdd
 
-- type: display
+- step: display
   value: ${now.result}
 
-- type: date.minus
+- step: date.minus
   params:
     date: 25/12/2020
     years: 1
     months: 1
     days: 1
 
-- type: display
+- step: display
   value: ${minus.result}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: 24/11/2019
     actual: ${minus.result}
 
 # Inline syntax
-- type: assert.equals
+- step: assert.equals
   params:
     expected: ${now.result}
     actual: ${$date.now(yyyyMMdd)}
 
 
-- type: assert.equals
+- step: assert.equals
   params:
     expected: ${now.result}
     actual: ${noexist::${$date.now(yyyyMMdd)}}

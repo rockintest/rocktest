@@ -1,2 +1,2 @@
-- type: return
+- step: return
   value: result = ${1}${2}

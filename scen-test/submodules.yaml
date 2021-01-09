@@ -1,34 +1,34 @@
 # Functions embedded in yaml file
 
-- type: call
+- step: call
   value: ->whorocks
   params:
     message: "Who's rockin' ?"
 
-- type: display
+- step: display
   value: ${whorocks.ret}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: "Who's rockin' ? It's Nirvana"
     actual: ${whorocks.ret}
 
-- type: call
+- step: call
   value: whorocks
   params:
     message: "R U Sure ?"
 
-- type: display
+- step: display
   value: ${whorocks.ret}
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: "R U Sure ? It's Nirvana"
     actual: ${whorocks.ret}
 
-- type: call
+- step: call
   value: subinception
   params:
     message: "Inception..."
@@ -36,7 +36,7 @@
 
 ## Functions
 
-- type: function
+- step: function
   name : whorocks
   steps :
   - type: display
@@ -48,7 +48,7 @@
 
 # A function calling another function
 
-- type: function
+- step: function
   name: inception
   steps:
   - type: call
@@ -60,7 +60,7 @@
 
 # 3 levels imbrication
 
-- type: function
+- step: function
   name: subinception
   steps:
     - type: call

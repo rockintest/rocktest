@@ -1,13 +1,13 @@
 # Multiple datasource, identified by the param "name".
 # If not specified, name = "default"
 
-- type : sql.connect
+- step: sql.connect
   params:
     name : rockers
     retry: 0
     url: "jdbc:h2:mem:rockers"
 
-- type: sql.request
+- step: sql.request
   params:
     name : rockers
     request: >-
@@ -19,13 +19,13 @@
       insert into rock (id,fullname,bestsong) values('springsteen','Bruce Springsteen aka The Boss','Land of hope and dreams');
       insert into rock (id,fullname,bestsong) values('acdc','AC/DC','Thunderstruck');
 
-- type : sql.connect
+- step: sql.connect
   params:
     name : rockers2
     retry: 0
     url: "jdbc:h2:mem:rockers2"
 
-- type: sql.request
+- step: sql.request
   params:
     name : rockers2
     request: >-
@@ -37,7 +37,7 @@
       insert into rock (id,fullname,bestsong) values('knopfler','Mark Knopfler','Sultans of swing');
       insert into rock (id,fullname,bestsong) values('springsteen','Bruce Springsteen aka The Boss','Cover me');
 
-- type: sql.request
+- step: sql.request
   params:
     name: rockers
     request: select * from rock
@@ -45,7 +45,7 @@
       - Land of hope and dreams
       - Thunderstruck
 
-- type: sql.request
+- step: sql.request
   params:
     name: rockers2
     request: select * from rock

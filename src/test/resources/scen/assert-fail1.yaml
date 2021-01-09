@@ -1,4 +1,4 @@
-- type: assert
+- step: assert
   value: equals
   params:
     expected: abc

@@ -1,8 +1,8 @@
-- type: web.get
+- step: web.get
   params:
     url: https://www.google.fr
 
-- type: web.attribute
+- step: web.attribute
   params:
     by.name: noexist
     name: value

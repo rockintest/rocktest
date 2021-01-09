@@ -1,7 +1,7 @@
 # Mock for "singer" REST API
 # Simplest version, with static context and only 1 condition
 
-- type: http.mock
+- step: http.mock
   params:
     port: 8080
     # Default header. Always set.
@@ -20,6 +20,6 @@
           }
 
 # To let the thread run, unskip this last step
-- type: skip
-- type: pause
+- step: skip
+- step: pause
   value: 9999

@@ -1,14 +1,14 @@
 # First part is main by default
 
-- type: display
+- step: display
   value: main called with param ${question}
 
-- type: return
+- step: return
   value: "ret = ${question} It's RockTest"
 
 ## Functions
 
-- type : function
+- step: function
   name : func1
   steps:
   - type: display
@@ -19,7 +19,7 @@
 
 ## Another function
 
-- type : function
+- step: function
   name : func2
   steps:
 

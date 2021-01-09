@@ -1,17 +1,17 @@
 # If the name starts with ".", it will be put "as is" in the caller context
 # else, the name of the module is added
 # Here : the variable will be "libWithReturn.fromLib" in the caller context
-- type: return
+- step: return
   value: fromLib = It comes from the library
 
-- type: call
+- step: call
   value: module/sublibWithReturn
 
-- type: return
+- step: return
   value: fromSubLib = ${sublibWithReturn.fromSubLib}
 
 # If the name starts with ".", it will be put "as is" in the caller context
 # Here : the variable will be "rock" in the caller context
-- type: return
+- step: return
   name: .rock
   value: nroll

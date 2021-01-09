@@ -1,5 +1,5 @@
-- type: display
+- step: display
   value: param1 = ${param1}, param2 = ${param2}
 
-- type: display
+- step: display
   value: 'should be "localvalueTop" : ${param3}'

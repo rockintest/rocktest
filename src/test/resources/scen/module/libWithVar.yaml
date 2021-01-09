@@ -1,8 +1,8 @@
-- type: var
+- step: var
   value: localvar = localvalue
 
-- type: display
+- step: display
   value : 'Should be localvalue : ${localvar}'
 
-- type: var
+- step: var
   value: localvar2 = localvalue2

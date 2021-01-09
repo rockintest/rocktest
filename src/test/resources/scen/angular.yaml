@@ -1,11 +1,11 @@
 # Sample web scenario with RockTest
 # visits the sample Angular application "tour of heros" on Stackblitz
 
-- type: web.get
+- step: web.get
   params:
     url: https://angular.io/generated/live-examples/toh-pt6/stackblitz.html
 
-- type: display
+- step: display
   value: Current window = ${$web.window()}
 
 
@@ -24,27 +24,27 @@
 # Use the parameter switch = false
 # You need to switch explicitly after
 
-- type: web.click
+- step: web.click
   params:
     by.content : Open in New Window
     wait : 20
     switch: false
 
-- type: display
+- step: display
   value: New window = ${$web.newwindow()}
 
-- type: web.switch
+- step: web.switch
   params:
     window: ${$web.newwindow()}
 
-- type: web.click
+- step: web.click
   params:
     by.linktext : Heroes
     wait : 20
 
 # This click does not open a new window.
 
-- type: assert
+- step: assert
   value: equals
   desc: Check that no new window is open
   params:
@@ -53,12 +53,12 @@
 
 # Get a CSS attribute
 
-- type: web.css
+- step: web.css
   params:
     by.content: Messages
     name: color
 
-- type: assert
+- step: assert
   value: equals
   desc: Check get css property
   params:
@@ -66,26 +66,26 @@
     actual: ${css.result}
 
 # Select by tag name and send keys
-- type: web.sendkeys
+- step: web.sendkeys
   params:
     by.tag: input
     value: Freddie Mercury
 
-- type: pause
+- step: pause
   value: 1
 
 # Select by tag name and clear
-- type: web.clear
+- step: web.clear
   params:
     by.tag: input
 
 # Select by class name and click
-- type: web.click
+- step: web.click
   params:
     by.class: delete
 
 
-- type: pause
+- step: pause
   value: 10
 
 

@@ -1,6 +1,6 @@
 # syntax error. Value unexpected
 
-- type: assert
+- step: assert
   value: unexpected
   params:
     expected: abc

@@ -1,6 +1,6 @@
 # syntax error. Missing "expected" param
 
-- type: assert
+- step: assert
   value: equals
   params:
     actual: abc

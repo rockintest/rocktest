@@ -1,8 +1,8 @@
-- type : title
+- step: title
   value : Tests HTTP
 
 # Spin a mock
-- type: http.mock
+- step: http.mock
   params:
     port: 8080
     name: ROCK
@@ -29,31 +29,31 @@
             }
 
 # Call the mock
-- type: http.get
+- step: http.get
   params:
     url: http://localhost:8080/singer/springsteen
     expect:
       - code=200
 
 # Legacy syntax
-- type: http.get
+- step: http.get
   value: http://localhost:8080/singer/springsteen
   expect:
     - code=200
 
 # Check JSON body
-- type: http.get
+- step: http.get
   params:
     url: http://localhost:8080/singer/springsteen
     expect:
       - response.json.bestsong = Born in the USA
 
 # Check JSON body with a variable
-- type: var
+- step: var
   name: song
   value: Born
 
-- type: http.post
+- step: http.post
   desc: Check with variable, old syntax with list
   value: http://localhost:8080/singer/springsteen
   expect:
@@ -62,7 +62,7 @@
     - response.json.bestsong = ${song}
 
 
-- type: http.post
+- step: http.post
   desc: Check with variable, syntax with list
   params:
     url: http://localhost:8080/singer/springsteen
@@ -72,7 +72,7 @@
       - response.json.bestsong = ${song}
 
 
-- type: http.get
+- step: http.get
   desc: Check with Map syntax (prefered option)
   params:
     url: http://localhost:8080/singer/springsteen

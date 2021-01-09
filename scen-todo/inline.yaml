@@ -1,5 +1,5 @@
 # Ability to call a subscenario, and get the result inline
-- type: assert
+- step: assert
   value: equals
   params:
     expected: LedZeppelin
@@ -10,7 +10,7 @@
     actual: ${$->concatlocal(Led,Zeppelin)}
 
 # The scenario can be in an external yaml
-- type: assert
+- step: assert
   value: equals
   params:
     expected: LedZeppelin
@@ -21,7 +21,7 @@
 
 
 # Inline can be in a Java plugin
-- type: assert
+- step: assert
   value: equals
   params:
     expected: LedZeppelin
@@ -32,13 +32,13 @@
     actual: $io.rocktest.modules.Utils.concat(Led,Zeppelin)
 
 # Previous call is equivalent to the following :
-- type: exec
+- step: exec
   value : io.rocktest.modules.Utils.concat
   params:
     1: Led
     2: Zeppelin
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: LedZeppelin
@@ -50,7 +50,7 @@
 #modules:
 #  utils.concat : io.rocktest.modules.Utils.concat
 
-- type: assert
+- step: assert
   value: equals
   params:
     expected: LedZeppelin
@@ -65,5 +65,5 @@
 
 - name: concatlocal
 
-- type: return
+- step: return
   value: result = ${1}${2}

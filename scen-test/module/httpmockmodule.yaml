@@ -1,14 +1,14 @@
-- type: display
+- step: display
   value: singer = ${singer}
 
-- type: display
+- step: display
   value: body = ${body}
 
-- type: display
+- step: display
   value: uri = ${uri}
 
-- type: return
+- step: return
   value: code = 201
 
-- type: return
+- step: return
   value: "body = { calleduri : ${uri}, calledsinger : ${singer} }"

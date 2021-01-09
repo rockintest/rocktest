@@ -1,4 +1,4 @@
-- type: assert.equals
+- step: assert.equals
   params:
     expected: Springsteen
     actual: Bruce
