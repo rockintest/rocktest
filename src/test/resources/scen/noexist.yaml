@@ -1,0 +1,5 @@
+- type: title
+  value: Test with non existant include
+
+- type: call
+  value: module/noexist

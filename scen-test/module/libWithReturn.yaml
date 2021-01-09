@@ -1,8 +1,0 @@
-- type: return
-  value: fromLib = It comes from the library
-
-- type: call
-  value: module/sublibWithReturn
-
-- type: return
-  value: fromSubLib = ${sublibWithReturn.fromSubLib}

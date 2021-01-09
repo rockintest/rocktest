@@ -37,11 +37,118 @@ default:
     retry: 30
 
 modules:
-  sql.connect : io.rocktest.modules.Sql.connect
-  sql.request : io.rocktest.modules.Sql.request
-  http.get : io.rocktest.modules.Http.get
-  http.delete : io.rocktest.modules.Http.delete
-  http.post : io.rocktest.modules.Http.post
-  http.put : io.rocktest.modules.Http.put
-  http.mock : io.rocktest.modules.Http.mock
-  json.parse : io.rocktest.modules.JSon.parse
+  sql:
+    connect :
+      function: io.rocktest.modules.Sql.connect
+    request :
+      function: io.rocktest.modules.Sql.request
+
+  http:
+    get:
+      function: io.rocktest.modules.Http.get
+    delete :
+      function: io.rocktest.modules.Http.delete
+    post :
+      function: io.rocktest.modules.Http.post
+    put :
+      function: io.rocktest.modules.Http.put
+    mock :
+      function: io.rocktest.modules.Http.mock
+
+  json :
+    parse :
+      function: io.rocktest.modules.JSon.parse
+      result: result
+      extension: path
+      params:
+        1: json
+    check:
+      function: io.rocktest.modules.JSon.check
+
+  date:
+    now:
+      function: io.rocktest.modules.Date.now
+      result: result
+      params:
+        1: format
+
+    minus :
+      function: io.rocktest.modules.Date.minus
+      result: result
+      params:
+        1: date
+        2: years
+        3: months
+        4: days
+
+  web:
+    get:
+      function: io.rocktest.modules.Web.get
+    quit:
+      function: io.rocktest.modules.Web.quit
+    click:
+      function: io.rocktest.modules.Web.click
+    window:
+      function: io.rocktest.modules.Web.window
+      result: result
+    switch:
+      function: io.rocktest.modules.Web.switchTo
+    newwindow:
+      function: io.rocktest.modules.Web.newWindow
+      result: result
+    sendkeys:
+      function: io.rocktest.modules.Web.sendKeys
+    clear:
+      function: io.rocktest.modules.Web.clear
+    submit:
+      function: io.rocktest.modules.Web.submit
+    css:
+      function: io.rocktest.modules.Web.css
+      result: result
+      extension: name
+    text:
+      function: io.rocktest.modules.Web.text
+      result: result
+    attribute:
+      function: io.rocktest.modules.Web.attribute
+      result: result
+      extension: name
+    title:
+      function: io.rocktest.modules.Web.title
+      result: result
+    url:
+      function: io.rocktest.modules.Web.url
+      result: result
+    tag:
+      function: io.rocktest.modules.Web.tag
+      result: result
+    count:
+      function: io.rocktest.modules.Web.count
+      result: result
+
+  id:
+    initseq:
+      function: io.rocktest.modules.Id.initseq
+    seq:
+      function: io.rocktest.modules.Id.seq
+      result: result
+      params:
+        1: name
+    uuid:
+      function: io.rocktest.modules.Id.uuid
+      result: result
+
+  regex:
+    match:
+      function: io.rocktest.modules.Regex.match
+      result: result
+      extension: group
+      params:
+        1: pattern
+        2: string
+
+  assert:
+    equals:
+      function: io.rocktest.modules.Assert.equals
+    match:
+      function: io.rocktest.modules.Assert.match

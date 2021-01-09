@@ -1,0 +1,120 @@
+- type: title
+  value: Check Id module
+
+- type: id.seq
+
+- type: display
+  value: ${seq.result}
+
+- type: assert.equals
+  desc: init of default sequence with default values
+  params:
+    expected: 0
+    actual: ${seq.result}
+
+- type: id.seq
+  desc: increment default sequence
+
+- type: assert.equals
+  params:
+    expected: 1
+    actual: ${seq.result}
+
+- type : id.seq
+  params:
+    name: rock
+
+- type: assert.equals
+  desc: init of rock sequence with default values
+  params:
+    expected: 0
+    actual: ${seq.result}
+
+- type: id.seq
+
+- type: assert.equals
+  desc: increment default sequence
+  params:
+    expected: 2
+    actual: ${seq.result}
+
+
+- type: id.seq
+  params:
+    name: rock
+
+- type: assert.equals
+  desc: increment rock sequence
+  params:
+    expected: 1
+    actual: ${seq.result}
+
+- type: id.initseq
+  params:
+    value: 100
+    step: 10
+    name: rock
+
+- type: id.seq
+  params:
+    name: rock
+
+- type: assert.equals
+  desc: init rock sequence
+  params:
+    expected: 100
+    actual: ${seq.result}
+
+- type: id.seq
+  params:
+    name: rock
+
+- type: assert.equals
+  desc: init rock sequence
+  params:
+    expected: 110
+    actual: ${seq.result}
+
+- type: id.seq
+
+- type: assert.equals
+  desc: increment default sequence
+  params:
+    expected: 3
+    actual: ${seq.result}
+
+# Inline syntax
+- type: assert.equals
+  desc: increment default sequence - inline syntax
+  params:
+    expected: 4
+    actual: ${$id.seq()}
+
+- type: assert.equals
+  desc: increment rock sequence - inline syntax
+  params:
+    expected: 120
+    actual: ${$id.seq(rock)}
+
+# Reset default sequence
+- type: id.initseq
+  params:
+    value: 1000
+    step: 2
+
+- type: assert.equals
+  desc: increment default sequence - inline syntax
+  params:
+    expected: 1000
+    actual: ${$id.seq()}
+
+- type: assert.equals
+  desc: increment default sequence - inline syntax
+  params:
+    expected: 1002
+    actual: ${$id.seq()}
+
+# Get UUID
+- type: display
+  value: ${$id.uuid()}
+

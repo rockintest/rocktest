@@ -1,0 +1,86 @@
+- type : title
+  value : Tests HTTP
+
+# Spin a mock
+- type: http.mock
+  params:
+    port: 8080
+    name: ROCK
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/springsteen
+        method: get
+        response:
+          code: 200
+          body: >-
+            {
+              fullname: "Bruce Springsteen aka The Boss",
+              bestsong: "Born in the USA"
+            }
+      - uri: /singer/springsteen
+        method: post
+        response:
+          code: 200
+          body: >-
+            {
+              fullname: "Bruce Springsteen aka The Boss",
+              bestsong: "Born in the USA"
+            }
+
+# Call the mock
+- type: http.get
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - code=200
+
+# Legacy syntax
+- type: http.get
+  value: http://localhost:8080/singer/springsteen
+  expect:
+    - code=200
+
+# Check JSON body
+- type: http.get
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - response.json.bestsong = Born in the USA
+
+# Check JSON body with a variable
+- type: var
+  name: song
+  value: Born
+
+- type: http.post
+  desc: Check with variable, old syntax with list
+  value: http://localhost:8080/singer/springsteen
+  expect:
+    - code = 201|200
+    - response.json.fullname = Bruce Springsteen aka The Boss
+    - response.json.bestsong = ${song}
+
+
+- type: http.post
+  desc: Check with variable, syntax with list
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - code = 201|200
+      - response.json.fullname = Bruce Springsteen aka The Boss
+      - response.json.bestsong = ${song}
+
+
+- type: http.get
+  desc: Check with Map syntax (prefered option)
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      code: 200
+      body.json:
+        bestsong: Born .. the ...
+        "['fullname']" : Springsteen
+      body.matches:
+        - Springsteen
+        - "\n  bestsong: \"Born in the USA\"\n"

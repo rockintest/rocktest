@@ -1,0 +1,4 @@
+- type: title
+  value: Test with non existant include
+
+- type: no.exist

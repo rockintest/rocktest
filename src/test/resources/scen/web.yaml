@@ -1,0 +1,25 @@
+- type: web.get
+  params:
+    url: https://www.google.com
+
+- type: display
+  value: ${$web.title()}
+
+- type: display
+  value: ${$web.url()}
+
+- type: web.attribute
+  params:
+    by.name: btnK
+    name: value
+    wait: 10
+
+- type: display
+  value: ${attribute.result}
+
+# Get attribute with inline syntax
+- type: display
+  value: ${$web.attribute(by.name:=btnK).value}
+
+- type: pause
+  value: 5

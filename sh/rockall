@@ -1,7 +1,6 @@
 #!/bin/bash
 
-TOP=`dirname $0`/..
-TOP=`cd $TOP && pwd`
+TOP=$(dirname "$0")
 
 test -z "$1" && {
   echo "Usage : rockall <directory>"
@@ -14,76 +13,14 @@ test -d "$1" || {
 }
 
 
-LOGS=$TOP/log/`date +"%m-%d-%y_%T"`
-echo "Logs dans $LOGS"
-
-mkdir -p $LOGS
-
 for F in $(ls $1/*.yaml) ; do
   printf "%s - " `basename $F`
-  
-  test -f $TOP/jenkins/raf-daemon-creance-synchro.log && cat $TOP/jenkins/raf-daemon-creance-synchro.log | wc -l > $LOGS/`basename $F`.log
-  
-  $TOP/sh/raftest.sh $F >> $LOGS/`basename $F`.log
+
+  $TOP/rocktest $F
   
   test $? = 130 && {
       echo
       exit 130
   }
 
-
-  test -f $TOP/jenkins/raf-daemon-creance-synchro.log &&  {
-	
-    SIZE=$(cat $TOP/jenkins/raf-daemon-creance-synchro.log | wc -l)
-    START=$(head -1 $LOGS/`basename $F`.log)
-
-    echo "==================================" >> $LOGS/`basename $F`.log
-    echo "== Logs de la brique de synchro ==" >> $LOGS/`basename $F`.log
-    echo "==================================" >> $LOGS/`basename $F`.log
-
-    tail -$((SIZE-START)) $TOP/jenkins/raf-daemon-creance-synchro.log  >> $LOGS/`basename $F`.log
-  }
-  
-  grep "Scenario SUCCESS" $LOGS/`basename $F`.log > /dev/null
-  if [ $? = 0 ]; then
-    echo "OK"
-    echo "OK" >> $LOGS/`basename $F`.log
-  else
-    echo "KO"
-    echo "KO" >> $LOGS/`basename $F`.log	
-  fi
-
 done
-
-
-
-test -d $TOP/jenkins/result || mkdir $TOP/jenkins/result
-echo '<?xml version="1.0" encoding="UTF-8"?>' > $TOP/jenkins/result/$(basename $1).xml
-
-NB=0
-FAILURES=0
-
-for L in `find $LOGS -name "*.log"`; do
-	NB=$((NB+1))
-	test $(tail -1 $L) = "KO" && FAILURES=$((FAILURES+1))
-done
-
-echo "<testsuite name=\"$(basename $1)\" tests=\"$NB\" failures=\"$FAILURES\" package=\"$(basename $1).test\" >" >> $TOP/jenkins/result/$(basename $1).xml
-
-for L in `find $LOGS -name "*.log"`; do
-    echo "<testcase name=\"$(basename $L)\" classname=\"$(echo $(basename $L)|sed s/\.yaml\.log//)\" status=\"$(tail -1 $L)\">" >> $TOP/jenkins/result/$(basename $1).xml
-	
-	test $(tail -1 $L) = "KO" && {
-	    echo "<failure message=\"Test failed\"></failure>" >> $TOP/jenkins/result/$(basename $1).xml
-	}
-
-	echo "<system-out>" >> $TOP/jenkins/result/$(basename $1).xml
-	cat $L | sed 's/\&/\&amp;/g' | sed 's/"/\&quot;/g' | sed "s/'/\&apos;/g" | sed 's/</\&lt;/g' | sed 's/>/\&gt;/g'  >> $TOP/jenkins/result/$(basename $1).xml
-	echo "</system-out>" >> $TOP/jenkins/result/$(basename $1).xml
-	
-	
-	echo "</testcase>" >> $TOP/jenkins/result/$(basename $1).xml
-done
-
-echo "</testsuite>" >> $TOP/jenkins/result/$(basename $1).xml
-

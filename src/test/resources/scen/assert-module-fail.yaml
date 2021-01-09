@@ -1,0 +1,5 @@
+- type: assert.equals
+  params:
+    expected: Springsteen
+    actual: Bruce
+    message: I should be raised

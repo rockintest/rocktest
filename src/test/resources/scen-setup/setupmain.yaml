@@ -1,0 +1,11 @@
+# setup.yaml is automatically called
+
+- type: display
+  value: ${setupdone}
+
+- type: assert
+  value: equals
+  desc: The variable has been put in the context by the setup
+  params:
+    expected: Setup has been called
+    actual: ${setupdone}

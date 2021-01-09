@@ -128,3 +128,16 @@
   params:
     expected: Pink Floyd
     actual: ${parse.result}
+
+# Inline syntax
+
+- type: var
+  name: json
+  value: >-
+    {
+      "name" : "inxs",
+      "album" : "Kick"
+    }
+
+- type: display
+  value: ${$json.parse(${json}).album}

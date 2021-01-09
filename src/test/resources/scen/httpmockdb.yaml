@@ -1,0 +1,70 @@
+# HTTP mock with persistence in an embedded database
+
+# Create the datasource
+- type: call
+  value: module/dbmock->connect
+
+- type: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/(.*)
+        method: get
+        call:
+          value: module/dbmock->get
+          params:
+            singer: ${1}
+        response:
+          code: ${dbmock.get.code}
+          body: ${dbmock.get.body}
+
+      - uri: /singer
+        method: post
+        call:
+          value: module/dbmock->create
+          params:
+            body: ${body}
+        response:
+          code: ${dbmock.create.code}
+
+# Call the mock
+- type: http.get
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - code=200
+
+# Put data to the Mock
+- type: http.post
+  params:
+    url: http://localhost:8080/singer
+    body: >-
+      {
+          "bestsong": "Suicide Blonde",
+          "name": "inxs",
+          "fullname": "INXS"
+      }
+    expect:
+      - code=201
+
+- type: http.get
+  params:
+    url: http://localhost:8080/singer/inxs
+    expect:
+      - code=200
+
+
+# Put data to the Mock - legacy syntax
+- type: http.post
+  desc: Post with legacy syntax
+  value: http://localhost:8080/singer
+  body: >-
+    {
+        "bestsong": "Suicide Blonde",
+        "name": "inxs",
+        "fullname": "INXS"
+    }
+  expect:
+    - code=201

@@ -1,0 +1,25 @@
+# Mock for "singer" REST API
+# Simplest version, with static context and only 1 condition
+
+- type: http.mock
+  params:
+    port: 8080
+    # Default header. Always set.
+    headers:
+      content-type: application/json
+    when:
+    - uri: /singer/springsteen
+      method: get
+      # Response to send when condition is met
+      response:
+        code: 200
+        body: >-
+          {
+            "fullname": "Bruce Springsteen aka The Boss",
+            "bestsong": "Born in the USA"
+          }
+
+# To let the thread run, unskip this last step
+- type: skip
+- type: pause
+  value: 9999

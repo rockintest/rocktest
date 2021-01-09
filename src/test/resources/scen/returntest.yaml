@@ -1,0 +1,29 @@
+- type: call
+  value: module/libWithReturn
+
+- type: display
+  value: Value from lib = ${libWithReturn.fromLib}
+
+- type: display
+  value: Value from subLib = ${libWithReturn.fromSubLib}
+
+- type: assert
+  value: equals
+  desc: Return with the default name = modulename.variable
+  params:
+    expected: It comes from the library
+    actual: ${libWithReturn.fromLib}
+
+- type: assert
+  value: equals
+  desc: Return a variable coming from a sublib
+  params:
+    expected: It comes from the sub library
+    actual: ${libWithReturn.fromSubLib}
+
+- type: assert
+  value: equals
+  desc: Return with a specific prefix (not the module name)
+  params:
+    expected: nroll
+    actual: ${rock}

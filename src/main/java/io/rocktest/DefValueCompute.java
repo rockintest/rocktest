@@ -3,9 +3,11 @@ package io.rocktest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,14 +16,17 @@ import java.util.regex.Pattern;
 @Setter
 public class DefValueCompute  implements StringLookup {
 
-    private Map<String,String> context;
+    private Map<String,Object> context;
     private StringSubstitutor subContext;
+    private Scenario scenario;
 
-    public DefValueCompute(Map<String,String> context) {
-        this.context=context;
+    public DefValueCompute(Scenario s) {
+        this.scenario=s;
+        this.context=s.getLocalContext();
         subContext=new StringSubstitutor(context);
     }
 
+    @SneakyThrows
     @Override
     public String lookup(String s) {
 
@@ -29,14 +34,15 @@ public class DefValueCompute  implements StringLookup {
         if(tmp!=null)
             return tmp;
 
-        tmp=context.get(s);
-        if(tmp!=null)
-            return tmp;
+        Object otmp=context.get(s);
+        if(otmp!=null)
+            return String.valueOf(otmp);
 
-        tmp= subContext.replace(s);
+        tmp = subContext.replace(s);
 
-        // On regarde si on a une expression du genre
-        // ${variable?value if set::value if not set}
+        // De we have expression like
+        // ${variable?value if set::value if not set} or
+        // ${variable::value if not set}
         Pattern p = Pattern.compile("([^?]+)(?:\\?(.*))?::(.*)",Pattern.DOTALL);
         Matcher m = p.matcher(tmp);
 
@@ -51,11 +57,11 @@ public class DefValueCompute  implements StringLookup {
                 if(ret != null)
                     return ret;
 
-                ret=context.get(var);
-                if( ret == null) {
+                Object oret=context.get(var);
+                if( oret == null) {
                     return valIfNotSet;
                 } else {
-                    return ret;
+                    return String.valueOf(oret);
                 }
 
             } else {
@@ -68,48 +74,90 @@ public class DefValueCompute  implements StringLookup {
 
             }
 
+        } else {
+
+            // De we have expression like
+            // ${module(p1,p2).path}
+            p = Pattern.compile("\\$([^(]+)\\(((?:[^,]+)?(?:,[^,]+)*)\\)(?:\\.(.+))?",Pattern.DOTALL);
+            m = p.matcher(tmp);
+
+            if(m.find()) {
+
+                String module=m.group(1);
+                String params=m.group(2);
+                String extension=m.group(3);
+
+                String method = scenario.getEnv().getProperty("modules." + module+".function");
+                if (method == null)
+                    throw new RuntimeException("Module " + module + " unknown");
+
+                String result = scenario.getEnv().getProperty("modules." + module+".result");
+                if (result == null)
+                    throw new RuntimeException("Result not available for module " + module);
+
+                HashMap<String,Object> paramsMap=null;
+                if(params != null && !params.isEmpty()) {
+
+                    // Extract params (p1,p2,...) or (param1:=value1, param2:=value2...)
+                    // and put them according to their values in the hash table
+
+                    paramsMap=new HashMap<>();
+
+                    if(extension!=null && !extension.isEmpty()) {
+                        String paramExtension = scenario.getEnv().getProperty("modules." + module+".extension");
+                        if (paramExtension == null)
+                            throw new RuntimeException("Param extension not available for module " + module);
+
+                        paramsMap.put(paramExtension,extension);
+                    }
+
+                    String[] paramArray = params.split("\\]>>,<<\\[");
+                    for (int i = 0; i < paramArray.length; i++) {
+
+                        String current=paramArray[i];
+
+                        p = Pattern.compile(" *<<\\[(.+)",Pattern.DOTALL);
+                        m = p.matcher(current);
+                        if(m.matches()) {
+                            current=m.group(1);
+                        }
+
+                        p = Pattern.compile("(.+)\\]>>",Pattern.DOTALL);
+                        m = p.matcher(current);
+                        if(m.matches()) {
+                            current=m.group(1);
+                        }
+
+
+                        p = Pattern.compile(" *(.+) *:= *(.+) *",Pattern.DOTALL);
+                        m = p.matcher(current);
+
+                        if(m.matches()) {
+
+                            String paramName=m.group(1);
+                            String paramValue=m.group(2);
+                            paramsMap.put(paramName, paramValue);
+
+                        } else {
+                            String paramName = scenario.getEnv().getProperty("modules." + module + ".params." + (i + 1));
+                            if (paramName == null) {
+                                throw new RuntimeException("Param #" + (i+1) + " undefined for module " + module);
+                            }
+                            paramsMap.put(paramName, current);
+                        }
+                    }
+                }
+
+                Map ret = scenario.exec(method,paramsMap);
+
+                Object o=ret.get(result);
+                if(o!=null)
+                    return String.valueOf(o);
+            }
+
         }
 
         return null;
-
-        /*
-        else {
-            // On regarde si on a
-            // ${variable::default value}
-            Pattern p2 = Pattern.compile("(.+)::(.+)");
-            Matcher m2 = p2.matcher(tmp);
-
-            if(!m2.find()) {
-                return null;
-            }
-
-            String var=m2.group(1).trim();
-            String valIfNotSet=m2.group(2);
-
-            String ret=System.getenv(var);
-            if(ret != null)
-                return ret;
-
-            ret=context.get(var);
-            if( ret == null) {
-                return valIfNotSet;
-            } else {
-                return ret;
-            }
-
-        }
-
-
-        String var=m.group(1).trim();
-        String valIfSet=m.group(2);
-        String valIfNotSet=m.group(3);
-
-        if(context.get(var) == null) {
-            return valIfNotSet;
-        } else {
-            return valIfSet;
-        }
-        */
 
     }
 }
