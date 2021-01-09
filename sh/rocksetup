@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ROCK=$(cd $(dirname $0)/.. && pwd)
+
+grep "Rocktest setup" ~/.bashrc 2> /dev/null || {
+  echo "# Rocktest setup"
+  echo export ROCK=\"$ROCK\"
+  echo export PATH=\$PATH:$ROCK/sh
+}  >> ~/.bashrc
