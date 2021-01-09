@@ -1,9 +1,51 @@
 ![rocktest.png](rocktest.png)
 <br/>Test automation that rocks !
 
-## Compilation
+## Getting started
 
-$ mvn clean install
+### Prerequisites
+
+To run RockTest, you need the following :
+
+#### Setup Java
+
+- Go to https://adoptopenjdk.net/, download the package and install it. Make sure java and javac are in the PATH.
+
+#### Setup Maven
+
+- Download last version : https://maven.apache.org/download.cgi.
+- Extract the ZIP, and the bin subdirectory in your PATH
+
+#### Setup Selenium
+
+As an option, to run the Web tests, you will need a Selenium server for your preferred browser.
+- For Chrome : https://chromedriver.chromium.org/downloads
+- For Firefox : https://github.com/mozilla/geckodriver/releases
+
+Extract the binary and put it in your PATH.
+You need the browser installed too, of course (chrome and/or Firefox).
+
+#### A Shell
+
+If you are under Linux, it's OK.
+
+Under Windows, you can use either WSL or gitbash as a shell : https://gitforwindows.org/
+
+This will install Git and Bash under your Windows box.
+
+### Compilation
+
+Open your shell, go to the right directory and do the following commands :
+
+    $ git clone https://github.com/rockintest/rocktest.git
+    $ cd rocktest
+    $ mvn clean package
+    $ sh/rocksetup
+
+### Run your first scenario
+
+
+
 
 ## Lancement
 
