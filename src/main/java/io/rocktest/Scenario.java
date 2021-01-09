@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.rocktest.modules.Http;
 import io.rocktest.modules.RockModule;
@@ -688,7 +689,22 @@ public class Scenario {
                 callExternal("setup",null,null);
             }
 
-            return run(name, dir, context, stack, null, glob);
+            String result=run(name, dir, context, stack, null, glob);
+
+            if(result==null) {
+                LINE.info("========================================");
+                LINE.info("=     Scenario Success ! It Rocks      =");
+                LINE.info("========================================");
+            } else {
+                LINE.error("=======================================");
+                LINE.error("          Scenario failure             ");
+                LINE.error("");
+                LINE.error(result);
+                LINE.error("");
+                LINE.error("=======================================");
+            }
+
+            return result;
         } finally {
             cleanupModules();
         }
@@ -732,8 +748,6 @@ public class Scenario {
         } catch (RockException e) {
 
             LOG.error("Scen {} {}, Step #{} {} - Scenario FAILURE", basename, title, currentStep, currentDesc);
-            LOG.error("Details=\n{}",e.getDescription());
-
             return e.getDescription();
 
         } catch (MismatchedInputException e) {
@@ -742,6 +756,16 @@ public class Scenario {
             LOG.error("Parse error: {}",e.getMessage());
 
             RockException erock=new RockException("Scenario not found",e);
+            erock.setScenario(basename);
+
+            return erock.getDescription();
+
+        } catch(JsonMappingException e) {
+
+            LOG.error("Scen {} - Scenario FAILURE", basename);
+            LOG.error("Syntax error in YAML");
+
+            RockException erock=new RockException("Syntax error in yaml",e);
             erock.setScenario(basename);
 
             return erock.getDescription();

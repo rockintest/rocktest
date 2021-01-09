@@ -53,20 +53,34 @@
   name: song
   value: Born
 
-- type: http.get
-  desc: Check with variable
-  params:
-    url: http://localhost:8080/singer/springsteen
-    expect:
-      code: 200
-      body.json.equals:
-
-
-
 - type: http.post
-  desc: Check with variable
+  desc: Check with variable, old syntax with list
   value: http://localhost:8080/singer/springsteen
   expect:
     - code = 201|200
     - response.json.fullname = Bruce Springsteen aka The Boss
     - response.json.bestsong = ${song}
+
+
+- type: http.post
+  desc: Check with variable, syntax with list
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - code = 201|200
+      - response.json.fullname = Bruce Springsteen aka The Boss
+      - response.json.bestsong = ${song}
+
+
+- type: http.get
+  desc: Check with Map syntax (prefered option)
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      code: 200
+      body.json:
+        bestsong: Born .. the ...
+        "['fullname']" : Springsteen
+      body.matches:
+        - Springsteen
+        - "\n  bestsong: \"Born in the USA\"\n"

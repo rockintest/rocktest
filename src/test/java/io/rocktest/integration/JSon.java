@@ -40,4 +40,17 @@ public class JSon extends RockTest {
         assertNotNull("Scenario should fail",ret);
     }
 
+    @Test
+    public void checkBadSyntax() throws IOException, InterruptedException {
+        String ret=run("/scen/jsoncheck-badsyntax.yaml");
+        assertNotNull("Scenario should fail",ret);
+    }
+
+
+    @Test
+    public void checkBadSyntax2() throws IOException, InterruptedException {
+        String ret=run("/scen/jsoncheck-badsyntax2.yaml");
+        assertNotNull("Scenario should fail",ret);
+    }
+
 }

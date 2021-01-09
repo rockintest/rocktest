@@ -76,14 +76,6 @@ public class Http extends RockModule {
                 return false;
             }
 
-/*
-            if (!val.equals(status)) {
-                if (throwErrorIfNotTrue) {
-                    fail("Status code does not match. Expected " + val + " but was " + status);
-                }
-                return false;
-            }*/
-
             LOG.info("OK");
 
         } else if (var.startsWith("response.json")) {
@@ -191,6 +183,42 @@ public class Http extends RockModule {
             }
         }
         return true;
+    }
+
+
+    public void find(Object expr, String regex) {
+        Pattern p = Pattern.compile(regex,Pattern.DOTALL);
+        Matcher m = p.matcher(String.valueOf(expr));
+        if(! m.find()) {
+            fail("Expression does not patch. Expected "+regex+" but was "+expr);
+        }
+    }
+
+
+    public void httpCheck(Map<String,Object> expect, Http.HttpResp response) {
+        if (expect == null) {
+            return;
+        }
+
+        String code=getStringParam(expect,"code",null);
+        if(code != null) {
+            find(response.getCode(),code);
+        }
+
+        Map expr=getMapParam(expect,"body.json",null);
+        if(expr!=null) {
+            JSon module = new JSon();
+            module.check(response.getBody(), null, expr);
+        }
+
+        List listToCkeck=getArrayParam(expect,"body.matches",null);
+        if(listToCkeck!=null) {
+            for (Object o: listToCkeck) {
+                LOG.debug("Checks whether body matches {}",String.valueOf(o));
+                find(response.getBody(),String.valueOf(o));
+            }
+        }
+
     }
 
     public void httpCheck(List<Object> expect, Http.HttpResp response) {
@@ -506,8 +534,17 @@ public class Http extends RockModule {
 
 
     void check(Map<String, Object> params,HttpResp resp) {
-        List<Object> expect=(List<Object>)params.get("expect");
-        httpCheck(expect,resp);
+
+        // Either expect is a list, or a map
+        Object o = params.get("expect");
+        if(o instanceof List) {
+            List<Object> expect=(List<Object>)params.get("expect");
+            httpCheck(expect,resp);
+        } else {
+            Map<String,Object> expect=(Map<String,Object>)params.get("expect");
+            httpCheck(expect,resp);
+        }
+
     }
 
 
@@ -543,6 +580,7 @@ public class Http extends RockModule {
         HashMap<String, Object> ret = new HashMap<>();
 
         HttpResp resp = httpDelete(url);
+        check(params,resp);
 
         ret.put("code", resp.getCode());
         ret.put("body", resp.getBody());
@@ -561,6 +599,7 @@ public class Http extends RockModule {
         HashMap<String, Object> ret = new HashMap<>();
 
         HttpResp resp = httpPost(url, body);
+        check(params,resp);
 
         ret.put("code", resp.getCode());
         ret.put("body", resp.getBody());
@@ -578,6 +617,7 @@ public class Http extends RockModule {
         HashMap<String, Object> ret = new HashMap<>();
 
         HttpResp resp = httpPut(url, body);
+        check(params,resp);
 
         ret.put("code", resp.getCode());
         ret.put("body", resp.getBody());

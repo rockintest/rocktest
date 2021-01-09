@@ -2,6 +2,7 @@ package io.rocktest.modules;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import io.rocktest.RockException;
@@ -19,7 +20,7 @@ public class JSon extends RockModule {
     private static Logger LOG = LoggerFactory.getLogger(JSon.class);
 
 
-    private String extractPath(String json, String ppath) throws JsonProcessingException {
+    private String extractPath(String json, String ppath)  {
         try {
             String path=ppath.trim();
             if(!path.startsWith("["))
@@ -41,8 +42,10 @@ public class JSon extends RockModule {
             LOG.debug("No value found");
             return null;
             // Not found. OK, result will be null.
+        } catch(JsonProcessingException | InvalidJsonException e) {
+            fail("Invalid JSON : "+e.getMessage()+"\nJSON:\n"+json);
+            return null;
         }
-
     }
 
 
@@ -67,7 +70,8 @@ public class JSon extends RockModule {
     }
 
 
-    public void check(String json, Map<String,Object> equals, Map<String,Object> match) throws JsonProcessingException {
+    public void check(String json, Map<String,Object> equals, Map<String,Object> match)  {
+
         if(equals != null) {
 
             for (Map.Entry<String, Object>  entry : equals.entrySet()) {
