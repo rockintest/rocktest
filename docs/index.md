@@ -4,7 +4,7 @@
 
 To setup RockTest, please refer to [README](https://github.com/rockintest/rocktest/blob/main/README.md) on GitHub.
 
-Sample scenario, with a variable :
+Sample "Hello RockTest" scenario, with a variable :
 
 ```yaml
 - step: var
