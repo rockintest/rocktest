@@ -24,7 +24,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="noprefix" additivity="false" level="${ROCK_LOG_LEVEL:DEBUG}">
+	<logger name="noprefix" additivity="false" level="${ROCK_LOG_LEVEL:-INFO}">
 		<appender-ref ref="STDOUT_NOPREFIX"/>
 	</logger>
 
@@ -37,7 +37,7 @@
         <appender-ref ref="STDOUT"/>
 	</logger>
 	
-	<logger name="io.rocktest" additivity="false" level="${ROCK_LOG_LEVEL:DEBUG}">
+	<logger name="io.rocktest" additivity="false" level="${ROCK_LOG_LEVEL:-INFO}">
         <appender-ref ref="STDOUT"/>
 	</logger>
 

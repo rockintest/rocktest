@@ -1,0 +1,27 @@
+- step: var
+  name: rock
+  value: roll
+
+- step: var
+  name: default
+  value: music
+
+# Displays "roll"
+- step: display
+  value: ${rock}
+
+# Displays "${jazz}"
+- step: display
+  value: ${jazz}
+
+# Displays "unset"
+- step: display
+  value: ${jazz::unset}
+
+# Displays "music"
+- step: display
+  value: ${jazz::${default}}
+
+# Displays "Set value=roll"
+- step: display
+  value: ${rock?Set value=${rock}::unset value}

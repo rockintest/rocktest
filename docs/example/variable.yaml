@@ -1,0 +1,11 @@
+- step: title
+  value: Variable example
+
+- step: var
+  desc: Set the rock variable (this description is optional)
+  name: rock
+  value: roll
+
+# This will display "Rock'n'roll"
+- step: display
+  value: Rock'n'${rock}

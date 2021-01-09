@@ -1,0 +1,11 @@
+- step: title
+  value: Pause example
+
+- step: display
+  value: Message before pause
+
+- step: pause
+  value: 10
+
+- step: display
+  value: Message after pause
