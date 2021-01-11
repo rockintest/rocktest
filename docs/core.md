@@ -376,6 +376,83 @@ Note the stack for the sublib : [main/lib/sublib].
 When the _sublib_ scenario is called, the path specified is "scenarios", because the root
 is always the path of the main scenarios, even when you call a scenario from another sub-scenario.
 
+### _return_ : Returns a variable to the caller
+
+---
+
+#### Parameters
+
+|   Name        | Usage                                    | Type            | Optional |
+| ------------- | ---------------------------------------- | ----------      |----------|
+| desc          | Step description, for logs and report    | string          | Yes      |
+| name          | Name of the variable                     | string          | No       |
+| value         | Value of the variable                    | string          | No       |
+
+#### Actions
+
+In a sub-scenario, _return_ allows to put a variable in the caller context.
+
+If the _name_ parameters starts with a period, it will be put unchanged in the caller context (without
+the period). 
+ 
+    ${<name parameter>}
+
+`warning`: if a variable ${<name parameter>} already exists in the caller context, it will be erased. Use
+this feature with caution. Usually, is it safer to use the following option :
+
+If the name of the variable does not start with a period, the result will be accessible as a variable called
+    
+    ${name of the scenario>.<name of the variable>}
+
+It is possible to have multiple _return_ steps. The return step does not exit the sub-scenario.
+A _return_ step in the main scenario (without caller) has no effect.
+
+#### Example
+
+_scenarios/libreturn.yaml_
+
+````yaml
+# First value, returned as ${libreturn.fromLib}
+- step: return
+  name: fromLib
+  value: It comes from the library
+
+# Second value returned as {fromLib2}
+- step: return
+  name: .fromLib2
+  value: It comes again from the library
+````
+
+_mainreturn.yaml_
+
+````yaml
+- call: scenarios/libreturn.yaml
+  name: fromLib
+
+# Displays "It comes from the library"
+- step: display
+  value: ${libreturn.fromLib}
+
+# Displays "It comes again from the library"
+- step: display
+  value: ${fromLib2}
+
+# Displays "${fromLib}" because the variable is not defined
+- step: display
+  value: ${fromLib}
+````
+
+
+
+## Functions
+
+It is possible to define a function in your scenario, to avoid duplication of some steps or
+make your scenario more readable.
+
+
+
+
+
 ## Variables and expressions
 
 ### _var_ : Define a variable

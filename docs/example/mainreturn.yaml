@@ -1,0 +1,15 @@
+- step: call
+  value: scenarios/libreturn.yaml
+  name: fromLib
+
+# Displays "It comes from the library"
+- step: display
+  value: ${libreturn.fromLib}
+
+# Displays "It comes again from the library"
+- step: display
+  value: ${fromLib2}
+
+# Displays "${fromLib}" because the variable is not defined
+- step: display
+  value: ${fromLib}
