@@ -15,6 +15,17 @@ Scenario are divided into steps. The template of a step is  the following:
 
 According to the step types, some of those attributes are mandatory, and some others are unused. 
 
+`Note`: you can choose the compact notation. In this case, the _value_ parameter is passed together with
+the _step_ parameter :
+
+```yaml
+- step: <TYPE OF STEP> <value of the step>
+  desc: <Description of the step> (this is optionnal)
+  name: <Name used by she setp, if needed>
+  params:
+    Map of the step parameters
+```
+
 ## Core step types
 
 Some step types are builtin, some others are part of modules. Here are the core functions.
@@ -42,6 +53,13 @@ but it is optional.
   value: Title of my Rock Scenario
 ```
 
+#### Example (compact)
+
+```yaml
+- step: title Title of my Rock Scenario
+```
+
+
 ### *display* : to set a title to your scenario
 
 ---
@@ -65,6 +83,15 @@ _Scenario_
 - step: dislplay
   value: Rock message to display
 ```
+
+#### Example (compact)
+
+_Scenario_
+
+```yaml
+- step: dislplay Rock message to display
+```
+
 
 _Output_
 
@@ -113,6 +140,13 @@ _Template_
 - step: pause
   value: 10
 ```
+
+OR
+
+```yaml
+- step: pause 10
+```
+
 
 _Full example_
 
@@ -201,10 +235,19 @@ _Template_
 
 ```yaml
 - step: exec
-  name: module.function
+  value: module.function
   params:
     <Map of the parameters>
 ```
+
+_Template compact_
+
+```yaml
+- step: exec module.function
+  params:
+    <Map of the parameters>
+```
+
 
 The map params is specific to each module and is described in the module documentation. 
 
@@ -336,22 +379,19 @@ The search path is always the path of the first scenario called.
 _main.yaml_
 
 ```yaml
-- step: call
-  value: scenarios/lib
+- step: call scenarios/lib
 ```
 
 _scenarios/lib.yaml_
 
 ```yaml
-- step: call
-  value: scenarios/sublib
+- step: call scenarios/sublib
 ```
 
 _scenarios/sublib.yaml_
 
 ```yaml
-- step: display
-  value: Hello from sublib
+- step: display Hello from sublib
 ```
 
 When you execute the scenario, you get the following result :
@@ -426,8 +466,8 @@ _scenarios/libreturn.yaml_
 _mainreturn.yaml_
 
 ````yaml
-- call: scenarios/libreturn.yaml
-  name: fromLib
+- step: call
+  value: scenarios/libreturn
 
 # Displays "It comes from the library"
 - step: display
@@ -442,6 +482,32 @@ _mainreturn.yaml_
   value: ${fromLib}
 ````
 
+#### Example : compact notation
+
+_scenarios/libreturncompact.yaml_
+
+````yaml
+# First value, returned as ${libreturn.fromLib}
+- step: return  fromLib = It comes from the library
+
+# Second value returned as {fromLib2}
+- step: return  .fromLib2 = It comes again from the library
+````
+
+_mainreturncompact.yaml_
+
+````yaml
+- step: call scenarios/libreturn.yaml
+
+# Displays "It comes from the library"
+- step: display ${libreturn.fromLib}
+
+# Displays "It comes again from the library"
+- step: display ${fromLib2}
+
+# Displays "${fromLib}" because the variable is not defined
+- step: display ${fromLib}
+````
 
 
 ## Functions
@@ -449,8 +515,93 @@ _mainreturn.yaml_
 It is possible to define a function in your scenario, to avoid duplication of some steps or
 make your scenario more readable.
 
+A function is like a sub-scenario, but located in the same YAML file.
 
+### _function_ : Defines a function
 
+---
+
+#### Actions
+
+Defines a function in the local context
+
+#### Parameters
+
+|   Name        | Usage                                    | Type            | Optional |
+| ------------- | ---------------------------------------- | ----------      |----------|
+| desc          | Step description, for logs and report    | string          | Yes      |
+| name          | the name of the function                 | string          | No       |
+| steps         | the steps of the function                | list of steps   | No       |
+
+#### Example
+
+````yaml
+- step: function
+  name : func1
+  steps:
+    - step: display
+      value : func1 called with param ${message}
+
+    - step: return ret = func1 returns Hello
+````
+
+### _call_ : To call a function
+
+Functions are called like scenarios. To specify you want to call a function instead og a scenario, use "->" as a prefix of
+the call argument.
+
+#### Example
+
+````yaml
+# Calls the scenario defined above, in the same YAML scenario
+- step: call
+  value: ->func1
+  params:
+    message: This is the parameter
+
+# Gets the result
+- step: display ${func1.ret}
+````
+
+It is also possible to call a function located in another scenario :
+
+#### Example
+
+_scenarios/functions.yaml_
+
+This scnario contains 2 functions :
+
+````yaml
+- step: function
+  name : func1
+  steps:
+    - step: display
+      value : func1 called with param ${message}
+
+    - step: return ret = func1 returns Hello
+
+- step: function
+  name : func2
+  steps:
+    - step: display
+      value : func2 called with param ${message}
+
+    - step: return ret = func2 returns Hello
+````
+
+_function-external.yaml_
+
+````yaml
+# Calls the function func1 defined in another scenario
+# Should display "func1 called with param This is the parameter"
+- step: call scenarios/functions->func1
+  params:
+    message: This is the parameter
+
+# Gets the result. In this case, the result is in a variable
+# <scenario>.<function>.<variable>
+- step: display ${functions.func1.ret}
+````
 
 
 ## Variables and expressions
@@ -478,8 +629,16 @@ _Template_
 ```yaml
 - step: var
   name: rock
-  value: roll
+  value: This is Rock'n'Roll
 ```
+
+_Template : compact notation_
+
+```yaml
+- step: var rock = This is Rock'n'Roll
+```
+
+
 _Full example_
 
 - [variable.yaml](example/variable.yaml)

@@ -1,0 +1,9 @@
+# Calls the function func1 defined in another scenario
+# Should display "func1 called with param This is the parameter"
+- step: call scenarios/functions->func1
+  params:
+    message: This is the parameter
+
+# Gets the result. In this case, the result is in a variable
+# <scenario>.<function>.<variable>
+- step: display ${functions.func1.ret}

@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @NoArgsConstructor
@@ -34,13 +36,13 @@ public class Step {
         return String.valueOf(o);
     }
 
-    public Step(Map m) {
+    public Step(Map<String,Object> m) {
 
         origin = m;
 
-        m.keySet().forEach(o -> {
-            if(! valid.contains(o)) {
-                throw new RockException("Property \""+o+"\" for step invalid. Expected "+valid.toString());
+        m.keySet().forEach(str -> {
+            if(! valid.contains(str)) {
+                throw new RockException("Property \""+str+"\" for step invalid. Expected "+valid.toString());
             }
         });
 
@@ -48,11 +50,21 @@ public class Step {
             type=asString(m.get("type"));
         }
 
+        value=asString(m.get("value"));
+
         if(m.get("step")!=null) {
-            type=asString(m.get("step"));
+
+            Pattern p = Pattern.compile("^ *([^ ]*) (.*)$");
+            Matcher matcher = p.matcher(asString(m.get("step")));
+
+            if (!matcher.matches()) {
+                type=asString(m.get("step"));
+            } else {
+                type=matcher.group(1);
+                value=matcher.group(2);
+            }
         }
 
-        value=asString(m.get("value"));
         expect=(List)m.get("expect");
         steps=(List)m.get("steps");
         values=(List)m.get("values");

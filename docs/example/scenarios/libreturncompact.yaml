@@ -1,0 +1,5 @@
+# First value, returned as ${libreturn.fromLib}
+- step: return  fromLib = It comes from the library
+
+# Second value returned as {fromLib2}
+- step: return  .fromLib2 = It comes again from the library

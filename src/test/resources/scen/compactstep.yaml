@@ -1,0 +1,12 @@
+- step: display I am RockTest
+
+- step: var rock = roll
+
+- step: display ${rock}
+
+- step: call module/display.yaml
+  params:
+    message: Hello RockTest
+
+- step: display ${$date.now()}
+

@@ -1,0 +1,16 @@
+- step: function
+  name : func1
+  steps:
+    - step: display
+      value : func1 called with param ${message}
+
+    - step: return ret = func1 returns Hello
+
+# Calls the scenario defined above, in the same YAML scenario
+- step: call
+  value: ->func1
+  params:
+    message: This is the parameter
+
+# Gets the result
+- step: display ${func1.ret}

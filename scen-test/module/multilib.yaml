@@ -11,10 +11,10 @@
 - step: function
   name : func1
   steps:
-  - type: display
+  - step: display
     value : func1 called with param ${param}
 
-  - type: return
+  - step: return
     value: ret = func1 returns Hello
 
 ## Another function
@@ -23,8 +23,8 @@
   name : func2
   steps:
 
-  - type: display
+  - step: display
     value : func2 called with param ${param}
 
-  - type: return
+  - step: return
     value: ret = func2 returns Hello
