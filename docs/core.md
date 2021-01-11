@@ -1,6 +1,6 @@
 # RockTest core features
 
-{:toc}
+* TOC {:toc}
 
 ## Scenario structure
 
