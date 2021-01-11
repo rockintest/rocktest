@@ -21,17 +21,19 @@ Some step types are builtin, some others are part of modules. Here are the core 
 
 ### *title* : to set a title to your scenario
 
-#### Actions
-
-Set the title, which is used in the logs and in test reports. It is a good practice to set a title to your scenario,
-but it is optional.
+---
 
 #### Parameters
 
 |   Name        | Usage                                    | Type      | Optional |
 | ------------- | ---------------------------------------- | ----------|----------|
+| desc          | Step description, for logs and report    | string    | Yes      |
 | value         | The title of the scenario                | string    | No       |
-| step          | Step description, for logs and report    | string    | Yes      |
+
+#### Actions
+
+Set the title, which is used in the logs and in test reports. It is a good practice to set a title to your scenario,
+but it is optional.
 
 #### Example
 
@@ -42,16 +44,18 @@ but it is optional.
 
 ### *display* : to set a title to your scenario
 
-#### Actions
-
-Displays a message in the output pf the scenario.
+---
 
 #### Parameters
 
 |   Name        | Usage                                    | Type      | Optional |
 | ------------- | ---------------------------------------- | ----------|----------|
+| desc          | Step description, for logs and report    | string    | Yes      |
 | value         | Value to display                         | string    | No       |
-| step          | Step description, for logs and report    | string    | Yes      |
+
+#### Actions
+
+Displays a message in the output pf the scenario.
 
 #### Example
 
@@ -88,16 +92,18 @@ _  _, _/ / /_/ // /__  _  ,<   _  /    /  __/_(__  ) / /_
 
 ### *pause* : wait for a delay
 
-#### Actions
-
-Suspends the scenario.
+---
 
 #### Parameters
 
 |   Name        | Usage                                    | Type      | Optional |
 | ------------- | ---------------------------------------- | ----------|----------|
+| desc          | Step description, for logs and report    | string    | Yes      |
 | value         | Delay to wait in seconds                 | int       | No       |
-| step          | Step description, for logs and report    | string    | Yes      |
+
+#### Actions
+
+Suspends the scenario.
 
 #### Example
 
@@ -171,9 +177,210 @@ _Example_
   value: You cannot see me
 ```
 
+## Modules
+
+### _exec_ : Call a module
+
+---
+
+#### Parameters
+
+|   Name        | Usage                                    | Type      | Optional              |
+| ------------- | ---------------------------------------- | ----------|----------             |
+| desc          | Step description, for logs and report    | string    | Yes                   |
+| value         | module to call                           | string    | No                    |
+| params        | parameters passed to the module          | map       | Depends on the module |         
+
+#### Actions
+
+Calls a Module with parameters
+
+#### Example
+
+_Template_
+
+```yaml
+- step: exec
+  name: module.function
+  params:
+    <Map of the parameters>
+```
+
+The map params is specific to each module and is described in the module documentation. 
+
+#### Module return value
+
+The modules return data by putting variables in the caller context. The name of the variable depends on the module, 
+and are described in the module documentation.
+
+_Example_ : the _date.now_ function returns the current date in the "now.result" 
+
+```yaml
+- step: exec
+  name: date.now
+
+- step: display
+  value: ${now.result}
+```
+
+## Call a sub-scenario
+
+It is possible to create a sub-scenario (in another YAML file) and call it from a main scenario.
+
+### _call_ : Execute another scenario
+
+---
+
+#### Parameters
+
+|   Name        | Usage                                    | Type            | Optional |
+| ------------- | ---------------------------------------- | ----------      |----------|
+| desc          | Step description, for logs and report    | string          | Yes      |
+| value         | Name of the scenario                     | string          | No       |
+| params        | Map of string                            | string          | Yes      |
+
+#### Actions
+
+Calls the scenario. The called-scenario is searched in the same location as the main scenario.
+
+The variables of the map _params_ are put as variables in the context of the sub-scenario. The sub-scenario 
+does not "know" the other variables of the main script.
+
+#### Example
+
+##### Basic example
+
+First, define a module _display.yaml_
+
+```yaml
+- step: display
+  value: Hello from Rock Module
+```
+
+Then create a main scenario called _call.yaml_
+
+```yaml
+- step: call
+  value: display
+```
+
+Run the main scenario :
+
+    $ rocktest call.yaml
+
+You will get the following result :
+
+```
+----------------------------------------
+10/01/2021 17:26:28.986 [INFO ] - [call] Step#1 call,variable
+10/01/2021 17:26:28.990 [INFO ] - [call] Step#1 Load scenario. name=./variable.yaml, dir=.
+10/01/2021 17:26:28.991 [INFO ] - [call] Step#1 Set variable module = variable
+----------------------------------------
+10/01/2021 17:26:28.991 [INFO ] - [call/variable] Step#1 title,Variable example
+----------------------------------------
+10/01/2021 17:26:28.991 [INFO ] - [call/variable] Step#2 (Set the rock variable (this description is optional)) var,roll
+10/01/2021 17:26:28.991 [INFO ] - [call/variable] Step#2 Set variable rock = roll
+----------------------------------------
+10/01/2021 17:26:28.992 [INFO ] - [call/variable] Step#3 display,Rock'n'${rock} => Rock'n'roll
+10/01/2021 17:26:28.992 [INFO ] - [call/variable] Step#3 Rock'n'roll
+----------------------------------------
+```
+
+The call stack is present in each line of log (here [call] for the main scenario and
+[call/variable] for the sub scenario).
+
+
+##### Example with parameters
+
+Define a module _display2.yaml_
+
+```yaml
+- step: display
+  value: Hello from Rock Module - ${message}
+```
+
+Then create a main scenario called _call2.yaml_
+
+```yaml
+- step: call
+  value: display2
+  params:
+    message: it rocks
+```
+
+According to the YAML syntax, params is a Map. It contains 1 element "message" with value "it rocks".
+
+If you run this scenario, you get the message :
+
+  Hello from Rock Module - it rocks
+
+#### Scenarios location
+
+The scenarios can be located in a subdirectory. You can specify the path in the scenario name.
+The root is the path of the main scenario.
+
+```yaml
+- step: call
+  value: scenario/display
+```
+
+Executes the scenario located in scenario/display.yaml.
+
+#### Sub-sub scenarios
+
+You can another sub-scenario from a sub-scenario.
+The search path is always the path of the first scenario called.
+
+**Example** :
+
+_main.yaml_
+
+```yaml
+- step: call
+  value: scenarios/lib
+```
+
+_scenarios/lib.yaml_
+
+```yaml
+- step: call
+  value: scenarios/sublib
+```
+
+_scenarios/sublib.yaml_
+
+```yaml
+- step: display
+  value: Hello from sublib
+```
+
+When you execute the scenario, you get the following result :
+
+```
+----------------------------------------
+10/01/2021 17:52:00.132 [INFO ] - [main] Step#1 call,scenarios/lib
+10/01/2021 17:52:00.136 [INFO ] - [main] Step#1 Load scenario. name=./scenarios/lib.yaml, dir=.
+10/01/2021 17:52:00.137 [INFO ] - [main] Step#1 Set variable module = lib
+----------------------------------------
+10/01/2021 17:52:00.137 [INFO ] - [main/lib] Step#1 call,scenarios/sublib
+10/01/2021 17:52:00.137 [INFO ] - [main/lib] Step#1 Load scenario. name=./scenarios/sublib.yaml, dir=.
+10/01/2021 17:52:00.138 [INFO ] - [main/lib] Step#1 Set variable module = sublib
+----------------------------------------
+10/01/2021 17:52:00.138 [INFO ] - [main/lib/sublib] Step#1 display,Hello from sublib
+10/01/2021 17:52:00.138 [INFO ] - [main/lib/sublib] Step#1 Hello from sublib
+----------------------------------------
+```
+
+Note the stack for the sublib : [main/lib/sublib].
+
+When the _sublib_ scenario is called, the path specified is "scenarios", because the root
+is always the path of the main scenarios, even when you call a scenario from another sub-scenario.
+
 ## Variables and expressions
 
 ### _var_ : Define a variable
+
+---
 
 #### Actions
 
@@ -183,9 +390,9 @@ Defines a variable in the local context
 
 |   Name        | Usage                                    | Type            | Optional |
 | ------------- | ---------------------------------------- | ----------      |----------|
+| desc          | Step description, for logs and report    | string          | Yes      |
 | name          | the name of the variable                 | string          | No       |
 | value         | the value of the variable                | string or int   | No       |
-| step          | Step description, for logs and report    | string          | Yes      |
 
 #### Example
 
@@ -201,6 +408,8 @@ _Full example_
 - [variable.yaml](example/variable.yaml)
 
 ### Expressions
+
+---
 
 _expressions_ are useful, and allow advanced string substitution.
 
@@ -283,9 +492,45 @@ _Example_
   value: ${rock?Set value=${rock}::unset value}
 ```
 
-
 #### Call a module inline
 
-With expressions, you can call a module in one line, and the result is processed as a variable
+With expressions, you can call a module in one line, and the result is processed as a variable.
+
+For example, the _date.now_ function, part of the module _date_ can be called as follows :
+
+```yaml
+# Displays the current date
+- step: display
+  value: ${$date.now()}
+```
+
+The template are :
+
+```
+${$module.function(param1,param2...)}
+```
+
+The parameters depend on the module. See the documentation of each module.
+
+If the module has optional parameters, you can name them and pass only a part of them.
+
+For example, for the module "rock.music" with 2 parameters : instrument and band. 
+You can call the module with the syntax above :
+
+```
+${$rock.music(guitar,dire straits)}
+```
+
+If you want to pass only 1 parameter, you can name it :
+
+```
+${$rock.music(band:=dire straits)}
+```
+or
+```
+${$rock.music(band:=dire straits,instrument:=guitar)}
+```
+
+
 
 
