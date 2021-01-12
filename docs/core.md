@@ -1,7 +1,5 @@
 # RockTest core features
 
-{% include toc.html html=content %}
-
 ## Scenario structure
 
 Scenario are divided into steps. The template of a step is  the following:
