@@ -1,2 +1,1 @@
-- step: display
-  value: Hello RockTest !
+- step: display Hello RockTest !

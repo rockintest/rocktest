@@ -7,14 +7,9 @@ To setup RockTest, please refer to [README](https://github.com/rockintest/rockte
 Sample "Hello RockTest" scenario, with a variable :
 
 ```yaml
-- step: var
-  name: rock
-  value: Hello RockTest
-
-- step: display
-  value: ${rock}
+- step: var rock = Hello RockTest
+- step: display ${rock}
 ```
-
 
 ## Features
 
