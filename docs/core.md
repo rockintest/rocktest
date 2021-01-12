@@ -1,6 +1,6 @@
 # RockTest core features
 
-{{ content }}
+{% include toc.html html=content %}
 
 ## Scenario structure
 
