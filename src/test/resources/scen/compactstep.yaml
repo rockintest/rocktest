@@ -1,12 +1,30 @@
+# Display text
 - step: display I am RockTest
 
+# Set a variable
 - step: var rock = roll
 
+# Display a variable
 - step: display ${rock}
 
+# Call a module
 - step: call module/display.yaml
   params:
     message: Hello RockTest
 
+# Call a module with inline syntax
 - step: display ${$date.now()}
+  desc: display date
 
+# Calls a function
+- step: call module/display->hello
+  params:
+    message: Hello
+
+- step: display ${func.ret}
+
+# Define a function
+- step: function hello
+  steps:
+    - step: display This the function ${message}
+    - step: return ret = From the function

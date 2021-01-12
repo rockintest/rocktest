@@ -51,6 +51,7 @@ public class Step {
         }
 
         value=asString(m.get("value"));
+        name=asString(m.get("name"));
 
         if(m.get("step")!=null) {
 
@@ -61,7 +62,12 @@ public class Step {
                 type=asString(m.get("step"));
             } else {
                 type=matcher.group(1);
-                value=matcher.group(2);
+
+                if(type.trim().equals("function")) {
+                    name =  matcher.group(2);
+                } else {
+                    value = matcher.group(2);
+                }
             }
         }
 
@@ -70,7 +76,6 @@ public class Step {
         values=(List)m.get("values");
         desc=asString(m.get("desc"));
         body=asString(m.get("body"));
-        name=asString(m.get("name"));
         params=(Map)m.get("params");
     }
 

@@ -32,6 +32,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 
 @Component
@@ -540,6 +542,10 @@ public class Scenario {
     public void callInternal(String function, Map params) throws NoSuchMethodException, InterruptedException, IOException, InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         LOG.debug("Call function {}",function);
 
+        if(functions.get(function)==null) {
+            throw new RockException("Function "+function+" does not exist");
+        }
+
         stack.add(function);
 
         if (params != null)
@@ -655,22 +661,51 @@ public class Scenario {
 
         if (err != null) {
             LOG.error("Error : {}", err);
-            System.exit(1);
+            throw new RockException(err);
+            //System.exit(1);
         }
 
     }
 
 
     private void extractFunctions(List<Map> steps) {
-        for (int i = 0; i < steps.size(); i++) {
-            Step step = new Step(steps.get(i));
+        int i=0;
+        Step step=null;
 
-            if (step.getType().equals("function")) {
-                List stepsFunction = step.getSteps();
-                String name = step.getName();
-                functions.put(name, stepsFunction);
-                LOG.debug("Function {} declared", name);
+        try {
+            for (i = 0; i < steps.size(); i++) {
+                step = null;
+                step = new Step(steps.get(i));
+
+                if (step.getType().equals("function")) {
+                    List stepsFunction = step.getSteps();
+                    String name = step.getName();
+                    functions.put(name, stepsFunction);
+                    LOG.debug("Function {} declared", name);
+                }
             }
+        } catch (Exception e) {
+
+            LOG.error("Error parsing scenario ",e);
+
+            String msg = "Error parsing scenario ";
+
+            if(step==null) {
+                DumperOptions options = new DumperOptions();
+                options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+                options.setPrettyFlow(true);
+                Yaml yaml = new Yaml(options);
+                msg+=yaml.dump(steps.get(i));
+            }
+
+            RockException erock=new RockException(msg,e);
+            erock.setStepNumber(i+1);
+
+            if(step!=null) {
+                erock.setStep(step);
+            }
+
+            throw erock;
         }
     }
 
