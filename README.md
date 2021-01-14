@@ -1,5 +1,4 @@
 ![rocktest.png](rocktest.png)
-<br/>Test automation that rocks !
 
 ## Getting started
 
