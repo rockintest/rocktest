@@ -1,0 +1,17 @@
+- step: http.mock
+  params:
+    port: 8080
+    # Default header. Always set.
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/([^/]*)/([^/]*).*
+        method: get
+        response:
+          code: 200
+          body: >-
+            {
+              "band": "${1}",
+              "name": "${2}"
+            }
+- step: pause forever

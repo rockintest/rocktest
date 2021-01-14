@@ -9,3 +9,6 @@
 
 - step: display
   value: Message after pause
+
+# Compact notation
+- step: pause 10

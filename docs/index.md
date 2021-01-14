@@ -15,6 +15,15 @@ Sample "Hello RockTest" scenario, with a variable :
 
 RockTest is a low code tool, designed to automate your tests. It's easy to use, and extensible.
 
+<table style="border:none">
+<tr>
+<td>
+- [YAML syntax](core.md), with the possibility to define functions and call sub scenarios
+</td>
+</tr>
+</table>
+
+
 - [YAML syntax](core.md), with the possibility to define functions and call sub scenarios
 - [HTTP client](httpclient.md): you can call an HTTP server, with any HTTP method and check the result
 - [HTTP mocks](httpmock.md): create mocks for your APIs in less than 20 lines of YAML. You can create a Mock and use it in the same RockTest !

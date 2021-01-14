@@ -1,0 +1,30 @@
+- step: http.mock
+  params:
+    port: 8080
+    # Default header. Always set.
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/springsteen
+        method: get
+        # Response to send when condition is met
+        response:
+          code: 200
+          body: >-
+            {
+              "fullname": "Bruce Springsteen aka The Boss",
+              "bestsong": "Born in the USA"
+            }
+
+      - uri: /singer/jagger
+        method: get
+        # Response to send when condition is met
+        response:
+          code: 200
+          body: >-
+            {
+              "fullname": "Mick Jagger and the Rolling Stones",
+              "bestsong": "Satisfaction"
+            }
+
+- step: pause forever

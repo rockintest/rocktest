@@ -1,0 +1,5 @@
+- step: call
+  value: display
+
+# Compact notation
+- step: call display

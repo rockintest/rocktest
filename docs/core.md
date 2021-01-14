@@ -1,5 +1,9 @@
 # RockTest core features
 
+## Scenario samples
+
+https://github.com/rockintest/rocktest/tree/main/docs/example/core
+
 ## Scenario structure
 
 Scenario are divided into steps. The template of a step is  the following:
@@ -128,6 +132,8 @@ _  _, _/ / /_/ // /__  _  ,<   _  /    /  __/_(__  ) / /_
 | desc          | Step description, for logs and report    | string    | Yes      |
 | value         | Delay to wait in seconds                 | int       | No       |
 
+The value can be "forever". In this case, the pause never ends.
+
 #### Actions
 
 Suspends the scenario.
@@ -150,7 +156,7 @@ OR
 
 _Full example_
 
-- [pause.yaml](example/pause.yaml)
+- [pause.yaml](example/core/pause.yaml)
 
 ## Debug your scenarios
 
@@ -641,7 +647,7 @@ _Template : compact notation_
 
 _Full example_
 
-- [variable.yaml](example/variable.yaml)
+- [variable.yaml](example/core/variable.yaml)
 
 ### Expressions
 

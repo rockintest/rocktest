@@ -928,7 +928,17 @@ public class Scenario {
                         execSql(currentValue, null);
                         break;
                     case "pause":
-                        Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
+                        if(step.getValue().equals("forever")) {
+                            for(;;) {
+                                Thread.sleep(1000000000);
+                            }
+                        } else {
+                            try {
+                                Thread.sleep(Integer.parseInt(step.getValue()) * 1000);
+                            } catch(NumberFormatException e) {
+                                throw new RockException("Pause parameter must be numeric, but is "+step.getValue());
+                            }
+                        }
                         break;
 
                     // Legacy syntax, to be removed...

@@ -1,0 +1,24 @@
+- step: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/([^/]*).*
+        method: get
+        call:
+          value: -> onSinger
+          params:
+            singer: ${1}
+        response:
+          code: 200
+          body: >-
+            {
+              "singer": "${1}"
+            }
+- step: pause forever
+
+# Defines the logic
+- step: function onSinger
+  steps:
+    - step: display The singer is ${singer}
