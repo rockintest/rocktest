@@ -1,6 +1,23 @@
 ![rocktest.png](rocktest.png)
 
-## Getting started
+## Getting started with Docker
+
+You can use Rocker, the packaged Docker image of RockTest. 
+
+To run a scenario, do the following commands (suppose $SCEN is the directory where your senarios are)
+
+    $ cd $SCEN
+    $ docker run -it --rm -v $PWD:/scen benoittouron/rocktest scenario.yaml
+
+*Example*:
+
+To execute a simple scenario :
+
+    $ git clone https://github.com/rockintest/rocktest.git
+    $ cd rocktest/docs/example/core
+    $ docker run -it --rm -v $PWD:/scen benoittouron/rocktest display.yaml
+
+## Getting started without Docker
 
 ### Prerequisites
 
