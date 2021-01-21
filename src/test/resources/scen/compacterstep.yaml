@@ -1,0 +1,39 @@
+# Display text
+- display: I am RockTest
+
+# Set a variable
+- var: rock = roll
+
+# Display a variable
+- display: ${rock}
+
+# Call a module
+- call: module/display.yaml
+  params:
+    message: Hello RockTest
+
+# Call a module with inline syntax
+- display: ${$date.now()}
+  desc: display date
+
+# Calls a function
+- call: module/display->hello
+  params:
+    message: Hello
+
+- display: ${display.hello.ret}
+
+- call: ->hello
+  params:
+    message: Hello
+
+- assert.equals:
+  params:
+    expected: From the function
+    actual: ${hello.ret}
+
+# Define a function
+- function: hello
+  steps:
+    - display: This the function ${message}
+    - return: ret = From the function

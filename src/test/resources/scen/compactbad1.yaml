@@ -1,0 +1,5 @@
+# Error : step has type "display", which is redefined
+
+- display: Hello
+  step: display
+  value: Hola

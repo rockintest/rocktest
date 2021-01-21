@@ -1,0 +1,68 @@
+- title: Tests HTTP
+
+# Spin a mock
+- http.mock:
+  params:
+    port: 8080
+    name: ROCK
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/springsteen
+        method: get
+        response:
+          code: 200
+          body: >-
+            {
+              fullname: "Bruce Springsteen aka The Boss",
+              bestsong: "Born in the USA"
+            }
+      - uri: /singer/springsteen
+        method: post
+        response:
+          code: 200
+          body: >-
+            {
+              fullname: "Bruce Springsteen aka The Boss",
+              bestsong: "Born in the USA"
+            }
+
+# Call the mock
+- http.get:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - code=200
+
+# Check JSON body
+- http.get:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - response.json.bestsong = Born in the USA
+
+# Check JSON body with a variable
+- var: song = Born
+
+- http.post:
+  desc: Check with variable, syntax with list
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      - code = 201|200
+      - response.json.fullname = Bruce Springsteen aka The Boss
+      - response.json.bestsong = ${song}
+
+
+- http.get:
+  desc: Check with Map syntax (prefered option)
+  params:
+    url: http://localhost:8080/singer/springsteen
+    expect:
+      code: 200
+      body.json:
+        bestsong: Born .. the ...
+        "['fullname']" : Springsteen
+      body.matches:
+        - Springsteen
+        - "\n  bestsong: \"Born in the USA\"\n"

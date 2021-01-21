@@ -36,24 +36,70 @@ public class Step {
         return String.valueOf(o);
     }
 
+    // Checks if o is a primitive type (string, number, boolean)
+    private boolean isPrimitive(Object o) {
+        return o==null || o instanceof String || o instanceof Number || o instanceof Boolean;
+    }
+
     public Step(Map<String,Object> m) {
 
         origin = m;
 
-        m.keySet().forEach(str -> {
-            if(! valid.contains(str)) {
-                throw new RockException("Property \""+str+"\" for step invalid. Expected "+valid.toString());
-            }
-        });
-
-        if(m.get("type")!=null) {
-            type=asString(m.get("type"));
-        }
-
         value=asString(m.get("value"));
         name=asString(m.get("name"));
 
+        for (Map.Entry<String, Object> entry : m.entrySet()) {
+            if(! valid.contains(entry.getKey())) {
+
+                // Compacter notation
+                // Example :
+                // - display: message
+
+                Object o=entry.getValue();
+
+                if(!isPrimitive(o)) {
+                    throw new RockException("When using compacter notation, param has to be a primitive type, but is "+o.getClass().getName());
+                }
+
+                if(type!=null) {
+                    throw new RockException("Step has already a defined type: "+type);
+                }
+                type=entry.getKey();
+
+                if(type.equals("function")) {
+
+                    name = asString(entry.getValue());
+
+                } else {
+
+                    value = asString(entry.getValue());
+
+                    if (value != null) {
+                        Pattern p = Pattern.compile("^ *([^ ]*) *= *(.*)$");
+                        Matcher matcher = p.matcher(value);
+
+                        if (matcher.matches()) {
+                            name = matcher.group(1);
+                            value = matcher.group(2);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        if(m.get("type")!=null) {
+            if(type!=null) {
+                throw new RockException("Step has already a defined type: "+type);
+            }
+            type=asString(m.get("type"));
+        }
+
         if(m.get("step")!=null) {
+
+            if(type!=null) {
+                throw new RockException("Step has already a defined type: "+type);
+            }
 
             Pattern p = Pattern.compile("^ *([^ ]*) (.*)$");
             Matcher matcher = p.matcher(asString(m.get("step")));
