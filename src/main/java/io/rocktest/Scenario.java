@@ -175,6 +175,30 @@ public class Scenario {
         return ret;
     }
 
+
+    public Object expandElement(Object o) {
+        if (o instanceof String) {
+            String expanded = expand((String) o);
+            if (StringUtils.isNumeric(expanded)) {
+                return Long.parseLong(expanded);
+            } else {
+                return expanded;
+            }
+        } else if (o instanceof Map) {
+            return (expand((Map) o));
+        } else if (o instanceof List) {
+            return (expand((List) o));
+        } else if (o instanceof Number) {
+            return ((Number) o);
+        } else if (o instanceof Boolean) {
+            return ((Boolean) o);
+        } else {
+            throw new RockException("Error expanding node. Type " + o.getClass().getName() + " unexpected");
+        }
+
+    }
+
+
     public List expand(List val) {
         if(val==null)
             return null;
@@ -183,15 +207,7 @@ public class Scenario {
 
         for (int i = 0; i < val.size(); i++) {
             Object o = val.get(i);
-
-            if (o instanceof String) {
-                ret.add(expand((String) val.get(i)));
-            } else if (o instanceof Map) {
-                ret.add(expand((Map) val.get(i)));
-            } else if (o instanceof List) {
-                ret.add(expand((List) val.get(i)));
-            }
-
+            ret.add(expandElement(o));
         }
         return ret;
     }
@@ -206,7 +222,12 @@ public class Scenario {
 
             if(entry.getValue()==null) {
                 ret.put(entry.getKey(),null);
-            } else if (entry.getValue() instanceof String) {
+            } else {
+                ret.put(entry.getKey(),expandElement(entry.getValue()));
+            }
+
+                /*
+                if (entry.getValue() instanceof String) {
                 String expanded = expand((String) entry.getValue());
                 if (StringUtils.isNumeric(expanded)) {
                     ret.put(entry.getKey(), Long.parseLong(expanded));
@@ -223,7 +244,7 @@ public class Scenario {
                 ret.put(entry.getKey(), (Boolean) entry.getValue());
             } else {
                 throw new RockException("Error expanding node. Type " + entry.getValue().getClass().getName() + " unexpected");
-            }
+            }*/
         }
         return ret;
     }
@@ -430,8 +451,9 @@ public class Scenario {
         // Put $0 ... $n variables
         if (ret != null) {
             for (int iMap = 0; ; iMap++) {
-                String val = (String) ret.get("" + iMap);
-                if (val == null)
+                Object oVal = ret.get("" + iMap);
+                String val = String.valueOf(oVal);
+                if (oVal == null)
                     break;
                 getLocalContext().put("" + iMap, val);
             }

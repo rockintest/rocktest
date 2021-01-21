@@ -1,2 +1,7 @@
 - step: display
   value: ${message}
+
+- step: function hello
+  steps:
+    - step: display ${message}
+    - step : return ret=Pong ${message}

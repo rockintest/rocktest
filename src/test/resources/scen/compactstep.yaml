@@ -21,7 +21,7 @@
   params:
     message: Hello
 
-- step: display ${func.ret}
+- step: display ${display.hello.ret}
 
 # Define a function
 - step: function hello
