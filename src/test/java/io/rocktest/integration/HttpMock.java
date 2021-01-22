@@ -32,4 +32,11 @@ public class HttpMock extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void mockCallCompact() throws IOException, InterruptedException {
+        String ret=run("/scen/httpcompact.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+
 }
