@@ -19,7 +19,7 @@ public class Web extends RockTest {
     public void empty() {
     }
 
-/*
+
     @Test
     public void get() throws IOException, InterruptedException {
         String ret=run("/scen/web.yaml");
@@ -49,5 +49,5 @@ public class Web extends RockTest {
         String ret=run("/scen/submit.yaml");
         assertNull("Scenario should succeed",ret);
     }
-*/
+
 }
