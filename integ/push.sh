@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "$*"
+
 TOP=$(cd $(dirname "$0") && pwd)
 
 cd $TOP
