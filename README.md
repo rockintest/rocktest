@@ -25,7 +25,7 @@ To execute a simple scenario :
 
 Get the binary release :
 
-    $ https://github.com/rockintest/rocktest/releases/download/v1.0.2/rocktest-1.0.2-bin.tar.gz
+    $ curl -L https://github.com/rockintest/rocktest/releases/download/v1.0.2/rocktest-1.0.2-bin.tar.gz --output rocktest.tgz
 
 Extract the archive
 

@@ -1,9 +1,15 @@
 #!/bin/bash
 
-TOP=`dirname $0`
-TOP=`cd $TOP/.. && pwd`
+TOP=$(cd $(dirname $0)/.. && pwd)
 
-JAR=`ls $TOP/target/*.jar`
+NB=$(ls $TOP/target/*.jar | wc -l)
+
+test $NB == 1 || {
+  echo "Error: found $NB jars in target, expected 1"
+  exit 1
+}
+
+JAR=$(ls $TOP/target/*.jar)
 
 test -z "$1" && {
   echo "Usage : rocktest <scenario.yaml>"
