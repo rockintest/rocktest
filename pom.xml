@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>io.rocktest</groupId>
 	<artifactId>rocktest</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>rocktest</name>
 	<description>Test automation that rocks</description>
 
