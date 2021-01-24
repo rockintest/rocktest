@@ -1,16 +1,16 @@
 package io.rocktest.integration;
 
 
-import io.rocktest.RockTest;
+import static org.junit.Assert.assertNull;
+
+import java.io.IOException;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import io.rocktest.RockTest;
 
 @SpringBootTest
 public class Lib extends RockTest {

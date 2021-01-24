@@ -1,10 +1,9 @@
 package io.rocktest;
 
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
+import org.junit.Test;
 
 public class RockExceptionTest {
 
