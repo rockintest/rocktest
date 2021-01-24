@@ -11,7 +11,7 @@ test -f $1 || {
 }
 
 echo "# WARNING : this script should should use the new SQL syntax #"
-echo "# it will be modified in a next release of rccktest          #"
+echo "# it will be modified in a next release of rocktest          #"
 
 source $1
 
