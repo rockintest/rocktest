@@ -40,7 +40,7 @@ public class DefValueCompute  implements StringLookup {
 
         tmp = subContext.replace(s);
 
-        // De we have expression like
+        // Do we have expression like
         // ${variable?value if set::value if not set} or
         // ${variable::value if not set}
         Pattern p = Pattern.compile("([^?]+)(?:\\?(.*))?::(.*)",Pattern.DOTALL);
