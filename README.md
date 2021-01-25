@@ -2,6 +2,10 @@
 
 ![rocktest.png](rocktest.png)
 
+## Rock with _Katakoda_ !
+
+See it live on Katakoda : https://www.katakoda.com/rocktest
+
 ## Getting started with Docker
 
 You can use Rocker, the packaged Docker image of RockTest.
@@ -20,6 +24,27 @@ To execute a simple scenario :
     $ docker run -it --rm -v $PWD:/scen benoittouron/rocktest display.yaml
 
 ## Getting started without Docker
+
+Get the binary release :
+
+    $ curl -L https://github.com/rockintest/rocktest/releases/download/v1.0.2/rocktest-1.0.2-bin.tar.gz --output rocktest.tgz
+
+Extract the archive
+
+    $ tar xzvf rocktest.tgz
+
+Setup the environment :
+
+    $ rocktest-1.0.2/sh/rocksetup
+    $ . ~/.bashrc
+
+Run the "display.yaml" scenario
+
+    $ rocktest rocktest-1.0.2/core/display.yaml
+
+You Rock !! 
+
+## Build Rocktest
 
 ### Prerequisites
 
@@ -102,5 +127,7 @@ _  _, _/ / /_/ // /__  _  ,<   _  /    /  __/_(__  ) / /_
 You have just run your first RockTest scenario.
 
 To learn how to do HTTP requests, SQL requests, Web scenarios or HTTP mocks, check the documentation : https://rockintest.github.io/rocktest/
+
+Or play live on Katakoda : https://katakoda.com/rocktest
 
 Have fun with RockTest !
