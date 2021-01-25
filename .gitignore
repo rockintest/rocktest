@@ -1,3 +1,7 @@
+.classpath
+.project
+.settings
+.factorypath
 target/
 *.iml
 /integ/rocktest.jar

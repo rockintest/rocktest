@@ -1,3 +1,5 @@
+# RockTest
+
 ![rocktest.png](rocktest.png)
 
 ## Rock with _Katakoda_ !
@@ -6,7 +8,7 @@ See it live on Katakoda : https://www.katakoda.com/rocktest
 
 ## Getting started with Docker
 
-You can use Rocker, the packaged Docker image of RockTest. 
+You can use Rocker, the packaged Docker image of RockTest.
 
 To run a scenario, do the following commands (suppose $SCEN is the directory where your senarios are)
 
@@ -48,14 +50,15 @@ You Rock !!
 
 To run RockTest, you need the following :
 
-#### Setup Java
+#### Setup Java 8
 
-- Go to https://adoptopenjdk.net/, download the package and install it. Make sure java and javac are in the PATH.
+- Download and install the latest JDK 8 from [https://adoptopenjdk.net/](https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=hotspot).
+Make sure java and javac are in the PATH.
 
-#### Setup Maven
+#### Setup Maven >= 3.6.3
 
-- Download last version : https://maven.apache.org/download.cgi.
-- Extract the ZIP, and the bin subdirectory in your PATH
+- Download the last version from : https://maven.apache.org/download.cgi.
+- Extract the ZIP, and add the bin sub-directory to your PATH.
 
 #### Setup Selenium
 
@@ -68,31 +71,33 @@ You need the browser installed too, of course (chrome and/or Firefox).
 
 #### A Shell
 
-If you are under Linux, it's OK.
+If you are running Linux then you are ready to Rock :guitar:
 
-Under Windows, you can use either WSL or gitbash as a shell : https://gitforwindows.org/
+For Windows users, you can use either use WSL or Gitbash as a shell : https://gitforwindows.org/
 
-This will install Git and Bash under your Windows box.
+This will install Git and Bash on your Windows box.
 
-### Compilation
+### Build from source
 
-Open your shell, go to the right directory and do the following commands :
+Open your shell, go to the right directory and run the following commands :
 
     $ git clone https://github.com/rockintest/rocktest.git
     $ cd rocktest
     $ mvn clean package
-    $ sh/rocksetup
 
-Close your shell and reopen it to enable the variables.
+Then set the `$ROCK_HOME` environnement variable and add the `sh` directory to your PATH :
+
+    $ export ROCK_HOME=$PWD
+    $ export PATH=$PATH:$ROCK_HOME/sh
 
 ### Run your first scenario
 
 Enter the following comands :
 
-    $ cd $ROCK/scen-test
+    $ cd $ROCK_HOME/scen-test
     $ rocktest hello.yaml
 
-You should th some logs, with the message "Hello RockTest" and a scenario success
+You should see some logs, with the message "Hello RockTest" and a scenario success
 
 ```
 ________               ______  ________              _____

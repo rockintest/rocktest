@@ -1,13 +1,12 @@
 package io.rocktest.modules;
 
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.*;
-import org.junit.Test;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
-
 import java.net.MalformedURLException;
-import java.net.URL;
+
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 
 public class WebTest {

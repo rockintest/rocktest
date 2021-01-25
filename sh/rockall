@@ -17,8 +17,8 @@ for F in $(ls $1/*.yaml) ; do
   printf "%s - " `basename $F`
 
   $TOP/rocktest $F
-  
-  test $? = 130 && {
+
+  test $? -eq 130 && {
       echo
       exit 130
   }
