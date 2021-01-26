@@ -26,8 +26,10 @@
 
 - step: web.click
   params:
-    by.content : Open in New Window
-    wait : 20
+    by.xpath: ../..
+    from:
+      by.content : Open in New Window
+      wait : 60
     switch: false
 
 - step: display
@@ -40,7 +42,7 @@
 - step: web.click
   params:
     by.linktext : Heroes
-    wait : 20
+    wait : 60
 
 # This click does not open a new window.
 

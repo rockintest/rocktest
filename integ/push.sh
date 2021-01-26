@@ -7,10 +7,10 @@ TOP=$(cd $(dirname "$0") && pwd)
 cd $TOP
 ./build.sh
 
-docker tag rocktest benoittouron/rocktest:latest
-docker push benoittouron/rocktest:latest
+docker tag rocktest rockintest/rocktest:latest
+docker push rockintest/rocktest:latest
 
 if [ -n "$1" ]; then
-  docker tag rocktest benoittouron/rocktest:$1
-  docker push benoittouron/rocktest:$1
+  docker tag rocktest rockintest/rocktest:$1
+  docker push rockintest/rocktest:$1
 fi
