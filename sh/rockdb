@@ -10,14 +10,14 @@ test -f $1 || {
   exit 1
 }
 
-echo "# WARNING : this script should should use the new SQL syntax #"
-echo "# it will be modified in a next release of rocktest          #"
+echo "# WARNING : this script should use the new SQL syntax #"
+echo "# it will be modified in a next release of rocktest   #"
 
 source $1
 
 OP=$2
 
-echo "# Module pour objet $name"
+echo "# Module for object $name"
 echo "# YAML template :"
 echo "# - type: call"
 echo "#   value: lib/creer${name^}"
@@ -27,20 +27,20 @@ for L in $fields ; do
   readarray -d , -t arr <<<"$L,"
 
   unset OB
-  test "${arr[3]}" = "M" && OB=" OBLIGATOIRE"
+  test "${arr[3]}" = "M" && OB=" MANDATORY"
 
   printf "#     %s: " "${arr[0]}"
 
   case ${arr[2]} in
-    # Champ numérique
+    # Numeric field
     N)
-      echo "<numero${OB}>"
+      echo "<numeric${OB}>"
       ;;
-    # Champ string
+    # String field
     S)
-      echo "<chaine${OB}>"
+      echo "<string${OB}>"
       ;;
-    # Champ date
+    # Date field
     "D")
       echo "<date YYYYMMDD${OB}>"
       ;;

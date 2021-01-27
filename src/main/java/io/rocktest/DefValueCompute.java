@@ -1,16 +1,16 @@
 package io.rocktest;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import org.apache.commons.text.StringSubstitutor;
-import org.apache.commons.text.lookup.StringLookup;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.text.StringSubstitutor;
+import org.apache.commons.text.lookup.StringLookup;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
 
 @Getter
 @Setter
@@ -40,7 +40,7 @@ public class DefValueCompute  implements StringLookup {
 
         tmp = subContext.replace(s);
 
-        // De we have expression like
+        // Do we have expression like
         // ${variable?value if set::value if not set} or
         // ${variable::value if not set}
         Pattern p = Pattern.compile("([^?]+)(?:\\?(.*))?::(.*)",Pattern.DOTALL);
