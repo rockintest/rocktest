@@ -1,0 +1,95 @@
+- step: title
+  value : Tests HTTP
+
+# Spin a mock
+- step: http.mock
+  params:
+    port: 8080
+    name: ROCK
+    headers:
+      content-type: text/xml
+    when:
+      - uri: /singer/springsteen
+        method: get
+        response:
+          code: 200
+          body: >-
+            <singer><fullname>Bruce Springsteen aka The Boss</fullname><bestsong>Jani</bestsong></singer>
+      - uri: /singer/springsteen
+        method: post
+        response:
+          code: 200
+          body: >-
+            <singer><fullname>Bruce Springsteen aka The Boss</fullname><bestsong>Jani</bestsong></singer>
+
+      - uri: /singer/springsteen
+        method: put
+        response:
+          code: 200
+          body: >-
+            <singer><fullname>Bruce Springsteen aka The Boss</fullname><bestsong>Jani</bestsong></singer>
+
+      - uri: /singer/springsteen
+        method: delete
+        response:
+          code: 200
+          body: >-
+            <singer><fullname>Bruce Springsteen aka The Boss</fullname><bestsong>Jani</bestsong></singer>
+
+# Call the mock
+- http.get:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: test/xml
+    expect:
+      - code=200
+
+- http.delete:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: text/xml
+    expect:
+      - code=200
+
+- http.post:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: text/xml
+    body: >-
+      <singer><fullname>Chris Rea</fullname><bestsong>The Road to hell</bestsong></singer>
+    expect:
+      - code = 200
+
+- http.put:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: text/xml
+    body: >-
+      <singer><fullname>Chris Rea</fullname><bestsong>The Road to hell</bestsong></singer>
+    expect:
+      - code = 200
+
+# Test with bad content type : should display boby unparsed
+- http.post:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: text/xml
+    body: >-
+      This is not XML
+    expect:
+      - code = 200
+
+- http.put:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: text/xml
+    body: >-
+      This is not XML
+    expect:
+      - code = 200

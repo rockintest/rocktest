@@ -1,9 +1,6 @@
 package io.rocktest.modules;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -32,6 +29,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -388,7 +392,8 @@ public class Http extends RockModule {
             HttpReq r = new HttpReq(method, body, uri.toString(), t.getRequestHeaders());
 
             LOG.info("Receive request {} - URI = {}", method, uri.toString());
-            logJson("Body:", body);
+
+            logContent(body,t.getRequestHeaders().getFirst("Content-Type"));
 
             scenario.getLocalContext().put("body", body);
             scenario.getLocalContext().put("uri", uri.toString());
@@ -440,11 +445,15 @@ public class Http extends RockModule {
     }
 
 
-    private HttpResp httpGet(String url) throws IOException {
+    private HttpResp httpGet(String url,Map<String,Object> headers) throws IOException {
 
         HttpGet httpGet = new HttpGet(url);
-        httpGet.setHeader("Accept", "application/json");
-        httpGet.setHeader("Content-type", "application/json");
+
+        if(headers!=null) {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                httpGet.setHeader(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
 
         LOG.info("Sent Get request : " + url);
 
@@ -453,11 +462,15 @@ public class Http extends RockModule {
     }
 
 
-    private HttpResp httpDelete(String url) throws IOException {
+    private HttpResp httpDelete(String url,Map<String,Object> headers) throws IOException {
 
         HttpDelete httpDelete = new HttpDelete(url);
-        httpDelete.setHeader("Accept", "application/json");
-        httpDelete.setHeader("Content-type", "application/json");
+
+        if(headers!=null) {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                httpDelete.setHeader(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
 
         LOG.info("Sent Delete request : " + url);
 
@@ -466,40 +479,117 @@ public class Http extends RockModule {
     }
 
 
-    private HttpResp httpPost(String url, String body) throws IOException {
+    String formatXML(String xml) {
+        Document doc = null;
+        try {
+            doc = DocumentHelper.parseText(xml);
+            StringWriter sw = new StringWriter();
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            XMLWriter xw = new XMLWriter(sw, format);
+            xw.write(doc);
+            return sw.toString();
+        } catch (DocumentException | IOException e) {
+            LOG.warn("Cannot parse XML: {}",e.getMessage());
+            return xml;
+        }
+    }
+
+
+
+    String formatJSON(String json) {
+        try {
+
+            if (json == null) {
+                return "null";
+            } else if (json.isEmpty()) {
+                return "<empty>";
+            } else if (json.trim().startsWith("{")) {
+                JSONObject jsonObj = new JSONObject(json);
+                return jsonObj.toString(4);
+            } else if (json.trim().startsWith("[")) {
+                JSONArray jsonArray = new JSONArray(json);
+                return jsonArray.toString(4);
+            } else {
+                return json;
+            }
+
+        } catch(Exception e) {
+            LOG.warn("Cannot parse JSON: {}",e.getMessage());
+            return json;
+        }
+    }
+
+
+    void logBody(String method,String body,String url,String contentType) {
+        LOG.info("Sent {} request : {}",method,url);
+        logContent(body,contentType);
+    }
+
+
+    void logContent(String body,String contentType) {
+
+        if(body==null)
+            return;
+
+        try {
+            if (contentType.toLowerCase().contains("json")) {
+                LOG.info("body {}:\n{}", contentType,formatJSON(body));
+            } else if (contentType.toLowerCase().contains("xml")) {
+                LOG.info("body {}:\n{}", contentType,formatXML(body));
+            } else {
+                LOG.info("body {}:\n{}", contentType,body);
+            }
+        } catch(Exception e) {
+            LOG.warn("Cannot parse body: {}",e.getMessage());
+            LOG.info("body {}:\n{}", contentType,body);
+        }
+    }
+
+
+    private HttpResp httpPost(String url, String body, Map<String,Object> headers) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
 
         HttpPost httpPost = new HttpPost(url);
+
+        if(headers!=null) {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                httpPost.setHeader(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+
         //httpPost.setHeader("Accept", "application/json");
         //httpPost.setHeader("Content-type", "application/json;charset=UTF-8");
 
         if(body!=null) {
             StringEntity entity = new StringEntity(body, "UTF-8");
             httpPost.setEntity(entity);
-            //LOG.info("Sent Post request : {}, body :\n{}", url, new JSONObject(body).toString(4));
-            LOG.info("Sent Post request : {}, body :\n{}", url, body);
-        } else {
-            LOG.info("Sent Post request : {}, body empty", url);
         }
+
+        logBody("post",body,url,String.valueOf(headers.get("Content-Type")));
 
         return httpRequest(httpPost);
 
     }
 
-    private HttpResp httpPut(String url, String body) throws IOException {
+    private HttpResp httpPut(String url, String body,Map<String,Object> headers) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
 
         HttpPut httpPut = new HttpPut(url);
-        httpPut.setHeader("Accept", "application/json");
-        httpPut.setHeader("Content-type", "application/json;charset=UTF-8");
+
+        if(headers!=null) {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                httpPut.setHeader(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+
+        logBody("put",body,url,String.valueOf(headers.get("Content-Type")));
+
 
         if(body!=null) {
             StringEntity entity = new StringEntity(body, "UTF-8");
             httpPut.setEntity(entity);
-            LOG.info("Sent Put request : {}, body :\n{}", url, new JSONObject(body).toString(4));
-        } else {
-            LOG.info("Sent Put request : {}, body empty", url);
         }
+
 
         return httpRequest(httpPut);
 
@@ -522,11 +612,8 @@ public class Http extends RockModule {
             if (response.getEntity() != null) {
                 content = EntityUtils.toString(response.getEntity());
 
-                if (contentType.startsWith("application/json")) {
-                    logJson("HTTP response body :" + contentType, content);
-                } else {
-                    LOG.info("HTTP response body : {}\n{}", contentType, content);
-                }
+                logContent(content,contentType);
+
             } else {
                 LOG.info("HTTP response body empty");
             }
@@ -568,12 +655,13 @@ public class Http extends RockModule {
     public Map<String, Object> get(Map<String, Object> params) throws IOException {
 
         String url = getStringParam(params, "url");
+        Map<String,Object> headers = getMapParam(params,"headers",null);
 
         LOG.info("Get {}", url);
 
         HashMap<String, Object> ret = new HashMap<>();
 
-        HttpResp resp = httpGet(url);
+        HttpResp resp = httpGet(url,headers);
         check(params,resp);
 
         ret.put("code", resp.getCode());
@@ -585,12 +673,13 @@ public class Http extends RockModule {
     public Map<String, Object> delete(Map<String, Object> params) throws IOException {
 
         String url = getStringParam(params, "url");
+        Map<String,Object> headers = getMapParam(params,"headers",null);
 
         LOG.info("Get {}", url);
 
         HashMap<String, Object> ret = new HashMap<>();
 
-        HttpResp resp = httpDelete(url);
+        HttpResp resp = httpDelete(url,headers);
         check(params,resp);
 
         ret.put("code", resp.getCode());
@@ -603,13 +692,13 @@ public class Http extends RockModule {
 
         String url = getStringParam(params, "url");
         String body = getStringParam(params, "body", null);
+        Map<String,Object> headers = getMapParam(params,"headers",null);
 
         LOG.info("Post {}", url);
-        logJson("Body:", body);
 
         HashMap<String, Object> ret = new HashMap<>();
 
-        HttpResp resp = httpPost(url, body);
+        HttpResp resp = httpPost(url, body,headers);
         check(params,resp);
 
         ret.put("code", resp.getCode());
@@ -622,12 +711,13 @@ public class Http extends RockModule {
 
         String url = getStringParam(params, "url");
         String body = getStringParam(params, "body", null);
+        Map<String,Object> headers = getMapParam(params,"headers",null);
 
         LOG.info("Put {}", url);
 
         HashMap<String, Object> ret = new HashMap<>();
 
-        HttpResp resp = httpPut(url, body);
+        HttpResp resp = httpPut(url, body, headers);
         check(params,resp);
 
         ret.put("code", resp.getCode());

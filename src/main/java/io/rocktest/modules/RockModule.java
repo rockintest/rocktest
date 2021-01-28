@@ -134,7 +134,7 @@ public class RockModule {
 
     }
 
-    public Map getMapParam(Map params, String key, Map def) {
+    public Map<String,Object> getMapParam(Map params, String key, Map def) {
         if(params == null)
             return def;
 
@@ -148,33 +148,10 @@ public class RockModule {
             fail(key + " param must be a map but is \""+String.valueOf(o)+"\"");
         }
 
-        return (Map)o;
+        return (Map<String,Object>)o;
 
     }
 
-
-    public void logJson(String message,String content) {
-
-        try {
-            if (content == null) {
-                LOG.info("{} : null", message);
-            } else if (content.isEmpty()) {
-                LOG.info("{} : <empty>", message);
-            } else if (content.trim().startsWith("{")) {
-                JSONObject jsonObj = new JSONObject(content);
-                LOG.info("{}\n{}", message, jsonObj.toString(4));
-            } else if (content.trim().startsWith("[")) {
-                JSONArray jsonArray = new JSONArray(content);
-                LOG.info("{}\n{}", message, jsonArray.toString(4));
-            } else {
-                LOG.info("{}\n{}", message, content);
-            }
-        } catch(JSONException e) {
-            LOG.warn("Cannot parse JSON : {}",e.getMessage());
-            LOG.info("{}\n{}", message, content);
-        }
-
-    }
 
     // Default implementation : nothing to cleanup
     public void cleanup() {

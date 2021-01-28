@@ -27,7 +27,6 @@
               fullname: "Bruce Springsteen aka The Boss",
               bestsong: "Born in the USA"
             }
-
 # Call the mock
 - step: http.get
   params:

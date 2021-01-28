@@ -1,0 +1,97 @@
+- step: title
+  value : Tests HTTP
+
+# Spin a mock
+- step: http.mock
+  params:
+    port: 8080
+    name: ROCK
+    headers:
+      content-type: application/json
+    when:
+      - uri: /singer/springsteen
+        method: get
+        response:
+          code: 200
+          body: >-
+            { fullname: "Bruce Springsteen aka The Boss", bestsong: "Born in the USA" }
+      - uri: /singer/springsteen
+        method: post
+        response:
+          code: 200
+          body: >-
+            { fullname: "Bruce Springsteen aka The Boss", bestsong: "Born in the USA" }
+
+      - uri: /singer/springsteen
+        method: put
+        response:
+          code: 200
+          body: >-
+            { fullname: "Bruce Springsteen aka The Boss", bestsong: "Born in the USA" }
+
+      - uri: /singer/springsteen
+        method: delete
+        response:
+          code: 200
+          body: >-
+            { fullname: "Bruce Springsteen aka The Boss", bestsong: "Born in the USA" }
+
+# Call the mock
+- http.get:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: application/json;charset=UTF-8
+    expect:
+      - code=200
+
+- http.delete:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: application/json;charset=UTF-8
+    expect:
+      - code=200
+
+
+- http.post:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: application/json;charset=UTF-8
+    body: >-
+      { fullname: "Chris Rea", bestsong: "The road to hell" }
+    expect:
+      - code = 200
+
+- http.put:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: application/json;charset=UTF-8
+    body: >-
+      { fullname: "Chris Rea", bestsong: "The road to hell" }
+    expect:
+      - code = 200
+
+# Test with bad content type : should display boby unparsed
+- http.post:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: application/json;charset=UTF-8
+    body: >-
+      This is not JSON
+    expect:
+      - code = 200
+
+- http.put:
+  params:
+    url: http://localhost:8080/singer/springsteen
+    headers:
+      Content-Type: application/json;charset=UTF-8
+    body: >-
+      This is not JSON
+    expect:
+      - code = 200
+
