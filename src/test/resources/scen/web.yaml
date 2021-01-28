@@ -1,25 +1,9 @@
-- step: web.get
+- web.get:
   params:
-    url: https://www.google.com
+    url: https://www.github.com/rockintest/rocktest
 
-- step: display
-  value: ${$web.title()}
+- display: ${$web.title()}
 
-- step: display
-  value: ${$web.url()}
+- display: ${$web.url()}
 
-- step: web.attribute
-  params:
-    by.name: btnK
-    name: value
-    wait: 10
-
-- step: display
-  value: ${attribute.result}
-
-# Get attribute with inline syntax
-- step: display
-  value: ${$web.attribute(by.name:=btnK).value}
-
-- step: pause
-  value: 5
+- pause: 20

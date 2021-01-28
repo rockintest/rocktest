@@ -1,7 +1,10 @@
 # Sample web scenario with RockTest
 # visits the sample Angular application "tour of heros" on Stackblitz
 
+- display: Opening link
+
 - step: web.get
+  desc: Opening StackBlitz
   params:
     url: https://angular.io/generated/live-examples/toh-pt6/stackblitz.html
 
@@ -24,7 +27,13 @@
 # Use the parameter switch = false
 # You need to switch explicitly after
 
+- step: pause
+  value: 10
+
+- display: Clicking [Open in a new window]
+
 - step: web.click
+  desc: Clicking [Open in a new window]
   params:
     by.xpath: ../..
     from:
@@ -36,10 +45,14 @@
   value: New window = ${$web.newwindow()}
 
 - step: web.switch
+  desc: Switching to the new window
   params:
     window: ${$web.newwindow()}
 
+- display: Clicking the Heroes button
+
 - step: web.click
+  desc: Clicking the Heroes button
   params:
     by.linktext : Heroes
     wait : 60
@@ -52,6 +65,8 @@
   params:
     expected: unset
     actual: ${$web.newwindow()::unset}
+
+- display: Verify the color of the Messages element
 
 # Get a CSS attribute
 
@@ -67,27 +82,42 @@
     expected: rgb(255, 0, 0)
     actual: ${css.result}
 
+- display: Send keys to the INPUT element
+
+- step: pause
+  value: 10
+
 # Select by tag name and send keys
 - step: web.sendkeys
+  desc: Send keys to the INPUT element
   params:
     by.tag: input
     value: Freddie Mercury
 
+- display: Clearing the INPUT element
+
 - step: pause
-  value: 1
+  value: 10
 
 # Select by tag name and clear
 - step: web.clear
+  desc: Clearing the INPUT element
   params:
     by.tag: input
 
+- display: Deleting the first entry
+
+- step: pause
+  value: 10
+
 # Select by class name and click
 - step: web.click
+  desc: Deleting the first entry
   params:
     by.class: delete
 
-
 - step: pause
+  desc: Finished
   value: 10
 
 

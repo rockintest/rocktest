@@ -470,13 +470,14 @@ public class Http extends RockModule {
         CloseableHttpClient client = HttpClients.createDefault();
 
         HttpPost httpPost = new HttpPost(url);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json;charset=UTF-8");
+        //httpPost.setHeader("Accept", "application/json");
+        //httpPost.setHeader("Content-type", "application/json;charset=UTF-8");
 
         if(body!=null) {
             StringEntity entity = new StringEntity(body, "UTF-8");
             httpPost.setEntity(entity);
-            LOG.info("Sent Post request : {}, body :\n{}", url, new JSONObject(body).toString(4));
+            //LOG.info("Sent Post request : {}, body :\n{}", url, new JSONObject(body).toString(4));
+            LOG.info("Sent Post request : {}, body :\n{}", url, body);
         } else {
             LOG.info("Sent Post request : {}, body empty", url);
         }

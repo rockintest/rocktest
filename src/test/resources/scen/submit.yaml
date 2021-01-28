@@ -1,12 +1,16 @@
-- step: web.get
+- web.get:
   params:
     url: https://www.google.com
 
-- step: web.switch
+- web.switch:
   desc: Switch to the iframe to accept the conditions
   params:
     frame:
       by.css: "#cnsw>iframe"
+
+
+- pause: 10
+
 
 - step: skip
 ######################################################
@@ -42,22 +46,22 @@
 - step: resume
 
 
-- step: web.click
+- web.click:
   params:
     by.id : introAgreeButton
 
-- step: web.switch
+- web.switch:
   params:
     default: 1
 
-- step: web.sendkeys
+- web.sendkeys:
   params:
     by.name: q
     value: rocktest github
 
-- step: web.submit
+- web.submit:
   params:
     by.name: q
 
-- step: pause
-  value: 5
+- pause: 20
+  
