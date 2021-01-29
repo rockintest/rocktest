@@ -11,6 +11,18 @@ test $NB == 1 || {
 
 JAR=$(ls $TOP/target/*.jar)
 
+
+echo $OS | grep -i windows && {
+  TOPWIN=$(cygpath -w $TOP)
+  JARWIN=$(cygpath -w $JAR)
+  SEP=";"
+} || {
+  TOPWIN=$TOP
+  JARWIN=$JAR
+  SEP=":"
+}
+
+
 test -z "$1" && {
   echo "Usage : rocktest <scenario.yaml>"
   exit 1
@@ -21,5 +33,4 @@ test -r "$1" || {
     exit 1
 }
 
-java -Dwebdriver.gecko.driver=$GECKO_DRIVER -Duser.timezone=GMT -jar $JAR "$1" -Doracle.jdbc.timezoneAsRegion=false
-
+java -cp "${ROCKLIB}/*${SEP}${JARWIN}${SEP}${TOPWIN}/lib/*${SEP}${TOPWIN}/target/dependencies/*" io.rocktest.RocktestApplication "$1"

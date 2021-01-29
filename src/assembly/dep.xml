@@ -20,6 +20,7 @@
             <outputDirectory>target</outputDirectory>
             <includes>
                 <include>*.jar</include>
+                <include>dependencies/*.jar</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -27,6 +28,13 @@
             <outputDirectory>example</outputDirectory>
             <includes>
                 <include>*/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/lib</directory>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>*</include>
             </includes>
         </fileSet>
     </fileSets>
