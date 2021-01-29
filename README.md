@@ -13,7 +13,7 @@ You can use Rocker, the packaged Docker image of RockTest.
 To run a scenario, do the following commands (suppose $SCEN is the directory where your senarios are)
 
     $ cd $SCEN
-    $ docker run -it --rm -v $PWD:/scen benoittouron/rocktest scenario.yaml
+    $ docker run -it --rm -v $PWD:/scen rockintest/rocktest scenario.yaml
 
 *Example*:
 
@@ -21,26 +21,26 @@ To execute a simple scenario :
 
     $ git clone https://github.com/rockintest/rocktest.git
     $ cd rocktest/docs/example/core
-    $ docker run -it --rm -v $PWD:/scen benoittouron/rocktest display.yaml
+    $ docker run -it --rm -v $PWD:/scen rockintest/rocktest display.yaml
 
 ## Getting started without Docker
 
 Get the binary release :
 
-    $ curl -L https://github.com/rockintest/rocktest/releases/download/v1.0.2/rocktest-1.0.2-bin.tar.gz --output rocktest.tgz
+    $ curl -L https://github.com/rockintest/rocktest/releases/latest/download/rocktest-bin.tar.gz --output rocktest-bin.tar.gz
 
 Extract the archive
 
-    $ tar xzvf rocktest.tgz
+    $ tar xzvf rocktest-bin.tar.gz
 
 Setup the environment :
 
-    $ rocktest-1.0.2/sh/rocksetup
+    $ rocktest-bin/sh/rocksetup
     $ . ~/.bashrc
 
 Run the "display.yaml" scenario
 
-    $ rocktest rocktest-1.0.2/core/display.yaml
+    $ rocktest rocktest-bin/core/display.yaml
 
 You Rock !! 
 
