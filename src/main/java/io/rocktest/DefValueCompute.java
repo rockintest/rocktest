@@ -129,7 +129,7 @@ public class DefValueCompute  implements StringLookup {
                         }
 
 
-                        p = Pattern.compile(" *(.+) *:= *(.+) *",Pattern.DOTALL);
+                        p = Pattern.compile(" *(.+) *-> *(.+) *",Pattern.DOTALL);
                         m = p.matcher(current);
 
                         if(m.matches()) {

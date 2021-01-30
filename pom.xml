@@ -207,6 +207,8 @@
 				<configuration>
 					<descriptor>src/assembly/dep.xml</descriptor>
 					<tarLongFileMode>posix</tarLongFileMode>
+					<finalName>rocktest-bin</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
 					<execution>

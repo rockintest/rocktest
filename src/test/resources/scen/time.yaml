@@ -1,0 +1,33 @@
+- date.now:
+- display: ${now.result}
+
+- date.now:
+  desc: Expanded syntax, with UTC
+  params:
+    format: HH:mm:ss
+    timeZone: UTC
+- display: "UTC: ${now.result}"
+
+- display: "Sys: ${$date.now(HH:mm:ss)}"
+
+- display: "UTC+10: ${$date.now(HH:mm:ss,UTC+10)}"
+
+- display: "UTC+2: ${$date.now(timeZone->UTC+2,format->HH:mm:ss)}"
+
+# Time only
+
+- time.now:
+- display: ${now.result}
+
+- time.now:
+  desc: Expanded syntax, with UTC
+  params:
+    timeZone: UTC
+- display: "UTC: ${now.result}"
+
+- display: "Sys: ${$time.now()}"
+
+- display: "UTC+10: ${$time.now(UTC+10)}"
+
+- display: "UTC+2: ${$time.now(timeZone->UTC+2,format->HH:mm:ss)}"
+
