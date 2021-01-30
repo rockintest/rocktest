@@ -566,6 +566,12 @@ public class Scenario {
     }
 
 
+    /**
+     * Expands the variables in the map, and add the variable from the context
+     * if there is a special param context: all or context:var
+     * @param params
+     * @return
+     */
     Map expandAndComplete(Map params) {
 
         if(params==null)

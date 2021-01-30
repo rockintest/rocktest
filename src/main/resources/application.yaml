@@ -71,6 +71,7 @@ modules:
       result: result
       params:
         1: format
+        2: timeZone
 
     minus :
       function: io.rocktest.modules.Date.minus

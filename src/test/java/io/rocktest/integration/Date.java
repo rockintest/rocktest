@@ -20,4 +20,10 @@ public class Date extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void time() throws IOException, InterruptedException {
+        String ret=run("/scen/time.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
 }

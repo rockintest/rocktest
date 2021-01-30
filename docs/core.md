@@ -766,11 +766,11 @@ ${$rock.music(guitar,dire straits)}
 If you want to pass only 1 parameter, you can name it :
 
 ```
-${$rock.music(band:=dire straits)}
+${$rock.music(band->dire straits)}
 ```
 or
 ```
-${$rock.music(band:=dire straits,instrument:=guitar)}
+${$rock.music(band->dire straits,instrument->guitar)}
 ```
 
 

@@ -122,6 +122,11 @@ public class Step {
         values=(List)m.get("values");
         desc=asString(m.get("desc"));
         body=asString(m.get("body"));
+
+        if(m.get("params") instanceof String) {
+            throw new RockException("\"params\" nust be a map, but is a String. Did you forget the space after the \":\" in the entries ?");
+        }
+
         params=(Map)m.get("params");
     }
 

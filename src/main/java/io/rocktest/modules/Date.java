@@ -3,8 +3,7 @@ package io.rocktest.modules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -18,8 +17,17 @@ public class Date extends RockModule {
     public Map<String,Object> now(Map<String,Object> params) {
 
         String pattern = getStringParam(params,"format","dd/MM/yyyy");
+        String timeZone = getStringParam(params,"timeZone",null);
 
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId z;
+        if(timeZone==null) {
+            z=ZoneId.systemDefault();
+        } else {
+            z=ZoneId.of(timeZone);
+        }
+
+        OffsetDateTime now = OffsetDateTime.ofInstant(Instant.now(), z);
+
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern(pattern);
 
         String formattedDate = now.format(myFormatObj);
