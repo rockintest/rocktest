@@ -138,7 +138,7 @@ Example to subtract 1 day from date 2020-12-25
 ```
 
 
-### *plus* : subtract time
+### *plus* : adds time
 
 ---
 
