@@ -1,6 +1,6 @@
-# Date module
+# Time module
 
-### *now* : to get the current date/time
+### *now* : to get the current time
 
 ---
 
@@ -8,7 +8,7 @@
 
 |   Name        | Usage                                    | Type      | Optional | Default value           |
 | ------------- | ---------------------------------------- | ----------|----------|-------------------------|
-| format        | Date / Time format                       | string    | Yes      | dd/MM/yyyy              |
+| format        | Time format                              | string    | Yes      | HH:mm:ss                |
 | timeZone      | TimeZone                                 | string    | Yes      | System default timezone |
 
 - format : format used by SimpleDateFormat. See https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
@@ -20,7 +20,7 @@
 
 #### Actions
 
-Gets the current date/time and formats it.
+Gets the current time and formats it.
 
 #### Template
 
@@ -29,14 +29,14 @@ Gets the current date/time and formats it.
 With default parameters
 
 ```yaml
-- date.now:
+- time.now:
 - display: ${now.result}
 ```
 
 With all the parameters
 
 ```yaml
-- date.now:
+- time.now:
   params:
     format:"HH:mm:ss"
     timeZone:"UTC"
@@ -49,31 +49,31 @@ With all the parameters
 With default parameters:
 
 ```yaml
-- display: ${$date.now()}
+- display: ${$time.now()}
 ```
 
 With format only:
 
 ```yaml
-- display: ${$date.now(HH:mm:ss)}
+- display: ${$time.now(HH:mm:ss)}
 ```
 
 With format and timeZone:
 
 ```yaml
-- display: ${$date.now(HH:mm:ss,UTC)}
+- display: ${$time.now(HH:mm:ss,UTC)}
 ```
 
 With timeZone only (parameter has to be named explicitly):
 
 ```yaml
-- display: ${$date.now(timezone->UTC)}
+- display: ${$time.now(timezone->UTC)}
 ```
 
 With all parameters:
 
 ```yaml
-- display: ${$date.now(timeZone->UTC+2,format->HH:mm:ss)}
+- display: ${$time.now(timeZone->UTC+2,format->HH:mm:ss)}
 ```
 
 
@@ -86,17 +86,14 @@ With all parameters:
 
 |   Name        | Usage                                    | Type      | Optional | Default value           |
 | ------------- | ---------------------------------------- | ----------|----------|-------------------------|
-| date          | Date/Time to start from                  | string    | Yes      | Current date/time       |
-| years         | Number of years to subtract              | string    | Yes      | 0                       |
-| months        | Number of years to subtract              | string    | Yes      | 0                       |
-| days          | Number of days to subtract               | string    | Yes      | 0                       |
+| time          | Time to start from                       | string    | Yes      | Current time            |
 | hours         | Number of hours to subtract              | string    | Yes      | 0                       |
 | minutes       | Number of minutes to subtract            | string    | Yes      | 0                       |
 | seconds       | Number of seconds to subtract            | string    | Yes      | 0                       |
-| format        | Date / Time format                       | string    | Yes      | dd/MM/yyyy              |
+| format        | Time format                              | string    | Yes      | dd/MM/yyyy              |
 
 - format : format used by SimpleDateFormat. See https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
-- date : date, in the format corresponding to the _format_ param.
+- time : time, in the format corresponding to the _format_ param.
 
 #### Output variable
 
@@ -106,9 +103,7 @@ With all parameters:
 
 Subtracts the amount of time, and puts the result in the variable
 
-`Warning`: The _time_ part is optional. If the format does not contain a time, it is considered 00:00:00.
-However, the _date_ part is mandatory. If you want to subtract from just a time (not a date), use the _time_
-module (time.minus step).
+If you need to manipulate dates, use the date module.
 
 #### Template
 
@@ -116,29 +111,25 @@ module (time.minus step).
 
 
 ```yaml
-- date.minus:
+- time.minus:
   params:
-  date: 25/12/2020 12:01:01
-  format: dd/MM/yyyy HH:mm:ss
+  time: 12:01:01
   hours: 1
   minutes: 1
   seconds: 1
-  years: 1
-  months: 1
-  days: 1
 ```
 
 
 #### Example (compact)
 
-Example to subtract 1 day from date 2020-12-25
+Example to subtract 1 hour from time 12:00:00
 
 ```yaml
-- display: ${$date.minus(date->2020-12-25,format->yyyy-MM-dd,days->1)}
+- display: ${$time.minus(time->12:00:00,hours->1)}
 ```
 
 
-### *plus* : subtract time
+### *plus* : add time
 
 ---
 
@@ -147,17 +138,14 @@ Example to subtract 1 day from date 2020-12-25
 
 |   Name        | Usage                                    | Type      | Optional | Default value           |
 | ------------- | ---------------------------------------- | ----------|----------|-------------------------|
-| date          | Date/Time to start from                  | string    | Yes      | Current date/time       |
-| years         | Number of years to add                   | string    | Yes      | 0                       |
-| months        | Number of years to add                   | string    | Yes      | 0                       |
-| days          | Number of days to add                    | string    | Yes      | 0                       |
+| date          | Time to start from                       | string    | Yes      | Current date/time       |
 | hours         | Number of hours to add                   | string    | Yes      | 0                       |
 | minutes       | Number of minutes to add                 | string    | Yes      | 0                       |
 | seconds       | Number of seconds to add                 | string    | Yes      | 0                       |
-| format        | Date / Time format                       | string    | Yes      | dd/MM/yyyy              |
+| format        | Date / Time format                       | string    | Yes      | HH:mm:ss                |
 
 - format : format used by SimpleDateFormat. See https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
-- date : date, in the format corresponding to the _format_ param.
+- time : time, in the format corresponding to the _format_ param.
 
 #### Output variable
 
@@ -167,32 +155,26 @@ Example to subtract 1 day from date 2020-12-25
 
 Adds the amount of time, and puts the result in the variable
 
-`Warning`: The _time_ part is optional. If the format does not contain a time, it is considered 00:00:00.
-However, the _date_ part is mandatory. If you want to subtract from just a time (not a date), use the _time_
-module (time.minus step).
+Use date module if you want to manipulate dates.
 
 #### Template
 
 ##### Expanded syntax
 
 ```yaml
-- date.plus:
+- time.plus:
   params:
-  date: 25/12/2020 12:01:01
-  format: dd/MM/yyyy HH:mm:ss
+  time: 12:01:01
   hours: 1
   minutes: 1
   seconds: 1
-  years: 1
-  months: 1
-  days: 1
 ```
 
 
 #### Example (compact)
 
-Example to add 1 day from date 2020-12-25
+Example to add 1 hour to time 12:00:00
 
 ```yaml
-- display: ${$date.plus(date->2020-12-25,format->yyyy-MM-dd,days->1)}
+- display: ${$time.plus(time->12:00:00,hours->1)}
 ```

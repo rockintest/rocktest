@@ -1,0 +1,58 @@
+- title: Test date.minus module
+
+# Date With default format
+- date.minus:
+  params:
+    date: 25/12/2020
+    years: 1
+    months: 1
+    days: 1
+
+- assert.equals:
+  params:
+    expected: 24/11/2019
+    actual: ${minus.result}
+
+# Date With another format
+- date.minus:
+  params:
+    date: 2020-12-25
+    format: yyyy-MM-dd
+    years: 1
+    months: 1
+    days: 1
+
+- assert.equals:
+  params:
+    expected: 2019-11-24
+    actual: ${minus.result}
+
+# Date Time
+- date.minus:
+  params:
+    date: 25/12/2020 12:01:01
+    format: dd/MM/yyyy HH:mm:ss
+    hours: 1
+    minutes: 1
+    seconds: 1
+    years: 1
+    months: 1
+    days: 1
+
+- assert.equals:
+  params:
+    expected: 24/11/2019 11:00:00
+    actual: ${minus.result}
+
+# Time
+- time.minus:
+  params:
+    time: 12:01:01
+    hours: 1
+    minutes: 1
+    seconds: 1
+
+- assert.equals:
+  params:
+    expected: 11:00:00
+    actual: ${minus.result}

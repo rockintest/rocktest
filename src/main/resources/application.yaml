@@ -65,6 +65,35 @@ modules:
     check:
       function: io.rocktest.modules.JSon.check
 
+  time:
+    now:
+      function: io.rocktest.modules.Time.now
+      result: result
+      params:
+        1: timeZone
+        2: format
+    minus :
+      function: io.rocktest.modules.Time.minus
+      result: result
+      params:
+        1: time
+        2: hours
+        3: minutes
+        4: seconds
+        5: millis
+        6: format
+    plus :
+      function: io.rocktest.modules.Time.plus
+      result: result
+      params:
+        1: time
+        2: hours
+        3: minutes
+        4: seconds
+        5: millis
+        6: format
+
+
   date:
     now:
       function: io.rocktest.modules.Date.now
@@ -81,6 +110,25 @@ modules:
         2: years
         3: months
         4: days
+        5: hours
+        6: minutes
+        7: seconds
+        8: millis
+        9: format
+
+    plus :
+      function: io.rocktest.modules.Date.plus
+      result: result
+      params:
+        1: date
+        2: years
+        3: months
+        4: days
+        5: hours
+        6: minutes
+        7: seconds
+        8: millis
+        9: format
 
   web:
     get:

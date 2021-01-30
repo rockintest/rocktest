@@ -26,4 +26,16 @@ public class Date extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void minus() throws IOException, InterruptedException {
+        String ret=run("/scen/dateMinus.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void plus() throws IOException, InterruptedException {
+        String ret=run("/scen/datePlus.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
 }
