@@ -16,7 +16,7 @@
 - step: assert.match
   params:
     expected: Duck
-    actual: "${$web.text(by.css:=#Lastname)}"
+    actual: "${$web.text(by.css->#Lastname)}"
 
 # Id selector
 - step: web.text
@@ -33,7 +33,7 @@
 - step: assert.equals
   params:
     expected: h1
-    actual: "${$web.tag(by.content:=Welcome to My Homepage)}"
+    actual: "${$web.tag(by.content->Welcome to My Homepage)}"
 
 # Count the number of divs
 - step: web.count
@@ -47,7 +47,7 @@
   desc: Count number of divs - inline syntax
   params:
     expected: 85
-    actual: "${$web.count(by.tag:=div)}"
+    actual: "${$web.count(by.tag->div)}"
 
 # Search from an element
 - step: web.count

@@ -520,7 +520,18 @@ public class Http extends RockModule {
     }
 
 
-    void logBody(String method,String body,String url,String contentType) {
+    void logBody(String method,String body,String url,Map<String,Object> headers) {
+
+        String contentType=null;
+
+        if(headers!=null) {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                if (entry.getKey().toLowerCase().equals("content-type")) {
+                    contentType = String.valueOf(entry.getValue());
+                }
+            }
+        }
+
         LOG.info("Sent {} request : {}",method,url);
         logContent(body,contentType);
     }
@@ -532,7 +543,9 @@ public class Http extends RockModule {
             return;
 
         try {
-            if (contentType.toLowerCase().contains("json")) {
+            if (contentType==null) {
+                LOG.info("body:\n{}", body);
+            } else if (contentType.toLowerCase().contains("json")) {
                 LOG.info("body {}:\n{}", contentType,formatJSON(body));
             } else if (contentType.toLowerCase().contains("xml")) {
                 LOG.info("body {}:\n{}", contentType,formatXML(body));
@@ -541,7 +554,7 @@ public class Http extends RockModule {
             }
         } catch(Exception e) {
             LOG.warn("Cannot parse body: {}",e.getMessage());
-            LOG.info("body {}:\n{}", contentType,body);
+            LOG.info("body {}:\n{}", (contentType==null?"":contentType),body);
         }
     }
 
@@ -565,7 +578,7 @@ public class Http extends RockModule {
             httpPost.setEntity(entity);
         }
 
-        logBody("post",body,url,String.valueOf(headers.get("Content-Type")));
+         logBody("post",body,url,headers);
 
         return httpRequest(httpPost);
 
@@ -582,7 +595,7 @@ public class Http extends RockModule {
             }
         }
 
-        logBody("put",body,url,String.valueOf(headers.get("Content-Type")));
+        logBody("put",body,url,headers);
 
 
         if(body!=null) {

@@ -57,13 +57,13 @@
 
 
 - step: display
-  value: ${$date.minus(months:=1,date:=01/01/1999)}
+  value: ${$date.minus(months->1,date->01/01/1999)}
 
 - step: assert
   value: equals
   desc: Parameters can be named
   params:
     expected: 01/12/1998
-    actual: ${$date.minus(months:=1,date:=01/01/1999)}
+    actual: ${$date.minus(months->1,date->01/01/1999)}
 
 
