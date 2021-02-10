@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.rocktest.modules.Http;
 import io.rocktest.modules.RockModule;
 import io.rocktest.modules.Sql;
+import io.rocktest.modules.annotations.NoExpand;
 import lombok.*;
 
 import org.apache.commons.io.FilenameUtils;
@@ -330,19 +331,9 @@ public class Scenario {
             Method setNameMethod = module.getClass().getMethod(methodName, paramTypes);
 
             // Do we need to expand the parameters ?
-            boolean expand;
-            try {
-                Field f = module.getClass().getDeclaredField("noExpand");
-                f.setAccessible(true);
-                String[] noExpand = (String[]) f.get(module);
+            boolean noExpand = setNameMethod.isAnnotationPresent(NoExpand.class);
 
-                expand = !(Arrays.asList(noExpand).contains(methodName));
-
-            } catch (NoSuchFieldException e) {
-                expand = true;
-            }
-
-            if (expand) {
+            if (!noExpand) {
                 params = expand(params);
             }
 

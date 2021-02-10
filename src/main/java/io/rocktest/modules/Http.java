@@ -17,6 +17,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import io.rocktest.modules.annotations.NoExpand;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -570,9 +571,6 @@ public class Http extends RockModule {
             }
         }
 
-        //httpPost.setHeader("Accept", "application/json");
-        //httpPost.setHeader("Content-type", "application/json;charset=UTF-8");
-
         if(body!=null) {
             StringEntity entity = new StringEntity(body, "UTF-8");
             httpPost.setEntity(entity);
@@ -659,9 +657,6 @@ public class Http extends RockModule {
     }
 
 
-    // Functions in this array will get unexpanded parameters
-
-    String[] noExpand = {"mock"};
 
     // Functions exposed as modules
 
@@ -740,6 +735,7 @@ public class Http extends RockModule {
     }
 
 
+    @NoExpand
     public Map<String, Object> mock(Map<String, Object> paramsNotExpanded) throws IOException {
 
         Map params = expand(paramsNotExpanded);

@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import io.rocktest.modules.RockModule;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,14 @@ public class RocktestApplication
 
     @Override
     public void run(String... args) throws IOException, InterruptedException {
+
+            Reflections reflections = new Reflections("io.rocktest.modules");
+            Set<Class<? extends RockModule>> classes = reflections.getSubTypesOf(RockModule.class);
+            for (Class<? extends RockModule> aClass : classes) {
+                System.out.println(aClass.getName());
+            }
+
+
         if(args.length>=1) {
 
             File parent =new File(args[0]).getParentFile();
