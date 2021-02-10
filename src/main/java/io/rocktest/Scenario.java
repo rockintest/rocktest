@@ -251,35 +251,6 @@ public class Scenario {
         }
     }
 
-    private void doAssert(String assertType, Map<String, String> params) {
-
-        switch (assertType) {
-            case "equals":
-                String actual = String.valueOf(params.get("actual"));
-                if (actual == null) {
-                    throw new RockException("\"actual\" param is required");
-                }
-
-                String expected = String.valueOf(params.get("expected"));
-                if (expected == null) {
-                    throw new RockException("\"expected\" param is required");
-                }
-
-                String msg = String.valueOf(params.get("message"));
-                if (msg == null) msg = "";
-
-                LOG.debug("Actual value: {}",actual);
-
-                if (!actual.equals(expected)) {
-                    throw new RockException("Assert fail: " + msg + " - expected \"" + expected + "\" but was \"" + actual + "\"");
-                }
-
-                break;
-            default:
-                throw new RockException("Bad assertion type :" + assertType);
-        }
-    }
-
     private void checkParams(List<String> p) {
         for (String curr : p) {
             if (getLocalContext().get(curr) == null) {
@@ -395,124 +366,6 @@ public class Scenario {
             ((RockModule)mod).cleanup();
         });
     }
-
-
-    private void checkSqlConnection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-
-        // If the SQL connection it not open, open it with the default params
-
-        Object module = moduleInstances.get("io.rocktest.modules.Sql");
-        if (module == null || ((Sql) module).getConnections().get("default") == null) {
-
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("url", datasourceUrl);
-            params.put("user", datasourceUser);
-            params.put("password", datasourceUser);
-            params.put("delay", checkDelay);
-            params.put("retry", checkRetry);
-            params.put("name", "default");
-
-            exec("io.rocktest.modules.Sql.connect", params);
-        }
-    }
-
-    private void execSql(String req, List expect) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        checkSqlConnection();
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("request", req);
-        params.put("expect", expect);
-
-        Map ret = exec("io.rocktest.modules.Sql.request", params);
-
-        // Put $0 ... $n variables
-        if (ret != null) {
-            for (int iMap = 0; ; iMap++) {
-                Object oVal = ret.get("" + iMap);
-                String val = String.valueOf(oVal);
-                if (oVal == null)
-                    break;
-                getLocalContext().put("" + iMap, val);
-            }
-        }
-    }
-
-    private Http.HttpResp httpGet(String url) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-
-        Map retexec = exec("io.rocktest.modules.Http.get", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-
-    private Http.HttpResp httpRequest(String method, String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-        params.put("body", bodyin);
-
-        Map retexec = exec("io.rocktest.modules.Http." + method, params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-
-    private void httpCheck(List<Object> expect, Http.HttpResp resp) {
-        Http mod=(Http)moduleInstances.get("io.rocktest.modules.Http");
-        mod.httpCheck(expect,resp);
-    }
-
-
-    private Http.HttpResp httpDelete(String url) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-
-        Map retexec = exec("io.rocktest.modules.Http.delete", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-    private Http.HttpResp httpPost(String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-        params.put("body", bodyin);
-
-        Map retexec = exec("io.rocktest.modules.Http.post", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-
-    private Http.HttpResp httpPut(String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-        params.put("body", bodyin);
-
-        Map retexec = exec("io.rocktest.modules.Http.put", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
 
     public void call(String mod, Map params) throws IOException, InterruptedException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
@@ -666,7 +519,6 @@ public class Scenario {
         if (err != null) {
             LOG.error("Error : {}", err);
             throw new RockException(err);
-            //System.exit(1);
         }
 
     }
@@ -957,9 +809,6 @@ public class Scenario {
                     case "checkParams":
                         checkParams(step.getValues());
                         break;
-                    case "assert":
-                        doAssert(currentValue, expand(step.getParams()));
-                        break;
                     case "return":
                         if (step.getName() == null)
                             returnVar(expand(step.getValue()));
@@ -982,9 +831,6 @@ public class Scenario {
                     case "display":
                         LOG.info(currentValue);
                         break;
-                    case "request":
-                        execSql(currentValue, null);
-                        break;
                     case "pause":
                         if(step.getValue().equals("forever")) {
                             for(;;) {
@@ -1001,9 +847,6 @@ public class Scenario {
 
                     case "call":
                         call(step.getValue(), step.getParams());
-                        break;
-                    case "check":
-                        execSql(currentValue, step.getExpect());
                         break;
 
                     // Those steps are handled by the first switch, at the top of the function

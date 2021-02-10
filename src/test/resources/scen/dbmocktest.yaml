@@ -9,14 +9,12 @@
   params:
     singer: springsteen
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: 200
     actual: ${dbmock.get.code}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: >-
       {

@@ -46,8 +46,7 @@
 - step: display
   value: Result = ${parse.result}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: Kick
     actual: ${parse.result}
@@ -62,8 +61,7 @@
 - step: display
   value: Result = ${parse.result::EMPTY}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: EMPTY
     actual: ${parse.result::EMPTY}
@@ -78,8 +76,7 @@
 - step: display
   value: Result = ${parse.result}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: '[{"name":"inxs","album":"Kick"},{"name":"Pink Floyd","album":"The dark side of the moon"}]'
     actual: ${parse.result}
@@ -94,15 +91,14 @@
 - step: display
   value: Result = ${parse.result}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: Pink Floyd
     actual: ${parse.result}
 
 # Returning a map
 
-- step: json.parse
+- json.parse:
   params:
     json: ${jsonarray}
     path: albums[1]
@@ -110,8 +106,7 @@
 - step: display
   value: Result = ${parse.result}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: '{"name":"Pink Floyd","album":"The dark side of the moon"}'
     actual: ${parse.result}
@@ -123,8 +118,7 @@
     json: ${parse.result}
     path: name
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: Pink Floyd
     actual: ${parse.result}

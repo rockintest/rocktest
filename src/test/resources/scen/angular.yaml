@@ -56,8 +56,7 @@
 
 # This click does not open a new window.
 
-- step: assert
-  value: equals
+- assert.equals:
   desc: Check that no new window is open
   params:
     expected: unset
@@ -72,8 +71,7 @@
     by.content: Messages
     name: color
 
-- step: assert
-  value: equals
+- assert.equals:
   desc: Check get css property
   params:
     expected: rgb(255, 0, 0)

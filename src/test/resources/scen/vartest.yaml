@@ -10,14 +10,12 @@
 - step: display
   value: Variable = ${myvar2}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: myvalue
     actual: ${myvar}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: myvalue myvalue2
     actual: ${myvar} ${myvar2}
@@ -31,8 +29,7 @@
 - step: display
   value: 'Should be localvalueTop : "${localvar}"'
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: localvalueTop
     actual: ${localvar}
@@ -50,8 +47,7 @@
     param2: value2
     param3: ${localvar}
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: default value
     actual: ${noexist::default value}

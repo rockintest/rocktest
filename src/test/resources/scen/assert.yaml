@@ -1,5 +1,4 @@
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: abc
     actual: abc
@@ -8,15 +7,13 @@
 - step: var
   value: myvar = myvalue
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: myvalue
     actual: ${myvar}
     message: I should not be raised
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: ${myvar}
     actual: myvalue
