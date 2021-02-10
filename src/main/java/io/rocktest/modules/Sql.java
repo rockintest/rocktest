@@ -3,6 +3,7 @@ package io.rocktest.modules;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.rocktest.RockException;
+import io.rocktest.modules.annotations.RockWord;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,6 +53,8 @@ public class Sql extends RockModule {
 
     }
 
+
+    @RockWord(keyword="sql.connect")
     public Map<String, Object> connect(Map<String, Object> params) {
 
         String url = getStringParam(params, "url");
@@ -98,6 +101,7 @@ public class Sql extends RockModule {
     }
 
 
+    @RockWord(keyword="sql.request")
     public Map<String, Object> request(Map<String, Object> params) throws InterruptedException {
 
         String req = getStringParam(params, "request");

@@ -18,6 +18,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import io.rocktest.modules.annotations.NoExpand;
+import io.rocktest.modules.annotations.RockWord;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -660,6 +661,7 @@ public class Http extends RockModule {
 
     // Functions exposed as modules
 
+    @RockWord(keyword="http.get")
     public Map<String, Object> get(Map<String, Object> params) throws IOException {
 
         String url = getStringParam(params, "url");
@@ -678,6 +680,7 @@ public class Http extends RockModule {
         return ret;
     }
 
+    @RockWord(keyword="http.delete")
     public Map<String, Object> delete(Map<String, Object> params) throws IOException {
 
         String url = getStringParam(params, "url");
@@ -696,6 +699,7 @@ public class Http extends RockModule {
         return ret;
     }
 
+    @RockWord(keyword="http.post")
     public Map<String, Object> post(Map<String, Object> params) throws IOException {
 
         String url = getStringParam(params, "url");
@@ -715,6 +719,7 @@ public class Http extends RockModule {
         return ret;
     }
 
+    @RockWord(keyword="http.put")
     public Map<String, Object> put(Map<String, Object> params) throws IOException {
 
         String url = getStringParam(params, "url");
@@ -736,6 +741,7 @@ public class Http extends RockModule {
 
 
     @NoExpand
+    @RockWord(keyword="http.mock")
     public Map<String, Object> mock(Map<String, Object> paramsNotExpanded) throws IOException {
 
         Map params = expand(paramsNotExpanded);

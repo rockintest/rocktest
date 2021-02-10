@@ -15,6 +15,12 @@ public class Date extends RockTest {
     private static Logger LOG = LoggerFactory.getLogger(Date.class);
 
     @Test
+    public void dateSimple() throws IOException, InterruptedException {
+        String ret=run("/scen/dateSimple.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
     public void date() throws IOException, InterruptedException {
         String ret=run("/scen/date.yaml");
         assertNull("Scenario should succeed",ret);

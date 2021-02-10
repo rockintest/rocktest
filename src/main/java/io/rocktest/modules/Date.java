@@ -1,6 +1,7 @@
 package io.rocktest.modules;
 
 import io.rocktest.RockException;
+import io.rocktest.modules.annotations.RockWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,8 @@ public class Date extends RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(Date.class);
 
+    @RockWord(keyword="date.now",
+              params={"format","timeZone"})
     public Map<String,Object> now(Map<String,Object> params) {
 
         String pattern = getStringParam(params,"format","dd/MM/yyyy");
@@ -52,6 +55,8 @@ public class Date extends RockModule {
      *
      * @return
      */
+    @RockWord(keyword="date.minus",
+            params={"date","years","months","days","hours","minutes","seconds","millis","format"})
     public Map<String,Object> minus(Map<String,Object> params) {
 
             String pattern = getStringParam(params, "format", "dd/MM/yyyy");
@@ -109,6 +114,8 @@ public class Date extends RockModule {
     }
 
 
+    @RockWord(keyword="date.plus",
+            params={"date","years","months","days","hours","minutes","seconds","millis","format"})
     public Map<String,Object> plus(Map<String,Object> params) {
 
         String pattern = getStringParam(params, "format", "dd/MM/yyyy");

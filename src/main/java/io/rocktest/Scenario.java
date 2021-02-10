@@ -18,11 +18,15 @@ import io.rocktest.modules.Http;
 import io.rocktest.modules.RockModule;
 import io.rocktest.modules.Sql;
 import io.rocktest.modules.annotations.NoExpand;
+import io.rocktest.modules.annotations.RockWord;
+import io.rocktest.modules.meta.ModuleInfo;
+import io.rocktest.modules.meta.Modules;
 import lombok.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -729,6 +733,39 @@ public class Scenario {
         }
     }
 
+    /**
+     * Finds all the class extending RockModule, and extract the module information
+     */
+    private void loadModules() {
+        Reflections reflections = new Reflections("io.rocktest.modules");
+        Set<Class<? extends RockModule>> classes = reflections.getSubTypesOf(RockModule.class);
+        for (Class<? extends RockModule> aClass : classes) {
+
+            for (Method method : aClass.getDeclaredMethods()) {
+
+                if(method.isAnnotationPresent(RockWord.class)) {
+                    RockWord w=(RockWord) method.getAnnotation(RockWord.class);
+                    String v=w.keyword();
+
+                    ModuleInfo info=new ModuleInfo();
+                    info.setClassName(aClass.getName());
+                    info.setClassType(aClass);
+                    info.setMethod(method.getName());
+                    info.setResult(w.result());
+                    info.setExtension(w.extension());
+                    info.setParams(w.params());
+
+                    Modules.addModule(v,info);
+
+                    LOG.debug("KeyWord {} => {}.{}",v,aClass.getName(),method.getName());
+                }
+
+            }
+
+        }
+    }
+
+
 
     public String main(String name, String dir, Map<String, Map<String, Object>> context, List stack, Map<String,Object> glob) throws IOException, InterruptedException {
         try {
@@ -738,6 +775,7 @@ public class Scenario {
             this.stack = stack;
             this.dir = dir;
 
+            loadModules();
             initLocalContext();
 
             if(new File(dir+"/"+"setup.yaml").exists()) {
@@ -961,55 +999,6 @@ public class Scenario {
                         }
                         break;
 
-                    // Legacy syntax, to be removed...
-                    case "http.get": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("get", currentValue, null);
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
-                    case "http.post": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("post", currentValue, step.getBody());
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
-                    case "http.put": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("put", currentValue, step.getBody());
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
-                    case "http.delete": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("delete", currentValue, null);
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
                     case "call":
                         call(step.getValue(), step.getParams());
                         break;
@@ -1024,9 +1013,11 @@ public class Scenario {
                         break;
                     default:
 
-                        String method = env.getProperty("modules." + step.getType() + ".function");
-                        if (method == null)
+                        ModuleInfo info=Modules.getModule(step.getType());
+                        if (info == null)
                             throw new RockException("Type " + step.getType() + " unknown");
+
+                        String method=info.getClassName()+"."+info.getMethod();
 
                         exec(method, step.getParams());
                 }

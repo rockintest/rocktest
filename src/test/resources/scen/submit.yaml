@@ -8,10 +8,6 @@
     frame:
       by.css: "#cnsw>iframe"
 
-
-- pause: 10
-
-
 - step: skip
 ######################################################
 # Other possible options:
@@ -62,6 +58,3 @@
 - web.submit:
   params:
     by.name: q
-
-- pause: 20
-  

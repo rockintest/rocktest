@@ -11,6 +11,7 @@ import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
+import io.rocktest.modules.annotations.RockWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,9 @@ public class JSon extends RockModule {
         }
     }
 
-
+    @RockWord(keyword="json.parse",
+              extension="path",
+              params={"json"})
     public Map<String,Object> parse(Map<String,Object> params) throws JsonProcessingException {
 
         Map<String,Object> ret=new HashMap<>();
@@ -69,6 +72,7 @@ public class JSon extends RockModule {
     }
 
 
+    @RockWord(keyword="json.check")
     public void check(String json, Map<String,Object> equals, Map<String,Object> match)  {
 
         if(equals != null) {
