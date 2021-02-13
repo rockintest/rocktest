@@ -1,0 +1,5 @@
+- date.now:
+
+- display: ${now.result}
+
+- display: ${$date.now(yyyyMMdd)}

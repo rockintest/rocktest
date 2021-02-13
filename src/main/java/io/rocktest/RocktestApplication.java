@@ -2,10 +2,17 @@ package io.rocktest;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import io.rocktest.modules.RockModule;
+import io.rocktest.modules.annotations.RockWord;
+import io.rocktest.modules.meta.ModuleInfo;
+import io.rocktest.modules.meta.Modules;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +46,10 @@ public class RocktestApplication
         SpringApplication.run(RocktestApplication.class, args);
     }
 
+
     @Override
     public void run(String... args) throws IOException, InterruptedException {
+
         if(args.length>=1) {
 
             File parent =new File(args[0]).getParentFile();

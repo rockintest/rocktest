@@ -5,8 +5,7 @@
     pattern: ro.k
     string: rock
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Basic regex check - match
   params:
     expected: true
@@ -19,8 +18,7 @@
     pattern: ro.k
     string: rocK
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Basic regex check - no match
   params:
     expected: false
@@ -33,29 +31,25 @@
     string: I love INXS and Mick Jagger but not XX
     pattern: I love (.*) and (.*) but not (.*)
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: true
     actual: ${match.match}
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: INXS
     actual: ${match.1}
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: Mick Jagger
     actual: ${match.2}
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: XX
@@ -68,29 +62,25 @@
     string: I love INXS but not XX
     pattern: I love (.*) (?:and (.*) )?but not (.*)
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: true
     actual: ${match.match}
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: INXS
     actual: ${match.1}
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction with unset variable
   params:
     expected: unset
     actual: ${match.2::unset}
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Extraction
   params:
     expected: XX
@@ -98,8 +88,7 @@
 
 # Inline syntax
 
-- step: assert
-  value: equals
+- step: assert.equals
   desc: Inline syntax
   params:
     expected: Mark

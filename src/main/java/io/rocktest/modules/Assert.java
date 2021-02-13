@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.rocktest.modules.annotations.RockWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ public class Assert extends RockModule {
 
     private static Logger LOG = LoggerFactory.getLogger(Assert.class);
 
+    @RockWord(keyword="assert.equals")
     public Map<String,Object> equals(Map<String,Object> params) {
 
         Object actual = params.get("actual");
@@ -35,6 +37,7 @@ public class Assert extends RockModule {
 
     }
 
+    @RockWord(keyword="assert.match")
     public Map<String,Object> match(Map<String,Object> params) {
 
         String actual=getStringParam(params,"actual");

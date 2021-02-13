@@ -25,8 +25,7 @@
 - step: display
   value: ${minus.result}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: 24/11/2019
     actual: ${minus.result}

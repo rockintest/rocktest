@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.rocktest.modules.annotations.RockWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ public class Id extends RockModule {
     private Map<String,Seq> seqs= new HashMap<String,Seq>();
     private static Logger LOG = LoggerFactory.getLogger(Id.class);
 
+    @RockWord(keyword="id.initseq")
     public Map<String, Object> initseq(Map<String, Object> params) {
 
         String name=getStringParam(params,"name","default");
@@ -30,7 +32,8 @@ public class Id extends RockModule {
         return null;
     }
 
-
+    @RockWord(keyword="id.seq",
+              params={"name"})
     public Map<String, Object> seq(Map<String, Object> params) {
 
         String name=getStringParam(params,"name","default");
@@ -49,7 +52,7 @@ public class Id extends RockModule {
         return ret;
     }
 
-
+    @RockWord(keyword="id.uuid")
     public Map<String, Object> uuid(Map<String, Object> params) {
 
         Map<String, Object> ret = new HashMap<>();
@@ -57,6 +60,5 @@ public class Id extends RockModule {
 
         return ret;
     }
-
 
 }

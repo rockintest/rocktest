@@ -27,9 +27,6 @@
 # Use the parameter switch = false
 # You need to switch explicitly after
 
-- step: pause
-  value: 10
-
 - display: Clicking [Open in a new window]
 
 - step: web.click
@@ -59,8 +56,7 @@
 
 # This click does not open a new window.
 
-- step: assert
-  value: equals
+- assert.equals:
   desc: Check that no new window is open
   params:
     expected: unset
@@ -75,17 +71,13 @@
     by.content: Messages
     name: color
 
-- step: assert
-  value: equals
+- assert.equals:
   desc: Check get css property
   params:
     expected: rgb(255, 0, 0)
     actual: ${css.result}
 
 - display: Send keys to the INPUT element
-
-- step: pause
-  value: 10
 
 # Select by tag name and send keys
 - step: web.sendkeys
@@ -96,9 +88,6 @@
 
 - display: Clearing the INPUT element
 
-- step: pause
-  value: 10
-
 # Select by tag name and clear
 - step: web.clear
   desc: Clearing the INPUT element
@@ -106,9 +95,6 @@
     by.tag: input
 
 - display: Deleting the first entry
-
-- step: pause
-  value: 10
 
 # Select by class name and click
 - step: web.click
@@ -119,5 +105,3 @@
 - step: pause
   desc: Finished
   value: 10
-
-

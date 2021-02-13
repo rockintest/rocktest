@@ -6,4 +6,4 @@
 
 - display: ${$web.url()}
 
-- pause: 20
+- pause: 5

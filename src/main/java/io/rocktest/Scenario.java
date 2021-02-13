@@ -17,11 +17,16 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.rocktest.modules.Http;
 import io.rocktest.modules.RockModule;
 import io.rocktest.modules.Sql;
+import io.rocktest.modules.annotations.NoExpand;
+import io.rocktest.modules.annotations.RockWord;
+import io.rocktest.modules.meta.ModuleInfo;
+import io.rocktest.modules.meta.Modules;
 import lombok.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -246,35 +251,6 @@ public class Scenario {
         }
     }
 
-    private void doAssert(String assertType, Map<String, String> params) {
-
-        switch (assertType) {
-            case "equals":
-                String actual = String.valueOf(params.get("actual"));
-                if (actual == null) {
-                    throw new RockException("\"actual\" param is required");
-                }
-
-                String expected = String.valueOf(params.get("expected"));
-                if (expected == null) {
-                    throw new RockException("\"expected\" param is required");
-                }
-
-                String msg = String.valueOf(params.get("message"));
-                if (msg == null) msg = "";
-
-                LOG.debug("Actual value: {}",actual);
-
-                if (!actual.equals(expected)) {
-                    throw new RockException("Assert fail: " + msg + " - expected \"" + expected + "\" but was \"" + actual + "\"");
-                }
-
-                break;
-            default:
-                throw new RockException("Bad assertion type :" + assertType);
-        }
-    }
-
     private void checkParams(List<String> p) {
         for (String curr : p) {
             if (getLocalContext().get(curr) == null) {
@@ -330,19 +306,9 @@ public class Scenario {
             Method setNameMethod = module.getClass().getMethod(methodName, paramTypes);
 
             // Do we need to expand the parameters ?
-            boolean expand;
-            try {
-                Field f = module.getClass().getDeclaredField("noExpand");
-                f.setAccessible(true);
-                String[] noExpand = (String[]) f.get(module);
+            boolean noExpand = setNameMethod.isAnnotationPresent(NoExpand.class);
 
-                expand = !(Arrays.asList(noExpand).contains(methodName));
-
-            } catch (NoSuchFieldException e) {
-                expand = true;
-            }
-
-            if (expand) {
+            if (!noExpand) {
                 params = expand(params);
             }
 
@@ -400,124 +366,6 @@ public class Scenario {
             ((RockModule)mod).cleanup();
         });
     }
-
-
-    private void checkSqlConnection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-
-        // If the SQL connection it not open, open it with the default params
-
-        Object module = moduleInstances.get("io.rocktest.modules.Sql");
-        if (module == null || ((Sql) module).getConnections().get("default") == null) {
-
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("url", datasourceUrl);
-            params.put("user", datasourceUser);
-            params.put("password", datasourceUser);
-            params.put("delay", checkDelay);
-            params.put("retry", checkRetry);
-            params.put("name", "default");
-
-            exec("io.rocktest.modules.Sql.connect", params);
-        }
-    }
-
-    private void execSql(String req, List expect) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        checkSqlConnection();
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("request", req);
-        params.put("expect", expect);
-
-        Map ret = exec("io.rocktest.modules.Sql.request", params);
-
-        // Put $0 ... $n variables
-        if (ret != null) {
-            for (int iMap = 0; ; iMap++) {
-                Object oVal = ret.get("" + iMap);
-                String val = String.valueOf(oVal);
-                if (oVal == null)
-                    break;
-                getLocalContext().put("" + iMap, val);
-            }
-        }
-    }
-
-    private Http.HttpResp httpGet(String url) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-
-        Map retexec = exec("io.rocktest.modules.Http.get", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-
-    private Http.HttpResp httpRequest(String method, String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-        params.put("body", bodyin);
-
-        Map retexec = exec("io.rocktest.modules.Http." + method, params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-
-    private void httpCheck(List<Object> expect, Http.HttpResp resp) {
-        Http mod=(Http)moduleInstances.get("io.rocktest.modules.Http");
-        mod.httpCheck(expect,resp);
-    }
-
-
-    private Http.HttpResp httpDelete(String url) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-
-        Map retexec = exec("io.rocktest.modules.Http.delete", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-    private Http.HttpResp httpPost(String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-        params.put("body", bodyin);
-
-        Map retexec = exec("io.rocktest.modules.Http.post", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
-
-    private Http.HttpResp httpPut(String url, String bodyin) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("url", url);
-        params.put("body", bodyin);
-
-        Map retexec = exec("io.rocktest.modules.Http.put", params);
-
-        String code = String.valueOf(retexec.get("code"));
-        String body = String.valueOf(retexec.get("body"));
-
-        Http.HttpResp ret = new Http.HttpResp(Integer.valueOf(code), body);
-        return ret;
-    }
-
 
     public void call(String mod, Map params) throws IOException, InterruptedException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
@@ -671,7 +519,6 @@ public class Scenario {
         if (err != null) {
             LOG.error("Error : {}", err);
             throw new RockException(err);
-            //System.exit(1);
         }
 
     }
@@ -738,6 +585,39 @@ public class Scenario {
         }
     }
 
+    /**
+     * Finds all the class extending RockModule, and extract the module information
+     */
+    private void loadModules() {
+        Reflections reflections = new Reflections("io.rocktest.modules");
+        Set<Class<? extends RockModule>> classes = reflections.getSubTypesOf(RockModule.class);
+        for (Class<? extends RockModule> aClass : classes) {
+
+            for (Method method : aClass.getDeclaredMethods()) {
+
+                if(method.isAnnotationPresent(RockWord.class)) {
+                    RockWord w=(RockWord) method.getAnnotation(RockWord.class);
+                    String v=w.keyword();
+
+                    ModuleInfo info=new ModuleInfo();
+                    info.setClassName(aClass.getName());
+                    info.setClassType(aClass);
+                    info.setMethod(method.getName());
+                    info.setResult(w.result());
+                    info.setExtension(w.extension());
+                    info.setParams(w.params());
+
+                    Modules.addModule(v,info);
+
+                    LOG.debug("KeyWord {} => {}.{}",v,aClass.getName(),method.getName());
+                }
+
+            }
+
+        }
+    }
+
+
 
     public String main(String name, String dir, Map<String, Map<String, Object>> context, List stack, Map<String,Object> glob) throws IOException, InterruptedException {
         try {
@@ -747,6 +627,7 @@ public class Scenario {
             this.stack = stack;
             this.dir = dir;
 
+            loadModules();
             initLocalContext();
 
             if(new File(dir+"/"+"setup.yaml").exists()) {
@@ -928,9 +809,6 @@ public class Scenario {
                     case "checkParams":
                         checkParams(step.getValues());
                         break;
-                    case "assert":
-                        doAssert(currentValue, expand(step.getParams()));
-                        break;
                     case "return":
                         if (step.getName() == null)
                             returnVar(expand(step.getValue()));
@@ -953,9 +831,6 @@ public class Scenario {
                     case "display":
                         LOG.info(currentValue);
                         break;
-                    case "request":
-                        execSql(currentValue, null);
-                        break;
                     case "pause":
                         if(step.getValue().equals("forever")) {
                             for(;;) {
@@ -970,60 +845,8 @@ public class Scenario {
                         }
                         break;
 
-                    // Legacy syntax, to be removed...
-                    case "http.get": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("get", currentValue, null);
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
-                    case "http.post": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("post", currentValue, step.getBody());
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
-                    case "http.put": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("put", currentValue, step.getBody());
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
-                    case "http.delete": {
-                        if (step.getParams() == null) {
-                            Http.HttpResp resp = httpRequest("delete", currentValue, null);
-                            httpCheck(expand(step.getExpect()), resp);
-                        } else {
-                            String method = env.getProperty("modules." + step.getType() + ".function");
-                            if (method == null)
-                                throw new RockException("Type " + step.getType() + " unknown");
-                            exec(method, step.getParams());
-                        }
-                    }
-                    break;
                     case "call":
                         call(step.getValue(), step.getParams());
-                        break;
-                    case "check":
-                        execSql(currentValue, step.getExpect());
                         break;
 
                     // Those steps are handled by the first switch, at the top of the function
@@ -1033,9 +856,11 @@ public class Scenario {
                         break;
                     default:
 
-                        String method = env.getProperty("modules." + step.getType() + ".function");
-                        if (method == null)
+                        ModuleInfo info=Modules.getModule(step.getType());
+                        if (info == null)
                             throw new RockException("Type " + step.getType() + " unknown");
+
+                        String method=info.getClassName()+"."+info.getMethod();
 
                         exec(method, step.getParams());
                 }

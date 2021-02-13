@@ -34,12 +34,6 @@
     expect:
       - code=200
 
-# Legacy syntax
-- step: http.get
-  value: http://localhost:8080/singer/springsteen
-  expect:
-    - code=200
-
 # Check JSON body
 - step: http.get
   params:
@@ -51,14 +45,6 @@
 - step: var
   name: song
   value: Born
-
-- step: http.post
-  desc: Check with variable, old syntax with list
-  value: http://localhost:8080/singer/springsteen
-  expect:
-    - code = 201|200
-    - response.json.fullname = Bruce Springsteen aka The Boss
-    - response.json.bestsong = ${song}
 
 
 - step: http.post

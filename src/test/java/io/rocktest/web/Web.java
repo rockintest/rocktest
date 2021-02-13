@@ -1,4 +1,4 @@
-package io.rocktest.integration;
+package io.rocktest.web;
 
 import io.rocktest.RockTest;
 import org.junit.Test;

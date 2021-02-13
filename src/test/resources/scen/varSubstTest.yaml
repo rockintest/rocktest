@@ -1,8 +1,7 @@
 - step: display
   value: 'should be "default value" : ${notexist?${notexist}::default value}'
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: default value
     actual: ${notexist?${notexist}::default value}
@@ -13,8 +12,7 @@
 - step: display
   value: 'should be "I am alive" : ${exist?${exist}::default value}'
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: I am alive
     actual: ${exist?${exist}::default value}
@@ -22,32 +20,27 @@
 - step: display
   value: 'should be "Yes ! I am alive and kicking" : ${exist?Yes ! ${exist} and kicking::default value}'
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: Yes ! I am alive and kicking
     actual: ${exist?Yes ! ${exist} and kicking::default value}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: default value
     actual: ${notexist::default value}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: I am alive
     actual: ${notexist::${exist}}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: 1
     actual: ${notexist?${notexist}::1}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: 1
     actual: ${notexist::1}
@@ -56,14 +49,12 @@
   name: id
   value: 10
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: 10
     actual: ${id?${id}::99}
 
-- step: assert
-  value: equals
+- step: assert.equals
   params:
     expected: 10
     actual: ${id::99}

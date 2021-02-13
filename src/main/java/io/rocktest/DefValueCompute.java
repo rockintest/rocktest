@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.rocktest.modules.meta.ModuleInfo;
+import io.rocktest.modules.meta.Modules;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 
@@ -51,7 +53,7 @@ public class DefValueCompute  implements StringLookup {
             String valIfSet=m.group(2);
             String valIfNotSet=m.group(3);
 
-            // On n'a pas de "value if set"
+            // No "value if set"
             if(valIfSet==null) {
                 String ret=System.getenv(var);
                 if(ret != null)
@@ -87,25 +89,38 @@ public class DefValueCompute  implements StringLookup {
                 String params=m.group(2);
                 String extension=m.group(3);
 
+                ModuleInfo info= Modules.getModule(module);
+                if(info==null)
+                    throw new RuntimeException("Module " + module + " unknown");
+
+                String method=info.getClassName()+"."+info.getMethod();
+
+                /*
                 String method = scenario.getEnv().getProperty("modules." + module+".function");
                 if (method == null)
                     throw new RuntimeException("Module " + module + " unknown");
+                 */
 
-                String result = scenario.getEnv().getProperty("modules." + module+".result");
-                if (result == null)
+                //String result = scenario.getEnv().getProperty("modules." + module+".result");
+
+                String result=info.getResult();
+                if (result.isEmpty())
                     throw new RuntimeException("Result not available for module " + module);
 
                 HashMap<String,Object> paramsMap=null;
                 if(params != null && !params.isEmpty()) {
 
-                    // Extract params (p1,p2,...) or (param1:=value1, param2:=value2...)
+                    // Extract params (p1,p2,...) or (param1->value1, param2->value2...)
                     // and put them according to their values in the hash table
 
                     paramsMap=new HashMap<>();
 
                     if(extension!=null && !extension.isEmpty()) {
-                        String paramExtension = scenario.getEnv().getProperty("modules." + module+".extension");
-                        if (paramExtension == null)
+                        //String paramExtension = scenario.getEnv().getProperty("modules." + module+".extension");
+
+                        String paramExtension=info.getExtension();
+
+                        if (paramExtension.isEmpty())
                             throw new RuntimeException("Param extension not available for module " + module);
 
                         paramsMap.put(paramExtension,extension);
@@ -139,10 +154,19 @@ public class DefValueCompute  implements StringLookup {
                             paramsMap.put(paramName, paramValue);
 
                         } else {
-                            String paramName = scenario.getEnv().getProperty("modules." + module + ".params." + (i + 1));
-                            if (paramName == null) {
+                            //String paramName = scenario.getEnv().getProperty("modules." + module + ".params." + (i + 1));
+
+                            String[] moduleParams = info.getParams();
+                            if(moduleParams.length<=i) {
                                 throw new RuntimeException("Param #" + (i+1) + " undefined for module " + module);
                             }
+                            String paramName = moduleParams[i];
+
+                            /*
+                            if (paramName == null) {
+                                throw new RuntimeException("Param #" + (i+1) + " undefined for module " + module);
+                            }*/
+
                             paramsMap.put(paramName, current);
                         }
                     }

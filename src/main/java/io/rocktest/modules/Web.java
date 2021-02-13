@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.rocktest.modules.annotations.RockWord;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -62,7 +63,7 @@ public class Web extends RockModule {
 
     }
 
-
+    @RockWord(keyword="web.get")
     public Map<String, Object> get(Map<String, Object> params) {
 
         String browser = getStringParam(params,"browser","firefox");
@@ -79,6 +80,7 @@ public class Web extends RockModule {
     }
 
 
+    @RockWord(keyword="web.title")
     public Map<String, Object> title(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -89,6 +91,7 @@ public class Web extends RockModule {
     }
 
 
+    @RockWord(keyword="web.url")
     public Map<String, Object> url(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -98,6 +101,7 @@ public class Web extends RockModule {
         return ret;
     }
 
+    @RockWord(keyword="web.window")
     public Map<String, Object> window(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -107,6 +111,7 @@ public class Web extends RockModule {
         return ret;
     }
 
+    @RockWord(keyword="web.newwindow")
     public Map<String, Object> newWindow(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -117,7 +122,7 @@ public class Web extends RockModule {
         return ret;
     }
 
-
+    @RockWord(keyword="web.switch")
     public Map<String, Object> switchTo(Map<String, Object> params) {
 
         String to=getStringParam(params,"window",null);
@@ -252,6 +257,7 @@ public class Web extends RockModule {
     }
 
 
+    @RockWord(keyword="web.attribute")
     public Map<String, Object> attribute(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -263,7 +269,7 @@ public class Web extends RockModule {
         return ret;
     }
 
-
+    @RockWord(keyword="web.css")
     public Map<String, Object> css(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -275,7 +281,7 @@ public class Web extends RockModule {
         return ret;
     }
 
-
+    @RockWord(keyword="web.tag")
     public Map<String, Object> tag(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -287,7 +293,7 @@ public class Web extends RockModule {
 
     }
 
-
+    @RockWord(keyword="web.text")
     public Map<String, Object> text(Map<String, Object> params) {
 
         Map<String,Object> ret = new HashMap<>();
@@ -300,7 +306,7 @@ public class Web extends RockModule {
     }
 
 
-
+    @RockWord(keyword="web.submit")
     public Map<String, Object> submit(Map<String, Object> params) {
 
         WebElement elt = getElement(params);
@@ -308,8 +314,7 @@ public class Web extends RockModule {
         return null;
     }
 
-
-
+    @RockWord(keyword="web.sendkeys")
     public Map<String, Object> sendKeys(Map<String, Object> params) {
 
         WebElement elt = getElement(params);
@@ -341,7 +346,7 @@ public class Web extends RockModule {
         }
     }
 
-
+    @RockWord(keyword="web.clear")
     public Map<String, Object> clear(Map<String, Object> params) {
 
         getElement(params).clear();
@@ -360,7 +365,7 @@ public class Web extends RockModule {
     }
 
 
-
+    @RockWord(keyword="web.count")
     public Map<String, Object> count(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -375,7 +380,7 @@ public class Web extends RockModule {
         return ret;
     }
 
-
+    @RockWord(keyword="web.click")
     public Map<String, Object> click(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
@@ -398,7 +403,7 @@ public class Web extends RockModule {
         return ret;
     }
 
-
+    @RockWord(keyword="web.quit")
     public Map<String, Object> quit(Map<String, Object> params) {
 
         if(driver!=null) {

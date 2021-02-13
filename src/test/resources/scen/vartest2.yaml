@@ -2,8 +2,7 @@
   name: singer
   value: Joe Cocker
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: Joe Cocker
     actual: ${singer}
@@ -16,8 +15,7 @@
       "band" : "Genesis"
     }
 
-- step: assert
-  value: equals
+- assert.equals:
   params:
     expected: >-
       {

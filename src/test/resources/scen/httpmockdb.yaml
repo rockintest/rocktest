@@ -54,17 +54,3 @@
     url: http://localhost:8080/singer/inxs
     expect:
       - code=200
-
-
-# Put data to the Mock - legacy syntax
-- step: http.post
-  desc: Post with legacy syntax
-  value: http://localhost:8080/singer
-  body: >-
-    {
-        "bestsong": "Suicide Blonde",
-        "name": "inxs",
-        "fullname": "INXS"
-    }
-  expect:
-    - code=201
