@@ -39,15 +39,15 @@
     from:
       by.content : Open in New Window
       wait : 60
-    switch: false
+#    switch: false
 
 - step: display
   value: New window = ${$web.newwindow()}
 
-- step: web.switch
-  desc: Switching to the new window
-  params:
-    window: ${$web.newwindow()}
+#- step: web.switch
+#  desc: Switching to the new window
+#  params:
+#    window: ${$web.newwindow()}
 
 - display: Clicking the Heroes button
 

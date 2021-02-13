@@ -127,7 +127,12 @@ public class Sql extends RockModule {
 
         HashMap<String, Object> last = new HashMap<>();
 
+        StringBuilder json=new StringBuilder();
+        json.append("[");
+
         for (int iRetry = 1; iRetry <= connection.retry + 1; iRetry++) {
+
+            boolean first=true;
 
             List<String> data = connection.jdbcTemplate.query(req, (rs, n) -> {
                 ResultSetMetaData rsmd = rs.getMetaData();
@@ -135,8 +140,12 @@ public class Sql extends RockModule {
                 last.clear();
                 String ret = "";
 
-
                 for (int j = 1; j <= max; j++) {
+
+                    if(j==1) {
+                        json.append("{");
+                    }
+
                     String f = "";
                     int t = rsmd.getColumnType(j);
 
@@ -158,16 +167,35 @@ public class Sql extends RockModule {
                     ret += ",";
                     last.put("" + j, f);
                     last.put(rsmd.getColumnName(j), f);
+
+                    json.append("\"");
+                    json.append(rsmd.getColumnName(j).toLowerCase());
+                    json.append("\": \"");
+                    json.append(f);
+                    json.append("\"");
+
+                    if(j!=max) {
+                        json.append(",");
+                    } else {
+                        json.append("}");
+                    }
+
                 }
+                json.append(",");
 
                 ret = ret.substring(0, ret.length() - 1);
-
 
                 last.put("0", ret);
 
                 LOG.info("{}", ret);
                 return ret;
             });
+
+            // Remove comma
+            json.setLength(json.length() - 1);
+            json.append("]");
+            last.put("json",json.toString());
+
 
             try {
 
