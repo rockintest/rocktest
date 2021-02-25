@@ -1,0 +1,11 @@
+- web.get:
+  params:
+    url: https://www.w3schools.com/cssref/trysel.asp
+
+- web.search:
+  params:
+    by.tag: li
+
+- web.search.text:
+
+- display: ${searchText.result}

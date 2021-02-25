@@ -22,31 +22,37 @@ public class Web extends RockTest {
 
     @Test
     public void get() throws IOException, InterruptedException {
-        String ret=run("/scen/web.yaml");
+        String ret=run("/scen/web/web.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
     @Test
     public void error() throws IOException, InterruptedException {
-        String ret=run("/scen/webError.yaml");
+        String ret=run("/scen/web/webError.yaml");
         assertNotNull("Scenario should fail",ret);
     }
 
     @Test
     public void angular() throws IOException, InterruptedException {
-        String ret=run("/scen/angular.yaml");
+        String ret=run("/scen/web/angular.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
     @Test
     public void selector() throws IOException, InterruptedException {
-        String ret=run("/scen/selector.yaml");
+        String ret=run("/scen/web/selector.yaml");
         assertNull("Scenario should succeed",ret);
     }
 
     @Test
     public void submit() throws IOException, InterruptedException {
-        String ret=run("/scen/submit.yaml");
+        String ret=run("/scen/web/submit.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void search() throws IOException, InterruptedException {
+        String ret=run("/scen/web/websearch.yaml");
         assertNull("Scenario should succeed",ret);
     }
 

@@ -5,11 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.rocktest.RockException;
+import io.rocktest.RocktestApplication;
 import io.rocktest.modules.annotations.RockWord;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.internal.WebElementToJsonConverter;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -22,16 +27,24 @@ public class Web extends RockModule {
     private WebDriver driver;
     private String newWindow=null;
     private Set<String> windows;
-
+    private Map<String,List<WebElement>> elements = new HashMap<>();
 
     // Update the new window, if necessary
     private void computeNewWindow() {
         Set<String> windowsNow=driver.getWindowHandles();
 
+        if(LOG.isDebugEnabled()) {
+            for (String windowHandle : windowsNow) {
+                LOG.debug("Existing window: {}", windowHandle);
+            }
+        }
+
+
         if(windows.size() != windowsNow.size()) {
 
             //Loop through until we find a new window handle
             for (String windowHandle : windowsNow) {
+
                 if(!windows.contains(windowHandle)) {
                     LOG.debug("New Window handle = {}",windowHandle);
                     this.newWindow=windowHandle;
@@ -43,7 +56,7 @@ public class Web extends RockModule {
         } else {
 
             // No new window created
-            newWindow = null;
+            //newWindow = null;
 
         }
 
@@ -54,14 +67,38 @@ public class Web extends RockModule {
         switch (browser) {
             case "firefox":
                 driver=new FirefoxDriver();
-                driver.manage().deleteAllCookies();
-                windows=driver.getWindowHandles();
+                break;
+            case "chrome":
+                ChromeOptions options = new ChromeOptions();
+                //options.addArguments("--headless");
+                driver=new ChromeDriver(options);
                 break;
             default:
                 fail("Browser "+browser+" not supported");
         }
 
+        driver.manage().deleteAllCookies();
+        windows=driver.getWindowHandles();
+
     }
+
+
+    @RockWord(keyword="web.hide")
+    public Map<String, Object> hide(Map<String, Object> params) {
+
+        driver.manage().window().maximize();
+        driver.manage().window().setPosition(new Point(0, -2000));
+        return null;
+    }
+
+    @RockWord(keyword="web.show")
+    public Map<String, Object> show(Map<String, Object> params) {
+
+        driver.manage().window().maximize();
+        driver.manage().window().setPosition(new Point(0, 0));
+        return null;
+    }
+
 
     @RockWord(keyword="web.get")
     public Map<String, Object> get(Map<String, Object> params) {
@@ -115,6 +152,8 @@ public class Web extends RockModule {
     public Map<String, Object> newWindow(Map<String, Object> params) {
 
         Map<String,Object> ret=new HashMap<>();
+
+        computeNewWindow();
 
         if(newWindow != null)
             ret.put("result",newWindow);
@@ -306,6 +345,73 @@ public class Web extends RockModule {
     }
 
 
+    @RockWord(keyword="web.search.text")
+    public Map<String, Object> searchText(Map<String, Object> params) {
+
+        Map<String,Object> ret = new HashMap<>();
+
+        String list=getStringParam(params,"list","default");
+        Integer pos=getIntParam(params,"order",null);
+
+        List<WebElement> l=elements.get(list);
+
+        if(l == null) {
+            LOG.info("No list {} found",list);
+            return null;
+        }
+
+        if(pos != null) {
+            WebElement elt = l.get(pos);
+            ret.put("result",elt.getText());
+        } else {
+
+            StringBuilder sb=new StringBuilder();
+
+            sb.append("[");
+
+            for (WebElement elt:l) {
+                sb.append("\"");
+                sb.append(elt.getText());
+                sb.append("\",");
+            }
+
+            // Remove extra ","
+            sb.setLength(sb.length() - 1);
+            sb.append("]");
+
+            ret.put("result",sb.toString());
+
+        }
+
+        return ret;
+
+    }
+
+
+
+
+    @RockWord(keyword="web.search")
+    public Map<String, Object> search(Map<String, Object> params) {
+
+        Map<String,Object> ret = new HashMap<>();
+
+        String list=getStringParam(params,"list","default");
+
+        try {
+
+            List<WebElement> elts = getElements(params);
+            elements.put(list,elts);
+            LOG.info("{} elements stored in list {}",elts.size(),list);
+
+        } catch(RockException e) {
+            LOG.info("No elements found for {}",params.toString());
+        }
+
+        return ret;
+
+    }
+
+
     @RockWord(keyword="web.submit")
     public Map<String, Object> submit(Map<String, Object> params) {
 
@@ -346,6 +452,27 @@ public class Web extends RockModule {
         }
     }
 
+
+    private List<WebElement> getElements(Map<String, Object> params) {
+
+        Map<String, Object> paramsFrom=(Map<String, Object>)params.get("from");
+
+        if(paramsFrom != null) {
+
+            WebElement from = getElement(paramsFrom);
+            By by = by(params);
+            return from.findElements(by);
+
+        } else {
+
+            By by = by(params);
+            wait(params, by);
+            return driver.findElements(by);
+
+        }
+    }
+
+
     @RockWord(keyword="web.clear")
     public Map<String, Object> clear(Map<String, Object> params) {
 
@@ -359,8 +486,13 @@ public class Web extends RockModule {
         Integer wait = getIntParam(params,"wait",10);
         if(wait > 0) {
             LOG.debug("Wait for element to be present");
-            new WebDriverWait(driver, wait)
-                    .until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
+
+            try {
+                new WebDriverWait(driver, wait)
+                        .until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
+            } catch(TimeoutException e) {
+                throw new RockException("Element not present: "+by.toString(),e);
+            }
         }
     }
 
@@ -371,7 +503,17 @@ public class Web extends RockModule {
         Map<String,Object> ret=new HashMap<>();
 
         By by=by(params);
-        wait(params,by);
+
+        try {
+            wait(params, by);
+        } catch(RockException e) {
+            if(e.getCause() != null && e.getCause() instanceof TimeoutException) {
+                ret.put("result",0);
+                return ret;
+            } else {
+                throw e;
+            }
+        }
 
         List<WebElement> l = driver.findElements(by);
 
@@ -395,10 +537,17 @@ public class Web extends RockModule {
                 .until(ExpectedConditions.elementToBeClickable(elt));
         elt.click();
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+
         computeNewWindow();
 
-        if(newWindow != null && sw)
+        if(newWindow != null && sw) {
+            LOG.debug("Switching to new window {}",newWindow);
             driver.switchTo().window(newWindow);
+        }
 
         return ret;
     }
