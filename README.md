@@ -2,7 +2,28 @@
 
 ![rocktest.png](rocktest.png)
 
-## Rock with _Katakoda_ !
+## What is it ?
+
+RockTest allows you to write test scenarios, using a simple and well known YAML syntax.
+
+Tests are divided into steps, which are YAML blocks.
+
+Example :
+
+````yaml
+- display: This is RockTest
+- sql.request:
+  params:
+    request: select * from rock
+````
+
+This scenario has 2 steps :
+- A display to print a message
+- A sql.request to execute a SQL request
+
+Many modules are available (HTTP clients and server, SQL, Web automation with Selenium, Assertions...)
+
+## Interested ? Rock with _Katakoda_ !
 
 See it live on Katakoda : https://www.katakoda.com/rocktest
 
