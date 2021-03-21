@@ -1,0 +1,6 @@
+- web.get:
+  params:
+    url: http://www.google.com
+    browser: firefox
+    browserOptions:
+    - --headless

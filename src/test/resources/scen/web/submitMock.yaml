@@ -1,0 +1,55 @@
+- step: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: text/html
+    when:
+      - uri: /page
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <body>
+                <form action="/submit">
+                  <label for="fname">First name:</label><br>
+                  <input type="text" id="fname" name="fname" value="Rock"><br>
+                  <label for="lname">Last name:</label><br>
+                  <input type="text" id="lname" name="lname" value="Test"><br><br>
+                  <input type="submit" value="Submit">
+                </form>
+              </body>
+            </html>
+      - uri: /submit\?fname=(.*)&lname=(.*)
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <span>Hello ${1} ${2}</span>
+            </html>
+
+
+#### web.submit ####
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/page'
+
+- web.submit:
+  params:
+    by.tag: input
+    order: 3
+
+#### web.text ####
+
+- web.text:
+  params:
+    by.tag: span
+
+- display:  Value=${text.result}
+
+- assert.equals:
+  params:
+    expected: Hello Rock Test
+    actual: ${text.result}

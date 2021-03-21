@@ -27,6 +27,8 @@ Many modules are available (HTTP clients and server, SQL, Web automation with Se
 
 See it live on Katakoda : https://www.katakoda.com/rocktest
 
+Read the full documentation : https://rockintest.github.io/rocktest/
+
 ## Getting started with Docker
 
 You can use Rocker, the packaged Docker image of RockTest.

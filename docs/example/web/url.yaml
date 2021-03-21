@@ -1,0 +1,8 @@
+- web.get:
+  params:
+    url: http://www.google.com
+
+- display: ${$web.url()}
+
+- web.title:
+- display: ${url.result}

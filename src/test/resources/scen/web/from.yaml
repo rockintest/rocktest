@@ -1,0 +1,56 @@
+- step: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: text/html
+    when:
+      - uri: /from
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <h1>Test</h1>
+              <table>
+                <tr>
+                  <td>L1C1</td>
+                  <td>L1C2</td>
+                  <td>L1C3</td>
+                </tr>
+                <tr>
+                  <td>L2C1</td>
+                  <td>L2C2</td>
+                  <td>L2C3</td>
+                </tr>
+                <tr>
+                  <td>L3C1</td>
+                  <td>L3C2</td>
+                  <td>L3C3</td>
+                </tr>
+                <tr>
+                  <td>L4C1</td>
+                  <td>L4C2</td>
+                  <td>L4C3</td>
+                </tr>
+              </table>
+            </html>
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/from'
+
+- web.text:
+  params:
+    by.tag: td
+    order: 2
+    from:
+      by.tag: tr
+      order: 3
+      from:
+        by.tag: table
+
+- assert.equals:
+  params:
+    expected: L3C2
+    actual: ${text.result}
+

@@ -1,0 +1,53 @@
+- web.get:
+  params:
+    url: https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_win_open
+
+# Displays the current window handle
+- display: ${$web.window()}
+
+# A popup appears to accept the cookies, click accept
+- web.click:
+  params:
+    by.id: accept-choices
+
+# Switch to the frame on the right side
+- --web.switch:
+  params:
+    frame:
+      id: iframeResult
+
+- --web.switch:
+  params:
+    frame:
+      name: iframeResult
+
+- web.switch:
+  params:
+    frame:
+      index: 0
+
+- --web.switch:
+  params:
+    by.tag: iframe
+
+# Click the button which opens a new window
+- web.click:
+  params:
+    by.content: Try it
+
+- var: w=${$web.newwindow()}
+
+# Display the new window handle
+- display: ${w}
+
+- web.switch:
+  params:
+    window: ${w}
+
+- web.count:
+  params:
+    by.content: LARGEST WEB DEVELOPER SITE
+
+- display: ${count.result}
+
+- pause: 5
