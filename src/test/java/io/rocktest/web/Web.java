@@ -56,4 +56,34 @@ public class Web extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void selectorMock() throws IOException, InterruptedException {
+        String ret=run("/scen/web/selectorMock.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void submitMock() throws IOException, InterruptedException {
+        String ret=run("/scen/web/submitMock.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void sendKeys() throws IOException, InterruptedException {
+        String ret=run("/scen/web/sendKeys.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void count() throws IOException, InterruptedException {
+        String ret=run("/scen/web/count.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
+    @Test
+    public void click() throws IOException, InterruptedException {
+        String ret=run("/scen/web/click.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
 }

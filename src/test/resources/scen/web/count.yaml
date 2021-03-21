@@ -1,0 +1,57 @@
+- step: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: text/html
+    when:
+      - uri: /count
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <h1>Test</h1>
+              <table id="t1">
+                <tr>
+                  <td>L1C1</td>
+                  <td>L1C2</td>
+                  <td>L1C3</td>
+                </tr>
+              </table>
+              <table id="t2">
+                <tr>
+                  <td>L1C1</td>
+                  <td>L1C2</td>
+                  <td>L1C3</td>
+                </tr>
+                <tr>
+                  <td>L2C1</td>
+                  <td>L2C2</td>
+                  <td>L2C3</td>
+                </tr>
+              </table>
+            </html>
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/count'
+
+- web.count:
+  params:
+    by.tag: td
+
+- assert.equals:
+  params:
+    expected: 9
+    actual: ${count.result}
+
+- web.count:
+  params:
+    by.tag: tr
+    from:
+      by.id: t1
+
+- assert.equals:
+  params:
+    expected: 1
+    actual: ${count.result}

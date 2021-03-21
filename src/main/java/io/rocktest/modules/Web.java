@@ -14,6 +14,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.internal.WebElementToJsonConverter;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -66,11 +67,21 @@ public class Web extends RockModule {
 
         switch (browser) {
             case "firefox":
-                driver=new FirefoxDriver();
+                FirefoxOptions ffoptions = new FirefoxOptions();
+
+                if(browserOptions != null) {
+                    ffoptions.addArguments(browserOptions);
+                }
+
+                driver=new FirefoxDriver(ffoptions);
                 break;
             case "chrome":
                 ChromeOptions options = new ChromeOptions();
-                //options.addArguments("--headless");
+
+                if(browserOptions != null) {
+                    options.addArguments(browserOptions);
+                }
+
                 driver=new ChromeDriver(options);
                 break;
             default:
@@ -188,7 +199,7 @@ public class Web extends RockModule {
             }
 
             String name=getStringParam(frameParams,"name",null);
-            if(id!=null) {
+            if(name!=null) {
                 driver.switchTo().frame(name);
                 return null;
             }
@@ -515,7 +526,7 @@ public class Web extends RockModule {
             }
         }
 
-        List<WebElement> l = driver.findElements(by);
+        List<WebElement> l = getElements(params); //driver.findElements(by);
 
         ret.put("result",l.size());
 

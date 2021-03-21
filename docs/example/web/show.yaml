@@ -1,0 +1,8 @@
+- web.get:
+  params:
+    url: http://www.google.com
+- pause: 2
+- web.hide:
+- pause: 2
+- web.show:
+- pause: 2

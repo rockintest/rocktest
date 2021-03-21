@@ -1,0 +1,40 @@
+- step: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: text/html
+    when:
+      - uri: /click
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+            <body>
+              <button onclick="myFunction()">Click me if you rock !</button>
+              <p id="rock"></p>
+
+              <script>
+                function myFunction() {
+                document.getElementById("rock").innerHTML = "RockTest";
+              }
+              </script>
+            </body>
+            </html>
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/click'
+
+- web.click:
+  params:
+    by.tag: button
+
+- web.text:
+  params:
+    by.id: rock
+
+- assert.equals:
+  params:
+    expected: RockTest
+    actual: ${text.result}

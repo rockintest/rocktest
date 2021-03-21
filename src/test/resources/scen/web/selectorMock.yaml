@@ -1,0 +1,114 @@
+- step: http.mock
+  params:
+    port: 8080
+    headers:
+      content-type: text/html
+    when:
+      - uri: /attribute
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <h1 name="title" customAttribute="customValue">Test</h1>
+            </html>
+      - uri: /css
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <h1 style="font-size:12px">Test</h1>
+            </html>
+      - uri: /tag
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <h1 id="myh1">Test</h1>
+            </html>
+      - uri: /text
+        method: get
+        response:
+          code: 200
+          body: >-
+            <html>
+              <div id="myh1">
+                <h1>Title</h1>
+                <h2>Subtitle</h2>
+              </div>
+            </html>
+
+#### web.attribute ####
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/attribute'
+
+- web.attribute:
+  params:
+    by.tag: h1
+    name: customAttribute
+
+- display: attribute value=${attribute.result}
+
+- assert.equals:
+  params:
+    expected: customValue
+    actual: ${attribute.result}
+
+#### web.css ####
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/css'
+
+- web.css:
+  params:
+    by.tag: h1
+    name: font-size
+
+- display: css value=${css.result}
+
+- assert.equals:
+  params:
+    expected: 12px
+    actual: ${css.result}
+
+#### web.tag ####
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/tag'
+
+- web.tag:
+  params:
+    by.id: myh1
+
+- display: tag value=${tag.result}
+
+- assert.equals:
+  params:
+    expected: h1
+    actual: ${tag.result}
+
+#### web.text ####
+
+- web.get:
+  params:
+    url: 'http://localhost:8080/text'
+
+- web.text:
+  params:
+    by.id: myh1
+
+- display: text value=${text.result}
+
+- assert.equals:
+  params:
+    expected: |-
+      Title
+      Subtitle
+    actual: ${text.result}
+
