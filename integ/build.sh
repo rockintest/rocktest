@@ -7,11 +7,8 @@ mvn clean package
 
 cd "$TOP"
 
-cp -r ../sh .
-cp -r ../target/*.jar rocktest.jar
+cp ../target/rocktest-bin.tar.gz .
 
 docker build -t rocktest .
 
-rm -rf sh
-rm rocktest.jar
-
+rm rocktest-bin.tar.gz

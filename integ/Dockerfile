@@ -1,10 +1,9 @@
 FROM adoptopenjdk:11
 ENV ROCK=/rock
 
-RUN mkdir -p /rock/sh && mkdir -p /rock/target
+COPY rocktest-bin.tar.gz /rocktest-bin.tar.gz
 
-COPY sh/rocktest /rock/sh/rocktest
-COPY rocktest.jar /rock/target/rocktest.jar
+RUN tar xzvf /rocktest-bin.tar.gz && mv /rocktest-bin /rock
 
 VOLUME /scen
 WORKDIR /scen
