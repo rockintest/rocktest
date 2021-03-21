@@ -26,6 +26,8 @@ Many modules are available (HTTP clients and server, SQL, Web automation with Se
 
 [![asciicast](https://asciinema.org/a/XtHfzAriVocP4wS0JVzpcIibI.svg)](https://asciinema.org/a/XtHfzAriVocP4wS0JVzpcIibI)
 
+[rock](rocktest.svg)
+
 ## Interested ? Rock with _Katakoda_ !
 
 See it live on Katakoda : https://www.katakoda.com/rocktest
