@@ -24,6 +24,8 @@ This scenario has 2 steps :
 
 Many modules are available (HTTP clients and server, SQL, Web automation with Selenium, Assertions...)
 
+[![asciicast](https://asciinema.org/a/XtHfzAriVocP4wS0JVzpcIibI.svg)](https://asciinema.org/a/XtHfzAriVocP4wS0JVzpcIibI)
+
 ## Interested ? Rock with _Katakoda_ !
 
 See it live on Katakoda : https://www.katakoda.com/rocktest
@@ -37,7 +39,7 @@ You can use Rocker, the packaged Docker image of RockTest.
 To run a scenario, do the following commands (suppose $SCEN is the directory where your senarios are)
 
     $ cd $SCEN
-    $ docker run -it --rm -v $PWD:/scen rockintest/rocktest scenario.yaml
+    $ docker run --rm -v $PWD:/scen rockintest/rocktest scenario.yaml
 
 *Example*:
 
@@ -45,7 +47,7 @@ To execute a simple scenario :
 
     $ git clone https://github.com/rockintest/rocktest.git
     $ cd rocktest/docs/example/core
-    $ docker run -it --rm -v $PWD:/scen rockintest/rocktest display.yaml
+    $ docker run --rm -v $PWD:/scen rockintest/rocktest display.yaml
 
 ## Getting started without Docker
 
