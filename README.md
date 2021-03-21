@@ -24,9 +24,7 @@ This scenario has 2 steps :
 
 Many modules are available (HTTP clients and server, SQL, Web automation with Selenium, Assertions...)
 
-[![asciicast](https://asciinema.org/a/XtHfzAriVocP4wS0JVzpcIibI.svg)](https://asciinema.org/a/XtHfzAriVocP4wS0JVzpcIibI)
-
-[rock](rocktest.svg)
+![rock](rocktest.svg)
 
 ## Interested ? Rock with _Katakoda_ !
 
