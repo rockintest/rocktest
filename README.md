@@ -41,6 +41,14 @@ To run a scenario, do the following commands (suppose $SCEN is the directory whe
     $ cd $SCEN
     $ docker run --rm -v $PWD:/scen rockintest/rocktest scenario.yaml
 
+If you use Docker on Windows with cmd.exe :
+
+    C:\rocktest\scen> docker run --rm -v %cd%:/scen rockintest/rocktest scenario.yaml
+
+Or if you prefer powershell :
+
+    PC C:\rocktest\scen> docker run --rm -v $pwd:/scen rockintest/rocktest scenario.yaml
+
 *Example*:
 
 To execute a simple scenario :
