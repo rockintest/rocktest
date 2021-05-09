@@ -111,7 +111,18 @@ public class Scenario {
     @Value("${default.datasource.password}")
     private String datasourcePassword;
 
-    private String getStack() {
+    // A sub context, just for info (used for Gherkin scenarios)
+    private String subContext=null;
+
+    public void pushStack(String s) {
+        stack.add(s);
+    }
+
+    public void popStack() {
+        stack.remove(stack.size()-1);
+    }
+
+    public String getStackDesc() {
 
         StringBuilder b = new StringBuilder();
 
@@ -123,6 +134,10 @@ public class Scenario {
                 b.append("/");
 
             b.append(curr);
+        }
+        if(subContext!=null) {
+            b.append("/");
+            b.append(subContext);
         }
         return b.toString();
     }
@@ -735,6 +750,12 @@ public class Scenario {
     }
 
 
+
+    public void run(List<Map> steps) throws NoSuchMethodException, InterruptedException, IOException, InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+        run(steps,dir,context,stack,glob);
+    }
+
+
     public void run(List<Map> steps, String dir,Map<String, Map<String, Object>> context, List stack,Map<String,Object> glob) throws IOException, InterruptedException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         this.context = context;
@@ -779,9 +800,9 @@ public class Scenario {
                 String currentValue;
                 String valueDetail;
 
-                MDC.put("stack", getStack());
+                MDC.put("stack", getStackDesc());
                 MDC.put("step", "" + (i + 1));
-                MDC.put("position", "[" + getStack() + "] Step#" + (i + 1));
+                MDC.put("position", "[" + getStackDesc() + "] Step#" + (i + 1));
 
                 // Set builtin var "step"
                 getLocalContext().put("step", currentStep);

@@ -1232,17 +1232,76 @@ This scenario clicks on the button and verifies that the \<p> has been correctly
 
 - web.click:
   params:
-  by.tag: button
+    by.tag: button
 
 - web.text:
   params:
-  by.id: rock
+    by.id: rock
 
 - assert.equals:
   params:
-  expected: RockTest
-  actual: ${text.result}
+    expected: RockTest
+    actual: ${text.result}
 ````
+
+
+### *web.move* : moves the window to an element
+
+---
+
+##### Parameters
+
+|   Name         | Usage                                    | Type      | Optional | Default value           |
+| -------------- | ---------------------------------------- | ----------|----------|-------------------------|
+| by.* + from    | [Selector](#selector) for the element    | selector  | No       |                         |
+| xOffset        | X offset                                 | int       | Yes      | 0                       |
+| yOffset        | Y offset                                 | int       | Yes      | 0                       |
+
+
+##### Output
+
+None.
+
+##### Example
+
+There is the HTML document :
+
+````html
+<html>
+<body>
+  <button onmouseover="myFunction()">Move to me if you rock !</button>
+  <p id="rock"></p>
+
+  <script>
+    function myFunction() {
+    document.getElementById("rock").innerHTML = "RockTest";
+  }
+  </script>
+</body>
+</html>
+````
+
+This scenario puts the mouse on the button and verifies that the \<p> has been correctly updated:
+
+````yaml
+- web.get:
+  params:
+  url: 'http://localhost:8080/move'
+
+- web.move:
+  params:
+    by.tag: button
+
+- web.text:
+  params:
+    by.id: rock
+
+- assert.equals:
+  params:
+    expected: RockTest
+    actual: ${text.result}
+````
+
 
 
 ### *web.quit* : terminates the session

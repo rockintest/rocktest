@@ -7,8 +7,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * If set on a module's method, RockTest will not expand the parameters.
- * It is up to the method to expand the parameters itself
+ * If set on a module's method, RockTest will use it as a module
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

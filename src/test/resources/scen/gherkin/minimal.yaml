@@ -1,0 +1,12 @@
+- gherkin:
+  params:
+    feature: features/minimal.feature
+    given:
+      - expr: the minimalism
+        steps:
+          - display: Minimal precondition ${gherkin.feature}
+          - display: Feature ${gherkin.feature}
+          - display: Line ${gherkin.line}
+          - display: Scenario ${gherkin.scenario}
+
+

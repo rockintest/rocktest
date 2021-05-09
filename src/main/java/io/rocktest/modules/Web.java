@@ -15,6 +15,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.internal.WebElementToJsonConverter;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -29,6 +30,7 @@ public class Web extends RockModule {
     private String newWindow=null;
     private Set<String> windows;
     private Map<String,List<WebElement>> elements = new HashMap<>();
+    private Actions actions=null;
 
     // Update the new window, if necessary
     private void computeNewWindow() {
@@ -89,6 +91,7 @@ public class Web extends RockModule {
         }
 
         driver.manage().deleteAllCookies();
+        actions = new Actions(driver);
         windows=driver.getWindowHandles();
 
     }
@@ -507,6 +510,18 @@ public class Web extends RockModule {
         }
     }
 
+    @RockWord(keyword="web.move")
+    public Map<String, Object> move(Map<String, Object> params) {
+
+        int x=getIntParam(params,"xOffset",0);
+        int y=getIntParam(params,"yOffset",0);
+
+        WebElement elt = getElement(params);
+
+        actions.moveToElement(elt,x,y).perform();
+
+        return null;
+    }
 
     @RockWord(keyword="web.count")
     public Map<String, Object> count(Map<String, Object> params) {

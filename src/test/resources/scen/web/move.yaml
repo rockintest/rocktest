@@ -1,0 +1,9 @@
+- web.get:
+  params:
+    url: https://www.atos.net/en
+
+- web.move:
+  params:
+    by.linktext: English
+
+- pause: 20

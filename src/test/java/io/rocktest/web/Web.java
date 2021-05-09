@@ -86,4 +86,10 @@ public class Web extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void move() throws IOException, InterruptedException {
+        String ret=run("/scen/web/move.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
 }

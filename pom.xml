@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>io.rocktest</groupId>
 	<artifactId>rocktest</artifactId>
-	<version>1.0.7</version>
+	<version>1.0.8</version>
 	<name>rocktest</name>
 	<description>Test automation that rocks</description>
 
@@ -153,6 +153,18 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.11.0</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>6.10.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>messages</artifactId>
+			<version>15.0.0</version>
 		</dependency>
 
 		<!-- Test dependencies -->
