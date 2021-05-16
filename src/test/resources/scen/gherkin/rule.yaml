@@ -1,0 +1,40 @@
+- display: Run Gherkin test
+
+- var: count = A
+
+- gherkin: features/rule.feature
+  params:
+    given:
+      - text: a variable (.*)
+        steps:
+          - display: Count ${count}
+          - var: varname=${gherkin.1}
+          - step: var
+            value: count = ${count}A
+          - display: Count=${count}
+
+      - text: its value is (.*)
+        steps:
+          - var: ${varname}=${gherkin.1}
+
+    when:
+      - text: its value is (.*)
+        steps:
+          - var: ${varname}=${gherkin.1}
+      - text: I concatenate (.*) to (.*)
+        steps:
+          - var: ${gherkin.2}=${${gherkin.2}}${gherkin.1}
+
+    then:
+      - text: its value should be (.*)
+        steps:
+          - display: ${varname} -> ${${varname}}
+          - assert.equals:
+            params:
+              expected: ${gherkin.1}
+              actual: ${${varname}}
+
+- assert.equals:
+  params:
+    expected: AAAAA
+    actual: ${count}

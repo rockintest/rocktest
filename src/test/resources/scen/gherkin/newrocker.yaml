@@ -1,30 +1,28 @@
 - display: Run Gherkin test
-- gherkin:
+- gherkin: features/newrocker.feature
   params:
-    feature: features/newrocker.feature
     given:
-      - expr: a username (.*)
+      - text: a username (.*)
         steps:
           - var: username=${gherkin.1}
           - display: The username is ${username}
-      - expr: it does not exist
+      - text: it does not exist
         steps:
           - display: The rocker ${username} does not exist
           - display: Remove it if it exists
     when:
-      - expr: I add this rocker
+      - text: I add this rocker
         steps:
           - display: I add the rocker ${username} using the API
           - display: I put the return code and the body in a variable for further assertions
           - var: ret=200
     then:
-      - expr: the API returns a success
+      - text: the API returns a success
         steps:
           - step: assert.equals
             params:
               expected: 200
               actual: ${ret}
-      - expr: the rocker is actually created
+      - text: the rocker is actually created
         steps:
           - display: Read in the database that the rocker ${username} now exists
-

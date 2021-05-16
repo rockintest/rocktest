@@ -1,0 +1,28 @@
+- display: Run Gherkin test
+- gherkin: features/scen.feature
+  params:
+    expr:
+      - text: a variable (.*)
+        keyword: given
+        steps:
+          - var: varname=${gherkin.1}
+      - text: its value is (.*)
+        keyword:
+          - given
+          - when
+        steps:
+          - var: ${varname}=${gherkin.1}
+
+      - text: I concatenate (.*) to (.*)
+        keyword: when
+        steps:
+          - var: ${gherkin.2}=${${gherkin.2}}${gherkin.1}
+
+    then:
+      - text: its value should be (.*)
+        steps:
+          - display: ${varname} -> ${${varname}}
+          - assert.equals:
+            params:
+              expected: ${gherkin.1}
+              actual: ${${varname}}

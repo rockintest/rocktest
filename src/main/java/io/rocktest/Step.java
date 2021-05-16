@@ -75,12 +75,15 @@ public class Step {
                     value = asString(entry.getValue());
 
                     if (value != null) {
-                        Pattern p = Pattern.compile("^ *([^ ]*) *= *(.*)$");
-                        Matcher matcher = p.matcher(value);
 
-                        if (matcher.matches()) {
-                            name = matcher.group(1);
-                            value = matcher.group(2);
+                        if(type.equals("var") || type.equals("return")) {
+                            Pattern p = Pattern.compile("^ *([^ ]*) *= *(.*)$");
+                            Matcher matcher = p.matcher(value);
+
+                            if (matcher.matches()) {
+                                name = matcher.group(1);
+                                value = matcher.group(2);
+                            }
                         }
                     }
                 }
@@ -123,11 +126,15 @@ public class Step {
         desc=asString(m.get("desc"));
         body=asString(m.get("body"));
 
-        if(m.get("params") instanceof String) {
-            throw new RockException("\"params\" nust be a map, but is a String. Did you forget the space after the \":\" in the entries ?");
+        if (m.get("params") instanceof String) {
+           throw new RockException("\"params\" nust be a map, but is a String. Did you forget the space after the \":\" in the entries ?");
         }
 
-        params=(Map)m.get("params");
+        params = (Map) m.get("params");
+
+        if(params==null) {
+            params = new HashMap<String,Object>();
+        }
     }
 
 

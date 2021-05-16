@@ -1,0 +1,44 @@
+- var: called=C
+- var: init=I
+
+- gherkin: features/backgound.feature
+  params:
+    expr:
+      - text: a given predicate
+        steps:
+          - var: called=${called}G
+          - assert.equals:
+            params:
+              expected: INIT
+              actual: ${initVar}
+
+      - text: a when predicate
+        steps:
+          - var: called=${called}W
+          - assert.equals:
+            params:
+              expected: INIT
+              actual: ${initVar}
+
+      - text: a then predicate
+        steps:
+          - var: called=${called}T
+          - assert.equals:
+            params:
+              expected: INIT
+              actual: ${initVar}
+
+      - text: an init step
+        steps:
+          - var: init=${init}I
+          - var: initVar=INIT
+
+- assert.equals:
+  params:
+    expected: CGWTGWT
+    actual: ${called}
+
+- assert.equals:
+  params:
+    expected: III
+    actual: ${init}

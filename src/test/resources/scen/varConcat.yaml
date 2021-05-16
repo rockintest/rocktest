@@ -1,0 +1,8 @@
+- var: myvar = myvalue
+
+- var: myvar = ${myvar}myvalue
+
+- assert.equals:
+  params:
+    expected: myvaluemyvalue
+    actual: ${myvar}

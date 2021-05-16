@@ -1,0 +1,18 @@
+- var: in=A
+- gherkin: features/french.feature
+  params:
+    expr:
+      - text: le minimum
+        steps:
+          - var: in=${in}G
+      - text: je fais le minimum
+        steps:
+          - var: in=${in}W
+      - text: tout va bien
+        steps:
+          - var: in=${in}T
+
+- assert.equals:
+  params:
+    expected: AGWT
+    actual: ${in}

@@ -1,0 +1,94 @@
+- var: called=A
+- gherkin: features/expr.feature
+  desc: expressions in its category
+  params:
+    given:
+      - text: a given predicate
+        steps:
+          - var: called=${called}G
+    when:
+      - text: a when predicate
+        steps:
+          - var: called=${called}W
+    then:
+      - text: a then predicate
+        steps:
+          - var: called=${called}T
+      - text: all are called
+        steps:
+          - assert.equals:
+            params:
+              expected: AGWT
+              actual: ${called}
+
+- assert.equals:
+  params:
+    expected: AGWT
+    actual: ${called}
+
+
+- var: called=B
+- gherkin: features/expr.feature
+  desc: expressions in the generic category
+  params:
+    expr:
+      - text: a given predicate
+        keyword: given
+        steps:
+          - var: called=${called}G
+
+      - text: a when predicate
+        keyword:
+          - given
+          - when
+          - then
+        steps:
+          - var: called=${called}W
+
+      - text: a then predicate
+        keyword:
+          - then
+        steps:
+          - var: called=${called}T
+
+      - text: all are called
+        steps:
+          - assert.equals:
+            params:
+              expected: BGWT
+              actual: ${called}
+
+- assert.equals:
+  params:
+    expected: BGWT
+    actual: ${called}
+
+
+- var: called=C
+- gherkin: features/expr.feature
+  desc: expressions in the generic category, without giving the keyword
+  params:
+    expr:
+      - text: a given predicate
+        steps:
+          - var: called=${called}G
+
+      - text: a when predicate
+        steps:
+          - var: called=${called}W
+
+      - text: a then predicate
+        steps:
+          - var: called=${called}T
+
+      - text: all are called
+        steps:
+          - assert.equals:
+            params:
+              expected: CGWT
+              actual: ${called}
+
+- assert.equals:
+  params:
+    expected: CGWT
+    actual: ${called}

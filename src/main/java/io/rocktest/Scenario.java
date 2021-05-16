@@ -883,6 +883,12 @@ public class Scenario {
 
                         String method=info.getClassName()+"."+info.getMethod();
 
+                        if(step.getParams()==null) {
+
+                        }
+
+                        step.getParams().put("rock.value",step.getValue());
+
                         exec(method, step.getParams());
                 }
 

@@ -39,4 +39,10 @@ public class Var extends RockTest {
         assertNull("Scenario should succeed",ret);
     }
 
+    @Test
+    public void varConcat() throws IOException, InterruptedException {
+        String ret=run("/scen/varConcat.yaml");
+        assertNull("Scenario should succeed",ret);
+    }
+
 }

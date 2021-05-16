@@ -1,12 +1,14 @@
 Feature: Add a new user
 
-  Scenario: Add a non existing rocker
+  Rule: Rocker management
 
-    Given a username newRocker
-    And it does not exist
+    Scenario: Add a new rocker
 
-    When I add this rocker
+      Given a username newRocker
+      And it does not exist
 
-    Then the API returns a success
-    And the rocker is actually created
+      When I add this rocker
+
+      Then the API returns a success
+      And the rocker is actually created
 
