@@ -52,7 +52,7 @@
   desc: Clicking the Heroes button
   params:
     by.linktext : Heroes
-    wait : 60
+    wait : 120
 
 # This click does not open a new window.
 
@@ -74,7 +74,7 @@
 - assert.equals:
   desc: Check get css property
   params:
-    expected: rgb(255, 0, 0)
+    expected: rgb(168, 0, 0)
     actual: ${css.result}
 
 - display: Send keys to the INPUT element
@@ -101,6 +101,11 @@
   desc: Deleting the first entry
   params:
     by.class: delete
+
+- step: web.clear
+  desc: Clearing the INPUT element
+  params:
+    by.tag: input
 
 - step: pause
   desc: Finished

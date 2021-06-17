@@ -58,3 +58,7 @@
 - web.submit:
   params:
     by.name: q
+
+- web.click:
+  params:
+    by.linktext: rockintest/rocktest
