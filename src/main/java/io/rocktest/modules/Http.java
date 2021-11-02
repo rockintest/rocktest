@@ -25,6 +25,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
@@ -583,6 +584,28 @@ public class Http extends RockModule {
 
     }
 
+    private HttpResp httpPatch(String url, String body, Map<String,Object> headers) throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+
+        HttpPatch httpPatch = new HttpPatch(url);
+
+        if(headers!=null) {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                httpPatch.setHeader(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+
+        if(body!=null) {
+            StringEntity entity = new StringEntity(body, "UTF-8");
+            httpPatch.setEntity(entity);
+        }
+
+         logBody("patch",body,url,headers);
+
+        return httpRequest(httpPatch);
+
+    }
+
     private HttpResp httpPut(String url, String body,Map<String,Object> headers) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
 
@@ -661,6 +684,7 @@ public class Http extends RockModule {
 
     // Functions exposed as modules
 
+
     @RockWord(keyword="http.get")
     public Map<String, Object> get(Map<String, Object> params) throws IOException {
 
@@ -711,6 +735,26 @@ public class Http extends RockModule {
         HashMap<String, Object> ret = new HashMap<>();
 
         HttpResp resp = httpPost(url, body,headers);
+        check(params,resp);
+
+        ret.put("code", resp.getCode());
+        ret.put("body", resp.getBody());
+
+        return ret;
+    }
+
+    @RockWord(keyword="http.patch")
+    public Map<String, Object> patch(Map<String, Object> params) throws IOException {
+
+        String url = getStringParam(params, "url");
+        String body = getStringParam(params, "body", null);
+        Map<String,Object> headers = getMapParam(params,"headers",null);
+
+        LOG.info("Patch {}", url);
+
+        HashMap<String, Object> ret = new HashMap<>();
+
+        HttpResp resp = httpPatch(url, body,headers);
         check(params,resp);
 
         ret.put("code", resp.getCode());
